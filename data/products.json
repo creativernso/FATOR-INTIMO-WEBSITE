@@ -1,6 +1,7 @@
 [
   {
     "id": "1",
+    "slug": "fator-atracao",
     "title": "Fator Atração",
     "hook": "O mapa psicológico que faz alguém pensar em você o tempo todo",
     "description": "Descubra os mecanismos neurológicos da atração e como ativá-los de forma autêntica. Não se trata de técnicas — é sobre entender como a mente funciona.",
@@ -10,14 +11,51 @@
     "checkoutUrl": "#",
     "featured": true,
     "category": "Atração",
-    "tags": [
-      "atração",
-      "psicologia",
-      "relacionamentos"
-    ]
+    "tags": ["atração", "psicologia", "relacionamentos"],
+    "benefits": [
+      "Entenda como a atração realmente funciona no cérebro",
+      "Ative gatilhos psicológicos de forma autêntica e não-manipuladora",
+      "Pare de tentar ser quem você não é para agradar outros",
+      "Construa uma presença magnética que perdura",
+      "Saiba exatamente o que comunica atração e o que a destrói"
+    ],
+    "whatYouLearn": [
+      "Os 4 mecanismos neurológicos da atração que a ciência comprovou",
+      "Como o apego ansioso sabota a atração antes mesmo de começar",
+      "A diferença entre atração superficial e atração profunda",
+      "Como criar tensão emocional de forma saudável e genuína",
+      "Os erros que pessoas inteligentes cometem e que apagam o interesse",
+      "Como manter a atração viva em relações de longo prazo"
+    ],
+    "forWho": [
+      "Pessoas que sentem que os outros perdem o interesse rapidamente",
+      "Quem quer construir conexões genuínas sem jogar jogos",
+      "Quem busca entender a psicologia por trás dos relacionamentos",
+      "Pessoas cansadas de conselhos superficiais que não funcionam"
+    ],
+    "faq": [
+      {
+        "question": "Este ebook ensina técnicas de manipulação?",
+        "answer": "Não. O Fator Atração é baseado em psicologia da atração genuína. Você aprende a ser autenticamente magnético — não a fingir ou manipular."
+      },
+      {
+        "question": "Em quanto tempo vejo resultados?",
+        "answer": "Muitos leitores relatam mudanças perceptíveis nas primeiras semanas de aplicação. A transformação real acontece quando você internaliza os conceitos, não apenas os aplica mecanicamente."
+      },
+      {
+        "question": "Funciona para relacionamentos já existentes?",
+        "answer": "Sim. Os princípios do Fator Atração são aplicáveis tanto para iniciar novas conexões quanto para renovar a atração em relacionamentos existentes."
+      },
+      {
+        "question": "Qual o formato do produto?",
+        "answer": "Ebook em PDF de alta qualidade, otimizado para leitura em qualquer dispositivo. Acesso imediato após o pagamento."
+      }
+    ],
+    "downloadUrl": ""
   },
   {
     "id": "2",
+    "slug": "codigo-da-intimidade",
     "title": "Código da Intimidade",
     "hook": "Como criar conexões profundas sem perder sua essência",
     "description": "Um guia completo sobre vulnerabilidade estratégica, comunicação não-violenta e os fundamentos de relacionamentos que realmente duram.",
@@ -27,26 +65,100 @@
     "checkoutUrl": "#",
     "featured": true,
     "category": "Intimidade",
-    "tags": [
-      "intimidade",
-      "comunicação",
-      "conexão"
-    ]
+    "tags": ["intimidade", "comunicação", "conexão"],
+    "benefits": [
+      "Crie conexões profundas sem depender de aprovação externa",
+      "Comunique-se de forma que o outro realmente escute",
+      "Saiba quando e como se abrir sem parecer carente",
+      "Construa intimidade emocional de forma progressiva e segura",
+      "Transforme conflitos em oportunidades de aproximação"
+    ],
+    "whatYouLearn": [
+      "O paradoxo da vulnerabilidade: por que se abrir aumenta sua força",
+      "As 3 barreiras invisíveis que impedem conexões profundas",
+      "Como comunicar necessidades sem parecer exigente ou fraco",
+      "O modelo de escuta ativa que transforma qualquer conversa",
+      "Como criar rituais de conexão que mantêm casais unidos",
+      "O mapa completo da intimidade emocional, intelectual e física"
+    ],
+    "forWho": [
+      "Pessoas que se sentem sozinhas mesmo estando em relacionamentos",
+      "Quem tem dificuldade de se abrir sem perder o controle emocional",
+      "Casais que querem aprofundar sua conexão",
+      "Quem quer aprender a se comunicar de forma mais eficaz e honesta"
+    ],
+    "faq": [
+      {
+        "question": "Funciona para relacionamentos de longo prazo?",
+        "answer": "Especialmente para eles. O Código da Intimidade foi desenvolvido com foco em criar e manter profundidade emocional ao longo do tempo."
+      },
+      {
+        "question": "Preciso de experiência prévia com psicologia?",
+        "answer": "Não. O conteúdo é escrito para ser acessível a qualquer pessoa, independente de conhecimento prévio em psicologia."
+      },
+      {
+        "question": "É diferente de outros guias de relacionamento?",
+        "answer": "Sim. A maioria dos guias foca em comportamentos externos. O Código da Intimidade trabalha os padrões internos que realmente determinam a qualidade das suas conexões."
+      },
+      {
+        "question": "Qual o formato e como recebo?",
+        "answer": "Ebook em PDF. Você recebe o link de download imediatamente após a confirmação do pagamento."
+      }
+    ],
+    "downloadUrl": ""
   },
   {
     "id": "3",
+    "slug": "blindagem-emocional",
     "title": "Blindagem Emocional",
     "hook": "Pare de se destruir por pessoas que não valem",
     "description": "Um programa de desintoxicação emocional. Aprenda a reconhecer relacionamentos tóxicos, recuperar seu valor próprio e construir limites saudáveis.",
     "price": 57,
+    "originalPrice": null,
     "coverImage": "https://images.unsplash.com/photo-1474631245212-32dc3c8310c6?w=600&q=80",
     "checkoutUrl": "#",
     "featured": false,
     "category": "Autoconhecimento",
-    "tags": [
-      "autoestima",
-      "limites",
-      "recuperação"
-    ]
+    "tags": ["autoestima", "limites", "recuperação"],
+    "benefits": [
+      "Identifique padrões tóxicos antes que causem mais dano",
+      "Reconstrua sua autoestima a partir de bases sólidas",
+      "Estabeleça limites sem culpa e sem agressividade",
+      "Processe emoções difíceis sem suprimi-las ou ser dominado por elas",
+      "Saia de ciclos destrutivos de forma definitiva"
+    ],
+    "whatYouLearn": [
+      "Como reconhecer os 7 sinais de um relacionamento que drena sua energia",
+      "O processo de desintoxicação emocional em 3 fases",
+      "Como reconstruir o valor próprio após relacionamentos destrutivos",
+      "A psicologia dos limites saudáveis e como implementá-los",
+      "Por que você continua voltando para quem te faz mal — e como parar",
+      "Como filtrar quem entra na sua vida antes de se envolver"
+    ],
+    "forWho": [
+      "Quem está saindo de um relacionamento difícil ou tóxico",
+      "Pessoas que se sentem esgotadas emocionalmente pelos outros",
+      "Quem tem dificuldade de estabelecer limites sem sentir culpa",
+      "Pessoas que repetem padrões destrutivos em diferentes relacionamentos"
+    ],
+    "faq": [
+      {
+        "question": "Preciso estar em um relacionamento tóxico para aproveitar o conteúdo?",
+        "answer": "Não. A Blindagem Emocional é útil tanto para quem está saindo de uma situação difícil quanto para quem quer prevenir padrões destrutivos no futuro."
+      },
+      {
+        "question": "Este material substitui acompanhamento terapêutico?",
+        "answer": "Não substitui, mas complementa. O conteúdo oferece ferramentas práticas de autoconhecimento que funcionam em paralelo com qualquer processo terapêutico."
+      },
+      {
+        "question": "É muito pesado emocionalmente de ler?",
+        "answer": "O material foi escrito com cuidado para ser direto sem ser traumatizante. Cada capítulo inclui exercícios práticos que transformam a reflexão em ação."
+      },
+      {
+        "question": "Como recebo após o pagamento?",
+        "answer": "O link de download é disponibilizado imediatamente após a confirmação do pagamento, direto na página de confirmação."
+      }
+    ],
+    "downloadUrl": ""
   }
 ]

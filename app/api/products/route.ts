@@ -9,8 +9,12 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const products = getProducts();
+  const slugify = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
   const newProduct = {
     id: uuid(),
+    slug: body.slug || slugify(body.title || uuid()),
     title: body.title || '',
     hook: body.hook || '',
     description: body.description || '',
@@ -21,6 +25,11 @@ export async function POST(req: NextRequest) {
     featured: Boolean(body.featured),
     category: body.category || 'Geral',
     tags: Array.isArray(body.tags) ? body.tags : [],
+    benefits: Array.isArray(body.benefits) ? body.benefits : [],
+    whatYouLearn: Array.isArray(body.whatYouLearn) ? body.whatYouLearn : [],
+    forWho: Array.isArray(body.forWho) ? body.forWho : [],
+    faq: Array.isArray(body.faq) ? body.faq : [],
+    downloadUrl: body.downloadUrl || '',
   };
   products.push(newProduct);
   saveProducts(products);

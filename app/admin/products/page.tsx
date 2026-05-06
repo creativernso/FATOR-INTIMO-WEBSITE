@@ -15,6 +15,10 @@ const emptyForm = {
   featured: false,
   category: 'Atração',
   tags: '',
+  downloadUrl: '',
+  benefits: '',
+  whatYouLearn: '',
+  forWho: '',
 };
 
 const categories = ['Atração', 'Intimidade', 'Autoconhecimento', 'Comunicação', 'Relacionamentos'];
@@ -53,6 +57,10 @@ export default function AdminProducts() {
       featured: product.featured,
       category: product.category,
       tags: product.tags.join(', '),
+      downloadUrl: product.downloadUrl || '',
+      benefits: (product.benefits || []).join('\n'),
+      whatYouLearn: (product.whatYouLearn || []).join('\n'),
+      forWho: (product.forWho || []).join('\n'),
     });
     setEditingId(product.id);
     setShowForm(true);
@@ -60,11 +68,15 @@ export default function AdminProducts() {
 
   const handleSave = async () => {
     setSaving(true);
+    const splitLines = (s: string) => s.split('\n').map((l) => l.trim()).filter(Boolean);
     const payload = {
       ...form,
       price: Number(form.price),
       originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
       tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
+      benefits: splitLines(form.benefits),
+      whatYouLearn: splitLines(form.whatYouLearn),
+      forWho: splitLines(form.forWho),
     };
 
     if (editingId) {
@@ -227,18 +239,33 @@ export default function AdminProducts() {
               </div>
 
               <div>
-                <label className="text-text-muted text-xs mb-1.5 block">URL do checkout</label>
-                <input className="admin-input" value={form.checkoutUrl} onChange={(e) => setForm({ ...form, checkoutUrl: e.target.value })} placeholder="https://..." />
-              </div>
-
-              <div>
                 <label className="text-text-muted text-xs mb-1.5 block">URL da capa</label>
                 <input className="admin-input" value={form.coverImage} onChange={(e) => setForm({ ...form, coverImage: e.target.value })} placeholder="https://..." />
               </div>
 
               <div>
+                <label className="text-text-muted text-xs mb-1.5 block">Link de download (após pagamento)</label>
+                <input className="admin-input" value={form.downloadUrl} onChange={(e) => setForm({ ...form, downloadUrl: e.target.value })} placeholder="https://drive.google.com/... ou link do arquivo" />
+              </div>
+
+              <div>
                 <label className="text-text-muted text-xs mb-1.5 block">Tags (separadas por vírgula)</label>
                 <input className="admin-input" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="psicologia, atração, relacionamentos" />
+              </div>
+
+              <div>
+                <label className="text-text-muted text-xs mb-1.5 block">Para quem é (uma por linha)</label>
+                <textarea className="admin-textarea" rows={3} value={form.forWho} onChange={(e) => setForm({ ...form, forWho: e.target.value })} placeholder="Pessoas que querem...&#10;Quem busca..." />
+              </div>
+
+              <div>
+                <label className="text-text-muted text-xs mb-1.5 block">O que vai descobrir (um por linha)</label>
+                <textarea className="admin-textarea" rows={4} value={form.whatYouLearn} onChange={(e) => setForm({ ...form, whatYouLearn: e.target.value })} placeholder="Os 4 mecanismos de...&#10;Como criar..." />
+              </div>
+
+              <div>
+                <label className="text-text-muted text-xs mb-1.5 block">Benefícios (um por linha)</label>
+                <textarea className="admin-textarea" rows={3} value={form.benefits} onChange={(e) => setForm({ ...form, benefits: e.target.value })} placeholder="Entenda como a atração funciona...&#10;Pare de..." />
               </div>
             </div>
 

@@ -11,8 +11,14 @@ export interface Post {
   featured: boolean;
 }
 
+export interface ProductFAQ {
+  question: string;
+  answer: string;
+}
+
 export interface Product {
   id: string;
+  slug: string;
   title: string;
   hook: string;
   description: string;
@@ -23,6 +29,11 @@ export interface Product {
   featured: boolean;
   category: string;
   tags: string[];
+  benefits?: string[];
+  whatYouLearn?: string[];
+  forWho?: string[];
+  faq?: ProductFAQ[];
+  downloadUrl?: string;
 }
 
 export interface Testimonial {

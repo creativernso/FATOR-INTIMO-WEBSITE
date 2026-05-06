@@ -100,10 +100,10 @@ export default async function ProductsPage() {
                           </p>
                         </div>
                         <Link
-                          href={product.checkoutUrl}
+                          href={`/products/${product.slug}`}
                           className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white text-sm font-medium px-5 py-2.5 rounded-full transition-all hover:shadow-lg hover:shadow-accent/20"
                         >
-                          Comprar agora
+                          Ver produto
                           <ArrowRight size={14} />
                         </Link>
                       </div>
