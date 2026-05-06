@@ -109,80 +109,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── PROBLEM ── */}
-      <section className="py-28 px-6">
-        <div className="max-w-5xl mx-auto">
-          <AnimateOnScroll>
-            <div className="text-center mb-16">
-              <span className="text-xs text-accent tracking-widest uppercase mb-4 block">O Problema</span>
-              <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary mb-5">
-                Você reconhece algum destes <span style={{ color: '#fe0050' }}>padrões?</span>
-              </h2>
-              <p className="text-text-secondary max-w-xl mx-auto text-sm leading-relaxed">
-                Se sim, não é fraqueza. São padrões programados que você pode entender e mudar.
-              </p>
-            </div>
-          </AnimateOnScroll>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {painPoints.map((point, i) => (
-              <AnimateOnScroll key={i} delay={i * 80} direction="up">
-                <div className="p-6 rounded-2xl border border-white/5 bg-surface hover:border-accent/15 transition-all duration-300">
-                  <div className="w-8 h-px bg-accent mb-4" />
-                  <p className="text-text-secondary text-sm leading-relaxed">{point.text}</p>
-                </div>
-              </AnimateOnScroll>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── SOLUTION ── */}
-      <section className="py-28 px-6 relative overflow-hidden">
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-96 h-96 rounded-full opacity-5 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse, #fe0050 0%, transparent 70%)' }} />
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <AnimateOnScroll direction="left">
-              <div>
-                <span className="text-xs text-accent tracking-widest uppercase mb-4 block">A Solução</span>
-                <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary leading-tight mb-6">
-                  Fator Íntimo é
-                  <br />
-                  <span style={{ color: '#fe0050' }}>psicologia que funciona</span>
-                </h2>
-                <p className="text-text-secondary text-sm leading-relaxed mb-8">
-                  Não é autoajuda genérica. É um sistema de compreensão profunda do comportamento humano
-                  em relacionamentos, baseado em psicologia real, neurociência e anos de observação.
-                </p>
-                <Link
-                  href="/about"
-                  className="inline-flex items-center gap-2 text-sm text-accent hover:text-accent/80 transition-colors"
-                >
-                  Conheça a abordagem <ArrowRight size={14} />
-                </Link>
-              </div>
-            </AnimateOnScroll>
-
-            <AnimateOnScroll direction="right">
-              <div className="space-y-5">
-                {principles.map((p, i) => (
-                  <div key={i} className="flex gap-5 p-5 rounded-xl border border-white/5 bg-surface">
-                    <span className="font-heading text-3xl text-accent/20 font-light flex-shrink-0 leading-none">
-                      {p.number}
-                    </span>
-                    <div>
-                      <h3 className="font-heading text-lg font-medium text-text-primary mb-1">{p.title}</h3>
-                      <p className="text-text-secondary text-sm leading-relaxed">{p.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </AnimateOnScroll>
-          </div>
-        </div>
-      </section>
-
       {/* ── BLOG POSTS ── */}
       {posts.length > 0 && (
         <section className="py-28 px-6">
@@ -263,6 +189,80 @@ export default async function Home() {
           </div>
         </section>
       )}
+
+      {/* ── PROBLEM ── */}
+      <section className="py-28 px-6">
+        <div className="max-w-5xl mx-auto">
+          <AnimateOnScroll>
+            <div className="text-center mb-16">
+              <span className="text-xs text-accent tracking-widest uppercase mb-4 block">O Problema</span>
+              <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary mb-5">
+                Você reconhece algum destes <span style={{ color: '#fe0050' }}>padrões?</span>
+              </h2>
+              <p className="text-text-secondary max-w-xl mx-auto text-sm leading-relaxed">
+                Se sim, não é fraqueza. São padrões programados que você pode entender e mudar.
+              </p>
+            </div>
+          </AnimateOnScroll>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {painPoints.map((point, i) => (
+              <AnimateOnScroll key={i} delay={i * 80} direction="up">
+                <div className="p-6 rounded-2xl border border-white/5 bg-surface hover:border-accent/15 transition-all duration-300">
+                  <div className="w-8 h-px bg-accent mb-4" />
+                  <p className="text-text-secondary text-sm leading-relaxed">{point.text}</p>
+                </div>
+              </AnimateOnScroll>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SOLUTION ── */}
+      <section className="py-28 px-6 relative overflow-hidden">
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-96 h-96 rounded-full opacity-5 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse, #fe0050 0%, transparent 70%)' }} />
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <AnimateOnScroll direction="left">
+              <div>
+                <span className="text-xs text-accent tracking-widest uppercase mb-4 block">A Solução</span>
+                <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary leading-tight mb-6">
+                  Fator Íntimo é
+                  <br />
+                  <span style={{ color: '#fe0050' }}>psicologia que funciona</span>
+                </h2>
+                <p className="text-text-secondary text-sm leading-relaxed mb-8">
+                  Não é autoajuda genérica. É um sistema de compreensão profunda do comportamento humano
+                  em relacionamentos, baseado em psicologia real, neurociência e anos de observação.
+                </p>
+                <Link
+                  href="/about"
+                  className="inline-flex items-center gap-2 text-sm text-accent hover:text-accent/80 transition-colors"
+                >
+                  Conheça a abordagem <ArrowRight size={14} />
+                </Link>
+              </div>
+            </AnimateOnScroll>
+
+            <AnimateOnScroll direction="right">
+              <div className="space-y-5">
+                {principles.map((p, i) => (
+                  <div key={i} className="flex gap-5 p-5 rounded-xl border border-white/5 bg-surface">
+                    <span className="font-heading text-3xl text-accent/20 font-light flex-shrink-0 leading-none">
+                      {p.number}
+                    </span>
+                    <div>
+                      <h3 className="font-heading text-lg font-medium text-text-primary mb-1">{p.title}</h3>
+                      <p className="text-text-secondary text-sm leading-relaxed">{p.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </AnimateOnScroll>
+          </div>
+        </div>
+      </section>
 
       {/* ── PRODUCTS ── */}
       {products.length > 0 && (

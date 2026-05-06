@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
@@ -11,6 +12,7 @@ import {
   Users,
   ChevronRight,
 } from 'lucide-react';
+import LogoutButton from '@/components/LogoutButton';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
@@ -23,21 +25,23 @@ const navItems = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
+  if (pathname === '/admin/login') return <>{children}</>;
+
   return (
     <div className="min-h-screen flex bg-background">
       {/* Sidebar */}
       <aside className="w-60 flex-shrink-0 border-r border-white/5 flex flex-col">
         {/* Logo */}
         <div className="p-6 border-b border-white/5">
-          <Link href="/" className="flex flex-col leading-none group">
-            <span className="font-heading text-xs font-light tracking-widest uppercase text-text-muted">
-              Fator
-            </span>
-            <span className="font-heading text-xl font-medium text-text-primary">
-              Íntimo
-            </span>
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-8 h-8 rounded-lg bg-surface border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+              <Image src="/FAV.png" alt="Fator Íntimo" width={20} height={20} className="object-contain" />
+            </div>
+            <div className="leading-none">
+              <span className="font-heading text-sm font-medium text-text-primary block">Fator Íntimo</span>
+              <span className="text-xs text-text-muted">Admin</span>
+            </div>
           </Link>
-          <span className="text-xs text-text-muted mt-1 block">Admin Panel</span>
         </div>
 
         {/* Nav */}
@@ -63,15 +67,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-white/5">
+        <div className="p-4 border-t border-white/5 space-y-1">
           <Link
             href="/"
             target="_blank"
-            className="flex items-center gap-2 text-xs text-text-muted hover:text-text-primary transition-colors"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-text-secondary hover:text-text-primary hover:bg-white/5 transition-all"
           >
-            <ExternalLink size={12} />
+            <ExternalLink size={15} />
             Ver site
           </Link>
+          <LogoutButton />
         </div>
       </aside>
 
@@ -83,14 +88,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
               if (!isActive) return null;
               return (
-                <div key={item.href}>
-                  <h1 className="text-text-primary font-medium text-sm">{item.label}</h1>
-                </div>
+                <h1 key={item.href} className="text-text-primary font-medium text-sm">
+                  {item.label}
+                </h1>
               );
             })}
           </div>
           <div className="w-7 h-7 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center text-xs text-accent font-medium">
-            R
+            A
           </div>
         </header>
         <main className="flex-1 overflow-auto p-8">
