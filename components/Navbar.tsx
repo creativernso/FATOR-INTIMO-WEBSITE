@@ -52,7 +52,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
-            <LogoImage height={24} />
+            <LogoImage height={20} />
           </Link>
 
           {/* Desktop nav */}
