@@ -6,6 +6,7 @@ import BlogCard from '@/components/BlogCard';
 import ProductCard from '@/components/ProductCard';
 import TestimonialCard from '@/components/TestimonialCard';
 import { getPosts, getProducts, getTestimonials } from '@/lib/db';
+import { getLatestVideos } from '@/lib/youtube';
 
 function TikTokIcon({ size = 18 }: { size?: number }) {
   return (
@@ -68,6 +69,7 @@ export default async function Home() {
   const posts = allPosts.slice(0, 3);
   const products = getProducts().filter((p) => p.featured).slice(0, 3);
   const testimonials = getTestimonials().slice(0, 3);
+  const ytVideos = await getLatestVideos(1);
 
   return (
     <>
@@ -131,34 +133,36 @@ export default async function Home() {
             </AnimateOnScroll>
 
             {/* ── LATEST YOUTUBE VIDEO ── */}
-            <AnimateOnScroll>
-              <div className="mb-10 rounded-2xl overflow-hidden border border-white/5 bg-surface">
-                <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                  <iframe
-                    className="absolute inset-0 w-full h-full"
-                    src="https://www.youtube.com/embed?listType=user_uploads&list=fatorintimo&index=1&rel=0&modestbranding=1&showinfo=0"
-                    title="Fator Íntimo - Último vídeo"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    loading="lazy"
-                  />
-                </div>
-                <div className="flex items-center justify-between px-5 py-3.5 border-t border-white/5">
-                  <div className="flex items-center gap-2.5">
-                    <Youtube size={14} className="text-[#FF0000]" />
-                    <span className="text-text-secondary text-xs">Fator Íntimo no YouTube</span>
+            {ytVideos.length > 0 && (
+              <AnimateOnScroll>
+                <div className="mb-10 rounded-2xl overflow-hidden border border-white/5 bg-surface">
+                  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                    <iframe
+                      className="absolute inset-0 w-full h-full"
+                      src={`https://www.youtube.com/embed/${ytVideos[0].id}?rel=0&modestbranding=1`}
+                      title={ytVideos[0].title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      loading="lazy"
+                    />
                   </div>
-                  <a
-                    href="https://www.youtube.com/@fatorintimo"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-text-muted hover:text-accent transition-colors flex items-center gap-1"
-                  >
-                    Ver canal <ArrowRight size={11} />
-                  </a>
+                  <div className="flex items-center justify-between px-5 py-3.5 border-t border-white/5">
+                    <div className="flex items-center gap-2.5">
+                      <Youtube size={14} className="text-[#FF0000]" />
+                      <span className="text-text-secondary text-xs truncate max-w-xs">{ytVideos[0].title}</span>
+                    </div>
+                    <a
+                      href="https://www.youtube.com/@fatorintimo"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-text-muted hover:text-accent transition-colors flex items-center gap-1 flex-shrink-0"
+                    >
+                      Ver canal <ArrowRight size={11} />
+                    </a>
+                  </div>
                 </div>
-              </div>
-            </AnimateOnScroll>
+              </AnimateOnScroll>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {posts.map((post, i) => (

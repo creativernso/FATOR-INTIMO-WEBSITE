@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Youtube, Instagram, Facebook, ExternalLink, ArrowRight, Play } from 'lucide-react';
 import Link from 'next/link';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
+import { getLatestVideos } from '@/lib/youtube';
 
 export const metadata: Metadata = {
   title: 'Redes Sociais',
@@ -37,7 +38,8 @@ const facebookPosts = [
   { img: 'https://images.unsplash.com/photo-1474631245212-32dc3c8310c6?w=600&q=80', title: 'O silêncio estratégico nos relacionamentos', date: '5 dias atrás', url: 'https://www.facebook.com/profile.php?id=61584890526784' },
 ];
 
-export default function SocialPage() {
+export default async function SocialPage() {
+  const ytVideos = await getLatestVideos(3);
   return (
     <>
       {/* Hero */}
@@ -82,32 +84,34 @@ export default function SocialPage() {
             </div>
           </AnimateOnScroll>
 
-          {/* Latest video — full embed */}
-          <AnimateOnScroll>
-            <div className="rounded-2xl overflow-hidden border border-white/5 bg-surface mb-6">
-              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                <iframe
-                  className="absolute inset-0 w-full h-full"
-                  src="https://www.youtube.com/embed?listType=user_uploads&list=fatorintimo&index=1&rel=0&modestbranding=1&color=white"
-                  title="Último vídeo - Fator Íntimo"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                  loading="lazy"
-                />
-              </div>
-              <div className="flex items-center justify-between px-5 py-3.5 border-t border-white/5">
-                <p className="text-text-secondary text-xs">Último vídeo publicado</p>
-                <a
-                  href="https://www.youtube.com/@fatorintimo"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-[#FF0000] hover:underline flex items-center gap-1"
-                >
-                  Ver todos os vídeos <ArrowRight size={11} />
-                </a>
-              </div>
+          {/* Latest videos grid */}
+          {ytVideos.length === 0 ? (
+            <div className="rounded-2xl border border-white/5 bg-surface p-10 text-center text-text-muted text-sm">
+              Nenhum vídeo publicado ainda.
             </div>
-          </AnimateOnScroll>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              {ytVideos.map((video, i) => (
+                <AnimateOnScroll key={video.id} delay={i * 80}>
+                  <div className="rounded-2xl overflow-hidden border border-white/5 bg-surface flex flex-col">
+                    <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                      <iframe
+                        className="absolute inset-0 w-full h-full"
+                        src={`https://www.youtube.com/embed/${video.id}?rel=0&modestbranding=1`}
+                        title={video.title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="px-4 py-3 border-t border-white/5">
+                      <p className="text-text-secondary text-xs line-clamp-2">{video.title}</p>
+                    </div>
+                  </div>
+                </AnimateOnScroll>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
