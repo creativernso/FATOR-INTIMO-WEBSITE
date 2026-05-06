@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1",
+    "title": "Por que pessoas inteligentes tomam decisões péssimas no amor",
+    "slug": "pessoas-inteligentes-decisoes-pessimas-amor",
+    "excerpt": "A inteligência racional não garante escolhas emocionais saudáveis. Entenda o paradoxo que sabota os relacionamentos de pessoas brilhantes.",
+    "content": "<p>Há uma crença comum de que pessoas inteligentes tomam melhores decisões em todas as áreas da vida. Mas quando se trata de relacionamentos, essa premissa frequentemente se desfaz.</p>\n    <p>O problema não é a inteligência em si — é que o cérebro racional e o cérebro emocional operam em frequências completamente diferentes. E em momentos de apego intenso, o sistema límbico assume o controle.</p>\n    <h2>O paradoxo da racionalização emocional</h2>\n    <p>Pessoas altamente inteligentes têm uma capacidade extraordinária de racionalizar comportamentos disfuncionais. Elas constroem narrativas elaboradas para justificar por que continuam em relacionamentos que as prejudicam.</p>\n    <p>Essa capacidade de construir argumentos sofisticados se volta contra elas — criando prisões mentais elegantes mas sufocantes.</p>\n    <h2>A solução não é pensar menos</h2>\n    <p>A saída não está em \"desligar\" o cérebro racional, mas em desenvolver inteligência emocional que trabalhe em harmonia com ele. Isso significa reconhecer padrões de apego, entender gatilhos emocionais e construir uma relação honesta consigo mesmo.</p>",
+    "category": "Psicologia",
+    "coverImage": "https://images.unsplash.com/photo-1516302752625-fcc3c50ae61f?w=800&q=80",
+    "publishedAt": "2024-01-15",
+    "readTime": 7,
+    "featured": true
+  },
+  {
+    "id": "2",
+    "title": "O silêncio como estratégia: quando calar fala mais alto",
+    "slug": "silencio-como-estrategia-relacionamentos",
+    "excerpt": "O silêncio estratégico é uma das ferramentas mais poderosas em relacionamentos. Aprenda quando e como usá-lo sem jogos ou manipulação.",
+    "content": "<p>Em uma cultura que valoriza a comunicação constante, o silêncio se tornou quase um tabu. Mas os comunicadores mais eficazes entendem que o que não se diz pode ser tão poderoso quanto o que se diz.</p>\n    <p>Existe uma diferença crucial entre o silêncio reativo — aquele que vem da raiva ou da insegurança — e o silêncio estratégico, que vem da consciência e da força interior.</p>\n    <h2>Silêncio reativo vs. silêncio intencional</h2>\n    <p>O silêncio reativo é uma punição disfarçada. O silêncio intencional é uma afirmação de valor próprio. Um vem do medo, o outro vem da clareza.</p>",
+    "category": "Comunicação",
+    "coverImage": "https://images.unsplash.com/photo-1474631245212-32dc3c8310c6?w=800&q=80",
+    "publishedAt": "2024-01-22",
+    "readTime": 5,
+    "featured": true
+  },
+  {
+    "id": "3",
+    "title": "Teoria do apego: como sua infância molda seus relacionamentos hoje",
+    "slug": "teoria-apego-infancia-relacionamentos",
+    "excerpt": "Os padrões formados nos primeiros anos de vida definem como nos relacionamos décadas depois. Entenda e transforme seus estilos de apego.",
+    "content": "<p>John Bowlby desenvolveu a teoria do apego na década de 1960, mas sua relevância nunca foi tão urgente quanto hoje. Os padrões de apego formados na infância funcionam como um script inconsciente que dirige nossos relacionamentos adultos.</p>\n    <p>Existem quatro estilos principais de apego: seguro, ansioso, evitativo e desorganizado. A maioria das pessoas se identifica predominantemente com um deles.</p>\n    <h2>Apego ansioso</h2>\n    <p>Pessoas com apego ansioso constantemente buscam validação e têm medo intenso de abandono. Elas frequentemente sabotam relacionamentos saudáveis por não conseguirem tolerar a incerteza natural de qualquer conexão humana.</p>\n    <h2>Apego evitativo</h2>\n    <p>O estilo evitativo se manifesta como uma necessidade excessiva de independência e dificuldade com intimidade emocional. Por trás da aparente autossuficiência, há frequentemente uma ferida de rejeição não processada.</p>",
+    "category": "Psicologia",
+    "coverImage": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+    "publishedAt": "2024-02-01",
+    "readTime": 9,
+    "featured": false
+  }
+]

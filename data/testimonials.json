@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1",
+    "name": "Mariana Costa",
+    "role": "Designer, 29 anos",
+    "content": "Eu vivia em um ciclo de relacionamentos onde sempre me sentia menos. Depois de aplicar os conceitos do Fator Atração, entendi que o problema não era eu — era o padrão que eu estava repetindo inconscientemente.",
+    "transformation": "Saí de um relacionamento de 3 anos que me diminuía e hoje estou em uma conexão que me expande.",
+    "rating": 5,
+    "productPurchased": "Fator Atração"
+  },
+  {
+    "id": "2",
+    "name": "Ricardo Alves",
+    "role": "Empresário, 34 anos",
+    "content": "Sou uma pessoa muito racional e sempre achei que \"essas coisas de psicologia\" não eram para mim. O Rafael tem uma forma de explicar que conecta com quem pensa assim. Transformador.",
+    "transformation": "Aprendi a me comunicar de forma mais eficaz com minha parceira sem perder minha autenticidade.",
+    "rating": 5,
+    "productPurchased": "Código da Intimidade"
+  },
+  {
+    "id": "3",
+    "name": "Fernanda Lima",
+    "role": "Psicóloga, 31 anos",
+    "content": "Como profissional da área, fiquei impressionada com a profundidade e a acessibilidade do conteúdo. Rafael traduz conceitos complexos de forma elegante e prática.",
+    "transformation": "Recomendo para meus próprios clientes como material complementar.",
+    "rating": 5,
+    "productPurchased": "Blindagem Emocional"
+  },
+  {
+    "id": "4",
+    "name": "Lucas Mendes",
+    "role": "Engenheiro, 27 anos",
+    "content": "Sempre fui o cara que \"fugia\" das conversas difíceis. O Código da Intimidade me deu um framework concreto para lidar com emoções — algo que eu nunca tive acesso antes.",
+    "transformation": "Hoje consigo ter conversas reais com pessoas que importam para mim.",
+    "rating": 5,
+    "productPurchased": "Código da Intimidade"
+  }
+]

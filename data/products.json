@@ -1,0 +1,52 @@
+[
+  {
+    "id": "1",
+    "title": "Fator Atração",
+    "hook": "O mapa psicológico que faz alguém pensar em você o tempo todo",
+    "description": "Descubra os mecanismos neurológicos da atração e como ativá-los de forma autêntica. Não se trata de técnicas — é sobre entender como a mente funciona.",
+    "price": 47,
+    "originalPrice": 97,
+    "coverImage": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80",
+    "checkoutUrl": "#",
+    "featured": true,
+    "category": "Atração",
+    "tags": [
+      "atração",
+      "psicologia",
+      "relacionamentos"
+    ]
+  },
+  {
+    "id": "2",
+    "title": "Código da Intimidade",
+    "hook": "Como criar conexões profundas sem perder sua essência",
+    "description": "Um guia completo sobre vulnerabilidade estratégica, comunicação não-violenta e os fundamentos de relacionamentos que realmente duram.",
+    "price": 67,
+    "originalPrice": 127,
+    "coverImage": "https://images.unsplash.com/photo-1516302752625-fcc3c50ae61f?w=600&q=80",
+    "checkoutUrl": "#",
+    "featured": true,
+    "category": "Intimidade",
+    "tags": [
+      "intimidade",
+      "comunicação",
+      "conexão"
+    ]
+  },
+  {
+    "id": "3",
+    "title": "Blindagem Emocional",
+    "hook": "Pare de se destruir por pessoas que não valem",
+    "description": "Um programa de desintoxicação emocional. Aprenda a reconhecer relacionamentos tóxicos, recuperar seu valor próprio e construir limites saudáveis.",
+    "price": 57,
+    "coverImage": "https://images.unsplash.com/photo-1474631245212-32dc3c8310c6?w=600&q=80",
+    "checkoutUrl": "#",
+    "featured": false,
+    "category": "Autoconhecimento",
+    "tags": [
+      "autoestima",
+      "limites",
+      "recuperação"
+    ]
+  }
+]

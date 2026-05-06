@@ -1,0 +1,201 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-cormorant: 'Cormorant Garant', Georgia, serif;
+  --font-inter: 'Inter', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: #000000;
+  color: #f5f5f5;
+  font-family: var(--font-inter);
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #0f0a04;
+}
+::-webkit-scrollbar-thumb {
+  background: #3f3f3f;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #fe0050;
+}
+
+/* Selection */
+::selection {
+  background: #fe0050;
+  color: #fff;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5 {
+  font-family: var(--font-cormorant);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+/* Utility classes */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .gradient-accent {
+    background: linear-gradient(135deg, #fe0050 0%, #c4003d 100%);
+  }
+
+  .gradient-text-accent {
+    background: linear-gradient(135deg, #fe0050 0%, #ff6b8a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass {
+    background: rgba(26, 20, 16, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-dark {
+    background: rgba(15, 10, 4, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+  }
+
+  .border-subtle {
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .divider {
+    width: 48px;
+    height: 1px;
+    background: linear-gradient(90deg, #fe0050, transparent);
+  }
+
+  .noise-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+/* Animations */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(254, 0, 80, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(254, 0, 80, 0.6); }
+}
+
+/* Glow effect */
+.glow-accent {
+  box-shadow: 0 0 30px rgba(254, 0, 80, 0.2);
+}
+
+/* Prose styles for blog content */
+.prose-dark {
+  color: #c8bfb0;
+  line-height: 1.8;
+  font-size: 1.0625rem;
+}
+
+.prose-dark h2 {
+  color: #f5f0e8;
+  font-family: var(--font-cormorant);
+  font-size: 2rem;
+  font-weight: 500;
+  margin: 2.5rem 0 1rem;
+  letter-spacing: -0.02em;
+}
+
+.prose-dark h3 {
+  color: #f5f0e8;
+  font-family: var(--font-cormorant);
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin: 2rem 0 0.75rem;
+}
+
+.prose-dark p {
+  margin-bottom: 1.5rem;
+}
+
+.prose-dark strong {
+  color: #f5f0e8;
+  font-weight: 600;
+}
+
+/* Admin specific */
+.admin-input {
+  background: #1a1410;
+  border: 1px solid #2a2218;
+  color: #f5f0e8;
+  border-radius: 8px;
+  padding: 10px 14px;
+  width: 100%;
+  font-family: var(--font-inter);
+  font-size: 0.875rem;
+  transition: border-color 0.2s;
+}
+
+.admin-input:focus {
+  outline: none;
+  border-color: #fe0050;
+}
+
+.admin-input::placeholder {
+  color: #5a5248;
+}
+
+.admin-textarea {
+  background: #1a1410;
+  border: 1px solid #2a2218;
+  color: #f5f0e8;
+  border-radius: 8px;
+  padding: 10px 14px;
+  width: 100%;
+  font-family: var(--font-inter);
+  font-size: 0.875rem;
+  resize: vertical;
+  min-height: 120px;
+  transition: border-color 0.2s;
+}
+
+.admin-textarea:focus {
+  outline: none;
+  border-color: #fe0050;
+}
