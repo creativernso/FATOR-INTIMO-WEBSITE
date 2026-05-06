@@ -1,4 +1,7 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import Image from 'next/image';
+import { ArrowRight, Clock } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import BlogCard from '@/components/BlogCard';
 import { getPosts } from '@/lib/db';
@@ -14,8 +17,12 @@ const categories = ['Todos', 'Psicologia', 'Comunicação', 'Atração', 'Autoco
 
 export default async function BlogPage() {
   const posts = getPosts();
-  const featured = posts.filter((p) => p.featured);
-  const rest = posts.filter((p) => !p.featured);
+  const sorted = [...posts].sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  );
+  const latest = sorted[0] ?? null;
+  const featured = posts.filter((p) => p.featured && p.id !== latest?.id);
+  const rest = posts.filter((p) => !p.featured && p.id !== latest?.id);
 
   return (
     <>
@@ -41,6 +48,52 @@ export default async function BlogPage() {
             <p className="text-center text-text-muted py-20">Artigos em breve.</p>
           ) : (
             <>
+              {/* ── LATEST ARTICLE HERO ── */}
+              {latest && (
+                <AnimateOnScroll>
+                  <Link href={`/blog/${latest.slug}`} className="group block mb-14">
+                    <article className="relative overflow-hidden rounded-2xl border border-white/5 bg-surface hover:border-white/15 transition-all duration-300">
+                      <div className="relative h-72 md:h-96 overflow-hidden">
+                        <Image
+                          src={latest.coverImage}
+                          alt={latest.title}
+                          fill
+                          priority
+                          className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/50 to-transparent" />
+                        <div className="absolute top-5 left-5 flex items-center gap-2">
+                          <span className="text-xs text-white bg-accent px-3 py-1 rounded-full font-medium">
+                            Mais recente
+                          </span>
+                          <span className="text-xs text-accent border border-accent/30 rounded-full px-3 py-1 bg-background/60 backdrop-blur-sm">
+                            {latest.category}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="p-7 md:p-9">
+                        <div className="flex items-center gap-2 text-text-muted text-xs mb-3">
+                          <Clock size={12} />
+                          <span>{latest.readTime} min de leitura</span>
+                          <span className="mx-1 opacity-40">·</span>
+                          <span>{new Date(latest.publishedAt).toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                        </div>
+                        <h2 className="font-heading text-2xl md:text-3xl font-medium text-text-primary leading-tight mb-3 group-hover:text-accent transition-colors duration-200">
+                          {latest.title}
+                        </h2>
+                        <p className="text-text-secondary text-sm leading-relaxed max-w-2xl mb-5">
+                          {latest.excerpt}
+                        </p>
+                        <div className="flex items-center gap-2 text-accent text-sm font-medium">
+                          <span>Ler artigo</span>
+                          <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                        </div>
+                      </div>
+                    </article>
+                  </Link>
+                </AnimateOnScroll>
+              )}
+
               {/* Featured posts */}
               {featured.length > 0 && (
                 <>
@@ -76,10 +129,6 @@ export default async function BlogPage() {
                     ))}
                   </div>
                 </>
-              )}
-
-              {rest.length === 0 && featured.length > 0 && (
-                <p className="text-center text-text-muted py-4">Mais artigos em breve.</p>
               )}
             </>
           )}
