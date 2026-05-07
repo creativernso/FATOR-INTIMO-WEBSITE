@@ -16,17 +16,17 @@ export default function AdminLeads() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         <div className="rounded-xl border border-white/5 bg-surface p-5">
-          <p className="font-heading text-3xl text-text-primary">{leads.length}</p>
+          <p className="font-body text-3xl text-text-primary">{leads.length}</p>
           <p className="text-text-muted text-xs mt-1">Total de leads</p>
         </div>
         <div className="rounded-xl border border-white/5 bg-surface p-5">
-          <p className="font-heading text-3xl text-text-primary">
+          <p className="font-body text-3xl text-text-primary">
             {leads.filter((l) => l.email).length}
           </p>
           <p className="text-text-muted text-xs mt-1">Por e-mail</p>
         </div>
         <div className="rounded-xl border border-white/5 bg-surface p-5">
-          <p className="font-heading text-3xl text-text-primary">
+          <p className="font-body text-3xl text-text-primary">
             {leads.filter((l) => l.whatsapp).length}
           </p>
           <p className="text-text-muted text-xs mt-1">Por WhatsApp</p>

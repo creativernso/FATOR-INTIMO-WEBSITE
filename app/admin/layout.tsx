@@ -49,7 +49,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Image src="/FAV.png" alt="Fator Íntimo" width={22} height={22} className="object-contain" />
           </div>
           <div className="hidden lg:block leading-none">
-            <span className="font-heading text-sm font-medium text-text-primary block tracking-wide">Fator Íntimo</span>
+            <span className="font-body text-sm font-medium text-text-primary block tracking-wide">Fator Íntimo</span>
             <span className="text-[11px] text-text-muted tracking-widest uppercase mt-0.5 block">Admin Panel</span>
           </div>
         </div>
@@ -111,7 +111,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center gap-3">
             <div>
               <h1
-                className="font-heading text-text-primary font-medium leading-none"
+                className="font-body text-text-primary font-medium leading-none"
                 style={{ fontSize: 'clamp(0.95rem, 1.2vw, 1.15rem)' }}
               >
                 {currentPage?.label ?? 'Admin'}

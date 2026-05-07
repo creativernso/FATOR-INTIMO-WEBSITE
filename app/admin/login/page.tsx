@@ -110,7 +110,7 @@ export default function LoginPage() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-surface border border-white/10 mb-5 overflow-hidden">
             <Image src="/FAV.png" alt="Fator Íntimo" width={32} height={32} className="object-contain" />
           </div>
-          <h1 className="font-heading text-2xl font-medium text-text-primary">Fator Íntimo</h1>
+          <h1 className="font-body text-2xl font-medium text-text-primary">Fator Íntimo</h1>
           <p className="text-text-muted text-xs mt-1 tracking-widest uppercase">Admin Panel</p>
         </div>
 

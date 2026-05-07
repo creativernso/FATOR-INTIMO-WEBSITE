@@ -29,7 +29,7 @@ export default function AdminDashboard() {
             Visão geral
           </p>
           <h2
-            className="font-heading text-text-primary font-medium"
+            className="font-body text-text-primary font-medium"
             style={{ fontSize: 'clamp(1.4rem, 2.2vw, 2rem)' }}
           >
             Bom dia, Admin.
@@ -76,7 +76,7 @@ export default function AdminDashboard() {
                 />
               </div>
               <p
-                className="font-heading font-semibold text-text-primary leading-none"
+                className="font-body font-semibold text-text-primary leading-none"
                 style={{ fontSize: 'clamp(2rem, 3.5vw, 3rem)', color: stat.accent }}
               >
                 {stat.value}
