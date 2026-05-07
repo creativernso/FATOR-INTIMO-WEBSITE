@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Product } from '@/lib/types';
 import { Pencil, Trash2, Plus, X, Check, Star } from 'lucide-react';
+import UploadPDF from './UploadPDF';
 
 const emptyForm = {
   title: '',
@@ -245,7 +246,16 @@ export default function AdminProducts() {
 
               <div>
                 <label className="text-text-muted text-xs mb-1.5 block">Link de download (após pagamento)</label>
-                <input className="admin-input" value={form.downloadUrl} onChange={(e) => setForm({ ...form, downloadUrl: e.target.value })} placeholder="https://drive.google.com/... ou link do arquivo" />
+                <input className="admin-input mb-2" value={form.downloadUrl} onChange={(e) => setForm({ ...form, downloadUrl: e.target.value })} placeholder="https://drive.google.com/... ou use upload abaixo" />
+                {editingId && (
+                  <UploadPDF
+                    productId={editingId}
+                    onUploaded={(url) => setForm((f) => ({ ...f, downloadUrl: url }))}
+                  />
+                )}
+                {!editingId && (
+                  <p className="text-text-muted text-xs">Salve o produto primeiro para fazer upload do PDF.</p>
+                )}
               </div>
 
               <div>

@@ -8,9 +8,24 @@ function getAdminApp(): admin.app.App {
       clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
       privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
     }),
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   });
 }
 
 export function getAdminAuth(): admin.auth.Auth {
   return getAdminApp().auth();
+}
+
+export function getAdminStorage(): admin.storage.Storage {
+  return admin.storage(getAdminApp());
+}
+
+export async function getSignedDownloadUrl(filePath: string, expiresInMs = 3600000): Promise<string> {
+  const bucket = getAdminStorage().bucket();
+  const file = bucket.file(filePath);
+  const [url] = await file.getSignedUrl({
+    action: 'read',
+    expires: Date.now() + expiresInMs,
+  });
+  return url;
 }
