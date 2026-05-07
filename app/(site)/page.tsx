@@ -74,12 +74,12 @@ export default async function Home() {
   return (
     <>
       {/* ── HERO ── */}
-      <section className="relative flex flex-col pt-72 md:pt-52 pb-20 md:pb-36 overflow-hidden">
+      <section className="relative flex flex-col pt-72 md:pt-64 pb-20 md:pb-48 overflow-hidden">
         {/* Background image — desktop */}
-        <div className="absolute inset-0 pointer-events-none hidden md:block"
+        <div className="absolute inset-0 pointer-events-none hidden md:block hero-bg-animate"
           style={{ backgroundImage: 'url(/background.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }} />
         {/* Background image — mobile & tablet */}
-        <div className="absolute inset-0 pointer-events-none block md:hidden"
+        <div className="absolute inset-0 pointer-events-none block md:hidden hero-bg-animate"
           style={{ backgroundImage: 'url(/background-mobil.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }} />
         {/* Background glow */}
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full opacity-10 pointer-events-none"
@@ -105,7 +105,7 @@ export default async function Home() {
               </Link>
               <Link
                 href="/products"
-                className="inline-flex items-center justify-center gap-2 text-text-secondary hover:text-text-primary border border-white/10 hover:border-white/20 px-8 py-4 rounded-full text-sm transition-all"
+                className="inline-flex items-center justify-center gap-2 text-white hover:text-white border border-white/20 hover:border-white/40 px-8 py-4 rounded-full text-sm transition-all"
               >
                 Ver Produtos
               </Link>

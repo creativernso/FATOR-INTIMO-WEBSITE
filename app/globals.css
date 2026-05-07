@@ -199,3 +199,15 @@ h1, h2, h3, h4, h5 {
   outline: none;
   border-color: #fe0050;
 }
+
+/* Hero background slow zoom animation */
+@keyframes heroBgZoom {
+  0%   { transform: scale(1);    }
+  50%  { transform: scale(1.04); }
+  100% { transform: scale(1);    }
+}
+
+.hero-bg-animate {
+  animation: heroBgZoom 18s ease-in-out infinite;
+  will-change: transform;
+}
