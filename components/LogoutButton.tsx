@@ -5,7 +5,7 @@ import { LogOut } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
-export default function LogoutButton() {
+export default function LogoutButton({ iconOnly = false }: { iconOnly?: boolean }) {
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -18,10 +18,10 @@ export default function LogoutButton() {
   return (
     <button
       onClick={handleLogout}
-      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-text-secondary hover:text-red-400 hover:bg-red-400/5 transition-all w-full"
+      className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-text-muted hover:text-red-400 hover:bg-red-400/5 transition-all ${iconOnly ? 'justify-center' : 'w-full'}`}
     >
-      <LogOut size={15} />
-      Sair
+      <LogOut size={15} className="flex-shrink-0" />
+      {!iconOnly && <span>Sair</span>}
     </button>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Product } from '@/lib/types';
-import { Pencil, Trash2, Plus, X, Check, Star } from 'lucide-react';
+import { Pencil, Trash2, Plus, X, Check, Star, Package } from 'lucide-react';
 import UploadPDF from './UploadPDF';
 import ImageUpload from '@/components/admin/ImageUpload';
 
@@ -105,73 +105,92 @@ export default function AdminProducts() {
     fetchProducts();
   };
 
+  const fs = (min: string, mid: string, max: string) => `clamp(${min}, ${mid}, ${max})`;
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 lg:space-y-8">
+      <div className="flex items-end justify-between">
         <div>
-          <h2 className="text-text-primary text-xl font-medium">Produtos</h2>
-          <p className="text-text-muted text-sm mt-0.5">{products.length} produtos</p>
+          <p className="text-text-muted tracking-widest uppercase mb-1.5" style={{ fontSize: fs('0.62rem', '0.72vw', '0.7rem') }}>
+            Catálogo
+          </p>
+          <h2 className="font-heading text-text-primary font-medium" style={{ fontSize: fs('1.2rem', '1.8vw', '1.6rem') }}>
+            Produtos
+          </h2>
+          <p className="text-text-muted mt-1" style={{ fontSize: fs('0.78rem', '0.9vw', '0.875rem') }}>
+            {products.length} {products.length === 1 ? 'produto' : 'produtos'} no catálogo
+          </p>
         </div>
         <button
           onClick={openNew}
-          className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white text-sm px-4 py-2.5 rounded-lg transition-all"
+          className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-4 lg:px-5 py-2.5 rounded-xl transition-all hover:shadow-lg hover:shadow-accent/20"
+          style={{ fontSize: fs('0.78rem', '0.9vw', '0.875rem') }}
         >
-          <Plus size={15} /> Novo produto
+          <Plus size={14} /> Novo produto
         </button>
       </div>
 
-      <div className="rounded-xl border border-white/5 bg-surface overflow-hidden">
+      <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
         {loading ? (
-          <div className="p-10 text-center text-text-muted text-sm">Carregando...</div>
+          <div className="p-16 text-center text-text-muted" style={{ fontSize: fs('0.8rem', '0.9vw', '0.875rem') }}>Carregando...</div>
         ) : products.length === 0 ? (
-          <div className="p-10 text-center">
-            <p className="text-text-muted text-sm mb-3">Nenhum produto ainda.</p>
-            <button onClick={openNew} className="text-accent text-sm hover:underline">Criar o primeiro</button>
+          <div className="p-16 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-white/4 border border-white/8 flex items-center justify-center mx-auto mb-4">
+              <Package size={20} className="text-text-muted" />
+            </div>
+            <p className="text-text-muted mb-3" style={{ fontSize: fs('0.85rem', '0.95vw', '0.9rem') }}>Nenhum produto ainda.</p>
+            <button onClick={openNew} className="text-accent hover:underline" style={{ fontSize: fs('0.82rem', '0.92vw', '0.875rem') }}>Criar o primeiro →</button>
           </div>
         ) : (
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/5">
-                <th className="text-left p-4 text-text-muted text-xs font-medium uppercase tracking-wider">Produto</th>
-                <th className="text-left p-4 text-text-muted text-xs font-medium uppercase tracking-wider hidden md:table-cell">Categoria</th>
-                <th className="text-left p-4 text-text-muted text-xs font-medium uppercase tracking-wider">Preço</th>
-                <th className="text-left p-4 text-text-muted text-xs font-medium uppercase tracking-wider hidden sm:table-cell">Status</th>
-                <th className="p-4 text-text-muted text-xs font-medium uppercase tracking-wider">Ações</th>
+                {['Produto', 'Categoria', 'Preço', 'Status', ''].map((h, i) => (
+                  <th key={i}
+                    className={`text-left px-5 lg:px-6 py-4 text-text-muted font-medium tracking-widest uppercase ${i === 1 ? 'hidden md:table-cell' : ''} ${i === 3 ? 'hidden sm:table-cell' : ''} ${i === 4 ? 'text-right' : ''}`}
+                    style={{ fontSize: fs('0.62rem', '0.7vw', '0.68rem') }}>
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-white/4">
               {products.map((product) => (
-                <tr key={product.id} className="border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors">
-                  <td className="p-4">
-                    <p className="text-text-primary text-sm font-medium">{product.title}</p>
-                    <p className="text-text-muted text-xs mt-0.5 line-clamp-1">{product.hook}</p>
+                <tr key={product.id} className="hover:bg-white/2 transition-colors group">
+                  <td className="px-5 lg:px-6 py-4 lg:py-5">
+                    <p className="text-text-primary font-medium" style={{ fontSize: fs('0.82rem', '0.95vw', '0.9rem') }}>{product.title}</p>
+                    <p className="text-text-muted mt-0.5 line-clamp-1" style={{ fontSize: fs('0.7rem', '0.78vw', '0.75rem') }}>{product.hook}</p>
                   </td>
-                  <td className="p-4 hidden md:table-cell">
-                    <span className="text-xs border border-white/10 text-text-secondary rounded-full px-2.5 py-1">
+                  <td className="px-5 lg:px-6 py-4 hidden md:table-cell">
+                    <span className="border border-white/10 text-text-secondary rounded-full px-2.5 py-1" style={{ fontSize: fs('0.68rem', '0.76vw', '0.72rem') }}>
                       {product.category}
                     </span>
                   </td>
-                  <td className="p-4">
-                    <p className="text-text-primary text-sm">R$ {product.price},00</p>
+                  <td className="px-5 lg:px-6 py-4">
+                    <p className="text-text-primary font-medium" style={{ fontSize: fs('0.82rem', '0.92vw', '0.875rem') }}>
+                      R$ {product.price},00
+                    </p>
                     {product.originalPrice && (
-                      <p className="text-text-muted text-xs line-through">R$ {product.originalPrice},00</p>
+                      <p className="text-text-muted line-through" style={{ fontSize: fs('0.68rem', '0.76vw', '0.72rem') }}>
+                        R$ {product.originalPrice},00
+                      </p>
                     )}
                   </td>
-                  <td className="p-4 hidden sm:table-cell">
+                  <td className="px-5 lg:px-6 py-4 hidden sm:table-cell">
                     {product.featured ? (
-                      <span className="flex items-center gap-1 text-xs text-accent">
+                      <span className="flex items-center gap-1 text-accent" style={{ fontSize: fs('0.72rem', '0.82vw', '0.78rem') }}>
                         <Star size={11} fill="currentColor" /> Destaque
                       </span>
                     ) : (
-                      <span className="text-xs text-text-muted">Normal</span>
+                      <span className="text-text-muted" style={{ fontSize: fs('0.72rem', '0.82vw', '0.78rem') }}>Normal</span>
                     )}
                   </td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2 justify-end">
-                      <button onClick={() => openEdit(product)} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/5 transition-all">
+                  <td className="px-5 lg:px-6 py-4">
+                    <div className="flex items-center gap-1.5 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => openEdit(product)} className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/6 transition-all">
                         <Pencil size={13} />
                       </button>
-                      <button onClick={() => handleDelete(product.id)} className="p-1.5 rounded-lg text-text-muted hover:text-red-400 hover:bg-red-400/10 transition-all">
+                      <button onClick={() => handleDelete(product.id)} className="p-2 rounded-lg text-text-muted hover:text-red-400 hover:bg-red-400/8 transition-all">
                         <Trash2 size={13} />
                       </button>
                     </div>
@@ -185,19 +204,24 @@ export default function AdminProducts() {
 
       {/* Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 px-4 pb-10 overflow-auto"
-          style={{ background: 'rgba(15,10,4,0.9)', backdropFilter: 'blur(8px)' }}>
-          <div className="bg-surface border border-white/10 rounded-2xl w-full max-w-2xl">
-            <div className="flex items-center justify-between p-6 border-b border-white/5">
-              <h3 className="text-text-primary font-medium">
-                {editingId ? 'Editar produto' : 'Novo produto'}
-              </h3>
-              <button onClick={() => setShowForm(false)} className="text-text-muted hover:text-text-primary transition-colors">
-                <X size={18} />
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-6 px-4 pb-6 overflow-auto"
+          style={{ background: 'rgba(10,7,3,0.92)', backdropFilter: 'blur(12px)' }}>
+          <div className="bg-surface border border-white/8 rounded-2xl w-full max-w-2xl shadow-2xl">
+            <div className="flex items-center justify-between px-6 lg:px-8 py-5 border-b border-white/5">
+              <div>
+                <h3 className="text-text-primary font-medium" style={{ fontSize: fs('0.95rem', '1.1vw', '1.05rem') }}>
+                  {editingId ? 'Editar produto' : 'Novo produto'}
+                </h3>
+                <p className="text-text-muted mt-0.5" style={{ fontSize: fs('0.72rem', '0.82vw', '0.78rem') }}>
+                  {editingId ? 'Atualize os dados do produto' : 'Preencha os dados para adicionar'}
+                </p>
+              </div>
+              <button onClick={() => setShowForm(false)} className="w-8 h-8 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/6 flex items-center justify-center transition-all">
+                <X size={16} />
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="px-6 lg:px-8 py-6 space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-text-muted text-xs mb-1.5 block">Título *</label>
@@ -283,12 +307,13 @@ export default function AdminProducts() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-white/5">
-              <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-text-muted hover:text-text-primary transition-colors">Cancelar</button>
+            <div className="flex items-center justify-end gap-3 px-6 lg:px-8 py-5 border-t border-white/5">
+              <button onClick={() => setShowForm(false)} className="px-4 py-2.5 text-text-muted hover:text-text-primary transition-colors" style={{ fontSize: fs('0.8rem', '0.9vw', '0.875rem') }}>Cancelar</button>
               <button onClick={handleSave} disabled={saving || !form.title}
-                className="flex items-center gap-2 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white px-5 py-2 rounded-lg text-sm transition-all">
+                className="flex items-center gap-2 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white px-5 py-2.5 rounded-xl transition-all hover:shadow-lg hover:shadow-accent/20"
+                style={{ fontSize: fs('0.8rem', '0.9vw', '0.875rem') }}>
                 <Check size={14} />
-                {saving ? 'Salvando...' : 'Salvar'}
+                {saving ? 'Salvando...' : 'Salvar produto'}
               </button>
             </div>
           </div>

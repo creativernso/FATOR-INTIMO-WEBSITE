@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Testimonial } from '@/lib/types';
-import { Pencil, Trash2, Plus, X, Check, Star } from 'lucide-react';
+import { Pencil, Trash2, Plus, X, Check, Star, MessageSquare } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
 
 const emptyForm = {
@@ -78,63 +78,78 @@ export default function AdminTestimonials() {
     fetchTestimonials();
   };
 
+  const fs = (min: string, mid: string, max: string) => `clamp(${min}, ${mid}, ${max})`;
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 lg:space-y-8">
+      <div className="flex items-end justify-between">
         <div>
-          <h2 className="text-text-primary text-xl font-medium">Depoimentos</h2>
-          <p className="text-text-muted text-sm mt-0.5">{testimonials.length} depoimentos</p>
+          <p className="text-text-muted tracking-widest uppercase mb-1.5" style={{ fontSize: fs('0.62rem', '0.72vw', '0.7rem') }}>
+            Prova social
+          </p>
+          <h2 className="font-heading text-text-primary font-medium" style={{ fontSize: fs('1.2rem', '1.8vw', '1.6rem') }}>
+            Depoimentos
+          </h2>
+          <p className="text-text-muted mt-1" style={{ fontSize: fs('0.78rem', '0.9vw', '0.875rem') }}>
+            {testimonials.length} {testimonials.length === 1 ? 'depoimento' : 'depoimentos'} cadastrados
+          </p>
         </div>
-        <button onClick={openNew} className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white text-sm px-4 py-2.5 rounded-lg transition-all">
-          <Plus size={15} /> Novo depoimento
+        <button onClick={openNew}
+          className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-4 lg:px-5 py-2.5 rounded-xl transition-all hover:shadow-lg hover:shadow-accent/20"
+          style={{ fontSize: fs('0.78rem', '0.9vw', '0.875rem') }}>
+          <Plus size={14} /> Novo depoimento
         </button>
       </div>
 
-      {/* Grid */}
-      <div className="rounded-xl border border-white/5 bg-surface overflow-hidden">
+      <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
         {loading ? (
-          <div className="p-10 text-center text-text-muted text-sm">Carregando...</div>
+          <div className="p-16 text-center text-text-muted" style={{ fontSize: fs('0.8rem', '0.9vw', '0.875rem') }}>Carregando...</div>
         ) : testimonials.length === 0 ? (
-          <div className="p-10 text-center">
-            <p className="text-text-muted text-sm mb-3">Nenhum depoimento ainda.</p>
-            <button onClick={openNew} className="text-accent text-sm hover:underline">Adicionar o primeiro</button>
+          <div className="p-16 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-white/4 border border-white/8 flex items-center justify-center mx-auto mb-4">
+              <MessageSquare size={20} className="text-text-muted" />
+            </div>
+            <p className="text-text-muted mb-3" style={{ fontSize: fs('0.85rem', '0.95vw', '0.9rem') }}>Nenhum depoimento ainda.</p>
+            <button onClick={openNew} className="text-accent hover:underline" style={{ fontSize: fs('0.82rem', '0.92vw', '0.875rem') }}>Adicionar o primeiro →</button>
           </div>
         ) : (
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/5">
-                <th className="text-left p-4 text-text-muted text-xs font-medium uppercase tracking-wider">Pessoa</th>
-                <th className="text-left p-4 text-text-muted text-xs font-medium uppercase tracking-wider hidden md:table-cell">Depoimento</th>
-                <th className="text-left p-4 text-text-muted text-xs font-medium uppercase tracking-wider hidden sm:table-cell">Nota</th>
-                <th className="p-4 text-text-muted text-xs font-medium uppercase tracking-wider">Ações</th>
+                {['Pessoa', 'Depoimento', 'Nota', ''].map((h, i) => (
+                  <th key={i} className={`text-left px-5 lg:px-6 py-4 text-text-muted font-medium tracking-widest uppercase ${i === 1 ? 'hidden md:table-cell' : ''} ${i === 2 ? 'hidden sm:table-cell' : ''} ${i === 3 ? 'text-right' : ''}`}
+                    style={{ fontSize: fs('0.62rem', '0.7vw', '0.68rem') }}>
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-white/4">
               {testimonials.map((t) => (
-                <tr key={t.id} className="border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors">
-                  <td className="p-4">
-                    <p className="text-text-primary text-sm font-medium">{t.name}</p>
-                    <p className="text-text-muted text-xs">{t.role}</p>
+                <tr key={t.id} className="hover:bg-white/2 transition-colors group">
+                  <td className="px-5 lg:px-6 py-4 lg:py-5">
+                    <p className="text-text-primary font-medium" style={{ fontSize: fs('0.82rem', '0.95vw', '0.9rem') }}>{t.name}</p>
+                    <p className="text-text-muted mt-0.5" style={{ fontSize: fs('0.7rem', '0.78vw', '0.75rem') }}>{t.role}</p>
                     {t.productPurchased && (
-                      <p className="text-accent text-xs mt-0.5">{t.productPurchased}</p>
+                      <p className="text-accent mt-0.5" style={{ fontSize: fs('0.68rem', '0.76vw', '0.72rem') }}>{t.productPurchased}</p>
                     )}
                   </td>
-                  <td className="p-4 hidden md:table-cell">
-                    <p className="text-text-secondary text-xs line-clamp-2 max-w-xs">{t.content}</p>
+                  <td className="px-5 lg:px-6 py-4 hidden md:table-cell max-w-xs">
+                    <p className="text-text-secondary line-clamp-2" style={{ fontSize: fs('0.78rem', '0.88vw', '0.84rem') }}>{t.content}</p>
                   </td>
-                  <td className="p-4 hidden sm:table-cell">
+                  <td className="px-5 lg:px-6 py-4 hidden sm:table-cell">
                     <div className="flex gap-0.5">
                       {Array.from({ length: t.rating }).map((_, i) => (
-                        <Star key={i} size={11} className="text-accent fill-accent" />
+                        <Star key={i} size={12} className="text-accent fill-accent" />
                       ))}
                     </div>
                   </td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2 justify-end">
-                      <button onClick={() => openEdit(t)} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/5 transition-all">
+                  <td className="px-5 lg:px-6 py-4">
+                    <div className="flex items-center gap-1.5 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => openEdit(t)} className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/6 transition-all">
                         <Pencil size={13} />
                       </button>
-                      <button onClick={() => handleDelete(t.id)} className="p-1.5 rounded-lg text-text-muted hover:text-red-400 hover:bg-red-400/10 transition-all">
+                      <button onClick={() => handleDelete(t.id)} className="p-2 rounded-lg text-text-muted hover:text-red-400 hover:bg-red-400/8 transition-all">
                         <Trash2 size={13} />
                       </button>
                     </div>
@@ -148,47 +163,54 @@ export default function AdminTestimonials() {
 
       {/* Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 px-4 pb-10 overflow-auto"
-          style={{ background: 'rgba(15,10,4,0.9)', backdropFilter: 'blur(8px)' }}>
-          <div className="bg-surface border border-white/10 rounded-2xl w-full max-w-xl">
-            <div className="flex items-center justify-between p-6 border-b border-white/5">
-              <h3 className="text-text-primary font-medium">{editingId ? 'Editar depoimento' : 'Novo depoimento'}</h3>
-              <button onClick={() => setShowForm(false)} className="text-text-muted hover:text-text-primary transition-colors">
-                <X size={18} />
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-6 px-4 pb-6 overflow-auto"
+          style={{ background: 'rgba(10,7,3,0.92)', backdropFilter: 'blur(12px)' }}>
+          <div className="bg-surface border border-white/8 rounded-2xl w-full max-w-xl shadow-2xl">
+            <div className="flex items-center justify-between px-6 lg:px-8 py-5 border-b border-white/5">
+              <div>
+                <h3 className="text-text-primary font-medium" style={{ fontSize: fs('0.95rem', '1.1vw', '1.05rem') }}>
+                  {editingId ? 'Editar depoimento' : 'Novo depoimento'}
+                </h3>
+                <p className="text-text-muted mt-0.5" style={{ fontSize: fs('0.72rem', '0.82vw', '0.78rem') }}>
+                  {editingId ? 'Atualize os dados' : 'Adicione uma história de transformação'}
+                </p>
+              </div>
+              <button onClick={() => setShowForm(false)} className="w-8 h-8 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/6 flex items-center justify-center transition-all">
+                <X size={16} />
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="px-6 lg:px-8 py-6 space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-text-muted text-xs mb-1.5 block">Nome *</label>
+                  <label className="text-text-muted font-medium mb-1.5 block" style={{ fontSize: fs('0.72rem', '0.8vw', '0.75rem') }}>Nome *</label>
                   <input className="admin-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nome completo" />
                 </div>
                 <div>
-                  <label className="text-text-muted text-xs mb-1.5 block">Papel / Profissão</label>
+                  <label className="text-text-muted font-medium mb-1.5 block" style={{ fontSize: fs('0.72rem', '0.8vw', '0.75rem') }}>Papel / Profissão</label>
                   <input className="admin-input" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder="Designer, 29 anos" />
                 </div>
               </div>
 
               <div>
-                <label className="text-text-muted text-xs mb-1.5 block">Depoimento *</label>
+                <label className="text-text-muted font-medium mb-1.5 block" style={{ fontSize: fs('0.72rem', '0.8vw', '0.75rem') }}>Depoimento *</label>
                 <textarea className="admin-textarea" rows={4} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} placeholder="O que a pessoa disse..." />
               </div>
 
               <div>
-                <label className="text-text-muted text-xs mb-1.5 block">Transformação (frase de impacto)</label>
+                <label className="text-text-muted font-medium mb-1.5 block" style={{ fontSize: fs('0.72rem', '0.8vw', '0.75rem') }}>Transformação (frase de impacto)</label>
                 <input className="admin-input" value={form.transformation} onChange={(e) => setForm({ ...form, transformation: e.target.value })} placeholder="Saí de... e hoje estou..." />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-text-muted text-xs mb-1.5 block">Nota</label>
+                  <label className="text-text-muted font-medium mb-1.5 block" style={{ fontSize: fs('0.72rem', '0.8vw', '0.75rem') }}>Nota</label>
                   <select className="admin-input" value={form.rating} onChange={(e) => setForm({ ...form, rating: Number(e.target.value) })}>
                     {[5, 4, 3].map((r) => <option key={r} value={r}>{r} estrelas</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-text-muted text-xs mb-1.5 block">Produto comprado</label>
+                  <label className="text-text-muted font-medium mb-1.5 block" style={{ fontSize: fs('0.72rem', '0.8vw', '0.75rem') }}>Produto comprado</label>
                   <input className="admin-input" value={form.productPurchased} onChange={(e) => setForm({ ...form, productPurchased: e.target.value })} placeholder="Fator Atração" />
                 </div>
               </div>
@@ -204,12 +226,13 @@ export default function AdminTestimonials() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-white/5">
-              <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-text-muted hover:text-text-primary transition-colors">Cancelar</button>
+            <div className="flex items-center justify-end gap-3 px-6 lg:px-8 py-5 border-t border-white/5">
+              <button onClick={() => setShowForm(false)} className="px-4 py-2.5 text-text-muted hover:text-text-primary transition-colors" style={{ fontSize: fs('0.8rem', '0.9vw', '0.875rem') }}>Cancelar</button>
               <button onClick={handleSave} disabled={saving || !form.name || !form.content}
-                className="flex items-center gap-2 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white px-5 py-2 rounded-lg text-sm transition-all">
+                className="flex items-center gap-2 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white px-5 py-2.5 rounded-xl transition-all hover:shadow-lg hover:shadow-accent/20"
+                style={{ fontSize: fs('0.8rem', '0.9vw', '0.875rem') }}>
                 <Check size={14} />
-                {saving ? 'Salvando...' : 'Salvar'}
+                {saving ? 'Salvando...' : 'Salvar depoimento'}
               </button>
             </div>
           </div>

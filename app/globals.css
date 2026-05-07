@@ -161,20 +161,25 @@ h1, h2, h3, h4, h5 {
 
 /* Admin specific */
 .admin-input {
-  background: #1a1410;
-  border: 1px solid #2a2218;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
   color: #f5f0e8;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 10px 14px;
   width: 100%;
   font-family: var(--font-inter);
-  font-size: 0.875rem;
-  transition: border-color 0.2s;
+  font-size: clamp(0.8rem, 0.95vw, 0.9rem);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.admin-input:hover {
+  border-color: rgba(255,255,255,0.12);
 }
 
 .admin-input:focus {
   outline: none;
-  border-color: #fe0050;
+  border-color: rgba(254,0,80,0.5);
+  background: rgba(254,0,80,0.03);
 }
 
 .admin-input::placeholder {
@@ -182,22 +187,37 @@ h1, h2, h3, h4, h5 {
 }
 
 .admin-textarea {
-  background: #1a1410;
-  border: 1px solid #2a2218;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
   color: #f5f0e8;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 10px 14px;
   width: 100%;
   font-family: var(--font-inter);
-  font-size: 0.875rem;
+  font-size: clamp(0.8rem, 0.95vw, 0.9rem);
   resize: vertical;
-  min-height: 120px;
-  transition: border-color 0.2s;
+  min-height: 100px;
+  transition: border-color 0.2s, background 0.2s;
+  line-height: 1.6;
+}
+
+.admin-textarea:hover {
+  border-color: rgba(255,255,255,0.12);
 }
 
 .admin-textarea:focus {
   outline: none;
-  border-color: #fe0050;
+  border-color: rgba(254,0,80,0.5);
+  background: rgba(254,0,80,0.03);
+}
+
+.admin-textarea::placeholder {
+  color: #5a5248;
+}
+
+/* Admin table row hover */
+.admin-row:hover {
+  background: rgba(255,255,255,0.015);
 }
 
 /* Hero background slow zoom animation */

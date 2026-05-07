@@ -10,7 +10,6 @@ import {
   MessageSquare,
   ExternalLink,
   Users,
-  ChevronRight,
 } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton';
 
@@ -24,82 +23,126 @@ const navItems = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-
   if (pathname === '/admin/login') return <>{children}</>;
 
+  const currentPage = navItems.find((item) =>
+    item.exact ? pathname === item.href : pathname.startsWith(item.href),
+  );
+
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="min-h-screen flex bg-background" style={{ fontFamily: 'var(--font-inter)' }}>
+
       {/* Sidebar */}
-      <aside className="w-60 flex-shrink-0 border-r border-white/5 flex flex-col">
+      <aside
+        className="w-[72px] lg:w-[260px] flex-shrink-0 flex flex-col border-r border-white/5 relative"
+        style={{ background: 'linear-gradient(180deg, #120e09 0%, #0f0a04 100%)' }}
+      >
+        {/* Top glow */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
+
         {/* Logo */}
-        <div className="p-6 border-b border-white/5">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-8 h-8 rounded-lg bg-surface border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
-              <Image src="/FAV.png" alt="Fator Íntimo" width={20} height={20} className="object-contain" />
-            </div>
-            <div className="leading-none">
-              <span className="font-heading text-sm font-medium text-text-primary block">Fator Íntimo</span>
-              <span className="text-xs text-text-muted">Admin</span>
-            </div>
-          </Link>
+        <div className="p-4 lg:p-6 border-b border-white/5 flex items-center gap-3 min-h-[72px] lg:min-h-[80px]">
+          <div
+            className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 border border-white/10"
+            style={{ background: 'radial-gradient(circle at 30% 30%, #2a1810, #120e09)' }}
+          >
+            <Image src="/FAV.png" alt="Fator Íntimo" width={22} height={22} className="object-contain" />
+          </div>
+          <div className="hidden lg:block leading-none">
+            <span className="font-heading text-sm font-medium text-text-primary block tracking-wide">Fator Íntimo</span>
+            <span className="text-[11px] text-text-muted tracking-widest uppercase mt-0.5 block">Admin Panel</span>
+          </div>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-2 lg:p-4 space-y-1 pt-4">
+          <p className="hidden lg:block text-[10px] text-text-muted tracking-widest uppercase px-3 mb-3 opacity-60">
+            Navegação
+          </p>
           {navItems.map((item) => {
             const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
+                className={`relative flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all duration-200 group ${
                   isActive
-                    ? 'bg-accent/10 text-accent border border-accent/20'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
+                    ? 'bg-accent/10 text-accent'
+                    : 'text-text-muted hover:text-text-primary hover:bg-white/4'
                 }`}
               >
-                <item.icon size={15} />
-                {item.label}
-                {isActive && <ChevronRight size={12} className="ml-auto opacity-60" />}
+                {isActive && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-accent rounded-full" />
+                )}
+                <item.icon size={16} className="flex-shrink-0" />
+                <span className="hidden lg:block font-medium">{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-white/5 space-y-1">
+        <div className="p-2 lg:p-4 border-t border-white/5 space-y-1">
           <Link
             href="/"
             target="_blank"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-text-secondary hover:text-text-primary hover:bg-white/5 transition-all"
+            className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-text-muted hover:text-text-primary hover:bg-white/4 transition-all"
           >
-            <ExternalLink size={15} />
-            Ver site
+            <ExternalLink size={15} className="flex-shrink-0" />
+            <span className="hidden lg:block">Ver site</span>
           </Link>
-          <LogoutButton />
+          <div className="hidden lg:block">
+            <LogoutButton />
+          </div>
+          <div className="lg:hidden flex justify-center">
+            <LogoutButton iconOnly />
+          </div>
         </div>
       </aside>
 
       {/* Main */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="border-b border-white/5 px-8 py-4 flex items-center justify-between">
-          <div>
-            {navItems.map((item) => {
-              const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
-              if (!isActive) return null;
-              return (
-                <h1 key={item.href} className="text-text-primary font-medium text-sm">
-                  {item.label}
-                </h1>
-              );
-            })}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        {/* Header */}
+        <header
+          className="flex-shrink-0 border-b border-white/5 px-6 lg:px-10 flex items-center justify-between min-h-[64px] lg:min-h-[72px]"
+          style={{ background: 'linear-gradient(90deg, #0f0a04 0%, #120e09 100%)' }}
+        >
+          <div className="flex items-center gap-3">
+            <div>
+              <h1
+                className="font-heading text-text-primary font-medium leading-none"
+                style={{ fontSize: 'clamp(0.95rem, 1.2vw, 1.15rem)' }}
+              >
+                {currentPage?.label ?? 'Admin'}
+              </h1>
+              <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.85vw, 0.8rem)' }}>
+                Fator Íntimo · Painel de gestão
+              </p>
+            </div>
           </div>
-          <div className="w-7 h-7 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center text-xs text-accent font-medium">
-            A
+
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/8 bg-white/3">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-text-muted" style={{ fontSize: 'clamp(0.65rem, 0.75vw, 0.75rem)' }}>
+                Online
+              </span>
+            </div>
+            <div
+              className="w-8 h-8 lg:w-9 lg:h-9 rounded-full border border-accent/30 flex items-center justify-center text-accent font-semibold flex-shrink-0"
+              style={{ background: 'radial-gradient(circle, rgba(254,0,80,0.15), transparent)', fontSize: 'clamp(0.7rem, 0.85vw, 0.8rem)' }}
+            >
+              A
+            </div>
           </div>
         </header>
-        <main className="flex-1 overflow-auto p-8">
-          {children}
+
+        {/* Content */}
+        <main className="flex-1 overflow-auto" style={{ padding: 'clamp(1.25rem, 2.5vw, 2.5rem)' }}>
+          <div className="max-w-[1400px] mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>
