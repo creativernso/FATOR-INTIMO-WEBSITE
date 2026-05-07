@@ -17,9 +17,10 @@ export async function POST(req: NextRequest) {
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
+  try {
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
-    payment_method_types: ['card', 'pix'],
+    payment_method_types: ['card'],
     currency: 'brl',
     line_items: [
       {
@@ -46,4 +47,8 @@ export async function POST(req: NextRequest) {
   });
 
   return NextResponse.json({ url: session.url });
+  } catch (err) {
+    console.error('[checkout] Stripe error:', err);
+    return NextResponse.json({ error: 'Erro ao criar sessão de pagamento.' }, { status: 500 });
+  }
 }
