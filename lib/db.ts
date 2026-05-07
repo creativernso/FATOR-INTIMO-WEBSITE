@@ -97,6 +97,7 @@ const defaultPosts: Post[] = [
 const defaultProducts: Product[] = [
   {
     id: '1',
+    slug: 'fator-atracao',
     title: 'Fator Atração',
     hook: 'O mapa psicológico que faz alguém pensar em você o tempo todo',
     description: 'Descubra os mecanismos neurológicos da atração e como ativá-los de forma autêntica. Não se trata de técnicas — é sobre entender como a mente funciona.',
@@ -110,6 +111,7 @@ const defaultProducts: Product[] = [
   },
   {
     id: '2',
+    slug: 'codigo-da-intimidade',
     title: 'Código da Intimidade',
     hook: 'Como criar conexões profundas sem perder sua essência',
     description: 'Um guia completo sobre vulnerabilidade estratégica, comunicação não-violenta e os fundamentos de relacionamentos que realmente duram.',
@@ -123,6 +125,7 @@ const defaultProducts: Product[] = [
   },
   {
     id: '3',
+    slug: 'blindagem-emocional',
     title: 'Blindagem Emocional',
     hook: 'Pare de se destruir por pessoas que não valem',
     description: 'Um programa de desintoxicação emocional. Aprenda a reconhecer relacionamentos tóxicos, recuperar seu valor próprio e construir limites saudáveis.',
