@@ -10,6 +10,7 @@ import {
   MessageSquare,
   ExternalLink,
   Users,
+  ShoppingBag,
 } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton';
 
@@ -19,6 +20,7 @@ const navItems = [
   { href: '/admin/products', label: 'Produtos', icon: Package },
   { href: '/admin/testimonials', label: 'Depoimentos', icon: MessageSquare },
   { href: '/admin/leads', label: 'Leads', icon: Users },
+  { href: '/admin/orders', label: 'Pedidos', icon: ShoppingBag },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { FileText, Package, MessageSquare, Users, ArrowUpRight, Plus } from 'lucide-react';
+import { FileText, Package, MessageSquare, Users, ArrowUpRight, Plus, ShoppingBag } from 'lucide-react';
 import { getPosts, getProducts, getTestimonials, getLeads } from '@/lib/db';
+import { getOrders } from '@/lib/orders';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,12 +10,13 @@ export default function AdminDashboard() {
   const products = getProducts();
   const testimonials = getTestimonials();
   const leads = getLeads();
+  const orders = getOrders();
 
   const stats = [
     { label: 'Artigos', value: posts.length, icon: FileText, href: '/admin/blog', accent: '#3b82f6', bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.15)' },
     { label: 'Produtos', value: products.length, icon: Package, href: '/admin/products', accent: '#a855f7', bg: 'rgba(168,85,247,0.08)', border: 'rgba(168,85,247,0.15)' },
-    { label: 'Depoimentos', value: testimonials.length, icon: MessageSquare, href: '/admin/testimonials', accent: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.15)' },
-    { label: 'Leads', value: leads.length, icon: Users, href: '/admin/leads', accent: '#fe0050', bg: 'rgba(254,0,80,0.08)', border: 'rgba(254,0,80,0.15)' },
+    { label: 'Pedidos', value: orders.length, icon: ShoppingBag, href: '/admin/orders', accent: '#fe0050', bg: 'rgba(254,0,80,0.08)', border: 'rgba(254,0,80,0.15)' },
+    { label: 'Leads', value: leads.length, icon: Users, href: '/admin/leads', accent: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.15)' },
   ];
 
   const recentLeads = leads.slice(-6).reverse();

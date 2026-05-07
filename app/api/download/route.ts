@@ -27,18 +27,25 @@ export async function GET(req: NextRequest) {
 
   if (!product) return NextResponse.json({ error: 'Product not found' }, { status: 404 });
 
-  // Try Firebase Storage signed URL first
+  const shouldRedirect = req.nextUrl.searchParams.get('redirect') === '1';
+
+  // Try Firebase Storage signed URL, fall back to stored downloadUrl
   const filePath = `products/${productId}/ebook.pdf`;
+  let resolvedUrl: string | null = null;
+
   try {
-    const signedUrl = await getSignedDownloadUrl(filePath, 60 * 60 * 1000); // 1 hour
-    return NextResponse.json({ url: signedUrl, source: 'storage' });
+    resolvedUrl = await getSignedDownloadUrl(filePath, 60 * 60 * 1000);
   } catch {
-    // Fall back to downloadUrl from product data
     const order = getOrderBySession(sessionId);
-    const fallbackUrl = order?.downloadUrl || product.downloadUrl;
-    if (fallbackUrl) {
-      return NextResponse.json({ url: fallbackUrl, source: 'direct' });
-    }
+    resolvedUrl = order?.downloadUrl || product.downloadUrl || null;
+  }
+
+  if (!resolvedUrl) {
     return NextResponse.json({ error: 'Download not available yet' }, { status: 404 });
   }
+
+  if (shouldRedirect) {
+    return NextResponse.redirect(resolvedUrl);
+  }
+  return NextResponse.json({ url: resolvedUrl });
 }

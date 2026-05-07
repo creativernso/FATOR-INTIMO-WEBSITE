@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     const name = session.customer_details?.name ?? '';
 
     const product = productId ? getProducts().find((p) => p.id === productId) : null;
-    const downloadUrl = product?.downloadUrl || session.metadata?.downloadUrl || '';
+    const rawDownloadUrl = product?.downloadUrl || session.metadata?.downloadUrl || '';
 
     // Save order
     saveOrder({
@@ -44,11 +44,14 @@ export async function POST(req: NextRequest) {
       amountTotal: session.amount_total ?? 0,
       currency: session.currency ?? 'brl',
       createdAt: new Date().toISOString(),
-      downloadUrl,
+      downloadUrl: rawDownloadUrl,
     });
 
-    // Send confirmation email
+    // Send confirmation email with secure download link
     if (resend && email && product) {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+      const secureDownloadUrl = `${baseUrl}/api/download?session_id=${session.id}&redirect=1`;
+
       await resend.emails.send({
         from: FROM_EMAIL,
         to: email,
@@ -56,12 +59,12 @@ export async function POST(req: NextRequest) {
         html: purchaseConfirmationHtml({
           productTitle: product.title,
           customerName: name,
-          downloadUrl,
+          downloadUrl: secureDownloadUrl,
         }),
         text: purchaseConfirmationText({
           productTitle: product.title,
           customerName: name,
-          downloadUrl,
+          downloadUrl: secureDownloadUrl,
         }),
       });
     }
