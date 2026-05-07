@@ -26,7 +26,8 @@ export async function POST(request: Request) {
     });
 
     return response;
-  } catch {
+  } catch (err) {
+    console.error('[session] createSessionCookie failed:', err);
     return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
   }
 }
