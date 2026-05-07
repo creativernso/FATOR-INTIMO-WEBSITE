@@ -86,8 +86,22 @@ export default async function SocialPage() {
 
           {/* Latest videos grid */}
           {ytVideos.length === 0 ? (
-            <div className="rounded-2xl border border-white/5 bg-surface p-10 text-center text-text-muted text-sm">
-              Nenhum vídeo publicado ainda.
+            <div className="rounded-2xl border border-white/5 bg-surface p-10 text-center">
+              <div className="w-12 h-12 rounded-full bg-[#FF0000]/10 border border-[#FF0000]/20 flex items-center justify-center mx-auto mb-4">
+                <Youtube size={20} className="text-[#FF0000]" />
+              </div>
+              <p className="text-text-primary text-sm font-medium mb-1">Em breve por aqui</p>
+              <p className="text-text-muted text-xs mb-5 leading-relaxed max-w-xs mx-auto">
+                Os primeiros vídeos do canal estão a caminho. Inscreva-se para ser notificado assim que chegarem.
+              </p>
+              <a
+                href="https://www.youtube.com/@fatorintimo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-[#FF0000] border border-[#FF0000]/20 hover:bg-[#FF0000]/10 px-5 py-2 rounded-full transition-all"
+              >
+                Inscrever-se no canal <ExternalLink size={12} />
+              </a>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
