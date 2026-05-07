@@ -75,9 +75,12 @@ export default async function Home() {
     <>
       {/* ── HERO ── */}
       <section className="relative flex flex-col pt-36 pb-20 overflow-hidden">
-        {/* Background image */}
-        <div className="absolute inset-0 pointer-events-none"
+        {/* Background image — desktop */}
+        <div className="absolute inset-0 pointer-events-none hidden md:block"
           style={{ backgroundImage: 'url(/background.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }} />
+        {/* Background image — mobile & tablet */}
+        <div className="absolute inset-0 pointer-events-none block md:hidden"
+          style={{ backgroundImage: 'url(/background-mobil.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }} />
         {/* Background glow */}
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full opacity-10 pointer-events-none"
           style={{ background: 'radial-gradient(ellipse, #fe0050 0%, transparent 70%)' }} />
