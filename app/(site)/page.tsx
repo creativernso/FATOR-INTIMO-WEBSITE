@@ -116,7 +116,7 @@ export default async function Home() {
 
       {/* ── BLOG POSTS ── */}
       {posts.length > 0 && (
-        <section className="py-28 px-6">
+        <section className="pt-10 pb-28 md:py-28 px-6">
           <div className="max-w-5xl mx-auto">
             <AnimateOnScroll>
               <div className="flex items-end justify-between mb-12">
