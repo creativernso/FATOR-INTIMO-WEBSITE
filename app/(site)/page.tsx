@@ -74,7 +74,7 @@ export default async function Home() {
   return (
     <>
       {/* ── HERO ── */}
-      <section className="relative flex flex-col pt-72 md:pt-36 pb-20 overflow-hidden">
+      <section className="relative flex flex-col pt-72 md:pt-52 pb-20 md:pb-36 overflow-hidden">
         {/* Background image — desktop */}
         <div className="absolute inset-0 pointer-events-none hidden md:block"
           style={{ backgroundImage: 'url(/background.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }} />
