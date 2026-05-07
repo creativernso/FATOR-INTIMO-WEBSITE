@@ -28,18 +28,35 @@ export async function POST(request: Request) {
   const filename = `images/${folder}/${Date.now()}.${ext}`;
   const token = crypto.randomUUID();
 
-  const bucket = getAdminStorage().bucket();
+  const bucketName = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
+  if (!bucketName) {
+    console.error('[upload-image] NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET not set');
+    return NextResponse.json({ error: 'Storage not configured' }, { status: 500 });
+  }
+
+  let bucket;
+  try {
+    bucket = getAdminStorage().bucket(bucketName);
+  } catch (err) {
+    console.error('[upload-image] Failed to get storage bucket:', err);
+    return NextResponse.json({ error: 'Storage init failed' }, { status: 500 });
+  }
+
   const fileRef = bucket.file(filename);
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  await fileRef.save(buffer, {
-    metadata: {
-      contentType: file.type,
-      metadata: { firebaseStorageDownloadTokens: token },
-    },
-  });
+  try {
+    await fileRef.save(buffer, {
+      metadata: {
+        contentType: file.type,
+        metadata: { firebaseStorageDownloadTokens: token },
+      },
+    });
+  } catch (err) {
+    console.error('[upload-image] Failed to save file:', err);
+    return NextResponse.json({ error: 'Upload to storage failed' }, { status: 500 });
+  }
 
-  const bucketName = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
   const encodedPath = encodeURIComponent(filename);
   const url = `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodedPath}?alt=media&token=${token}`;
 
