@@ -3,13 +3,13 @@
 import { useRouter } from 'next/navigation';
 import { LogOut } from 'lucide-react';
 import { signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { getFirebaseAuth } from '@/lib/firebase';
 
 export default function LogoutButton({ iconOnly = false }: { iconOnly?: boolean }) {
   const router = useRouter();
 
   const handleLogout = async () => {
-    await signOut(auth);
+    await signOut(getFirebaseAuth());
     await fetch('/api/auth/logout', { method: 'POST' });
     router.push('/admin/login');
     router.refresh();

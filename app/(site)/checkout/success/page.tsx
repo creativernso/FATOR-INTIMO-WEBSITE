@@ -45,7 +45,7 @@ export default async function SuccessPage({
             </div>
 
             <span className="text-xs text-accent tracking-widest uppercase mb-3 block">Compra confirmada</span>
-            <h1 className="font-heading text-3xl font-medium text-text-primary mb-2">
+            <h1 className="font-body text-3xl font-medium text-text-primary mb-2">
               Bem-vindo ao próximo nível.
             </h1>
             {product && (

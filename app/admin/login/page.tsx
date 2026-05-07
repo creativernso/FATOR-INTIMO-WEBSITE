@@ -10,7 +10,7 @@ import {
   sendPasswordResetEmail,
   AuthError,
 } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { getFirebaseAuth } from '@/lib/firebase';
 import { Eye, EyeOff, Lock, ArrowLeft, Mail } from 'lucide-react';
 
 type Mode = 'login' | 'reset';
@@ -53,7 +53,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
+      const result = await signInWithEmailAndPassword(getFirebaseAuth(), email, password);
       const idToken = await result.user.getIdToken();
 
       const res = await fetch('/api/auth/session', {
@@ -82,7 +82,7 @@ export default function LoginPage() {
     setResetLoading(true);
 
     try {
-      await sendPasswordResetEmail(auth, resetEmail);
+      await sendPasswordResetEmail(getFirebaseAuth(), resetEmail);
       setResetSent(true);
     } catch (err) {
       const code = (err as AuthError).code ?? '';

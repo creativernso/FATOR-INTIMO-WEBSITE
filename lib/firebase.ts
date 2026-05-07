@@ -1,5 +1,5 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
+import { getAuth, Auth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -10,5 +10,25 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+// Lazy-initialize so server-side module evaluation never calls initializeApp
+let _app: FirebaseApp | undefined;
+let _auth: Auth | undefined;
+
+function getFirebaseApp(): FirebaseApp {
+  if (!_app) {
+    _app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  }
+  return _app;
+}
+
+export function getFirebaseAuth(): Auth {
+  if (!_auth) {
+    _auth = getAuth(getFirebaseApp());
+  }
+  return _auth;
+}
+
+// Legacy export for existing callers — only safe to use in browser context
+export const auth = typeof window !== 'undefined'
+  ? (() => { try { return getFirebaseAuth(); } catch { return null as unknown as Auth; } })()
+  : null as unknown as Auth;
