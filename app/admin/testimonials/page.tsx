@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Testimonial } from '@/lib/types';
 import { Pencil, Trash2, Plus, X, Check, Star } from 'lucide-react';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 const emptyForm = {
   name: '',
@@ -11,6 +12,7 @@ const emptyForm = {
   transformation: '',
   rating: 5,
   productPurchased: '',
+  avatar: '',
 };
 
 export default function AdminTestimonials() {
@@ -43,6 +45,7 @@ export default function AdminTestimonials() {
       transformation: t.transformation,
       rating: t.rating,
       productPurchased: t.productPurchased || '',
+      avatar: t.avatar || '',
     });
     setEditingId(t.id);
     setShowForm(true);
@@ -188,6 +191,16 @@ export default function AdminTestimonials() {
                   <label className="text-text-muted text-xs mb-1.5 block">Produto comprado</label>
                   <input className="admin-input" value={form.productPurchased} onChange={(e) => setForm({ ...form, productPurchased: e.target.value })} placeholder="Fator Atração" />
                 </div>
+              </div>
+
+              <div className="max-w-[160px]">
+                <ImageUpload
+                  label="Foto (avatar)"
+                  value={form.avatar}
+                  onChange={(url) => setForm({ ...form, avatar: url })}
+                  folder="testimonials"
+                  aspect="square"
+                />
               </div>
             </div>
 

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Post } from '@/lib/types';
 import { Pencil, Trash2, Plus, X, Check, Star, Clock } from 'lucide-react';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 const emptyForm = {
   title: '',
@@ -277,15 +278,13 @@ export default function AdminBlog() {
                 </div>
               </div>
 
-              <div>
-                <label className="text-text-muted text-xs mb-1.5 block">URL da imagem de capa</label>
-                <input
-                  className="admin-input"
-                  value={form.coverImage}
-                  onChange={(e) => setForm({ ...form, coverImage: e.target.value })}
-                  placeholder="https://..."
-                />
-              </div>
+              <ImageUpload
+                label="Imagem de capa"
+                value={form.coverImage}
+                onChange={(url) => setForm({ ...form, coverImage: url })}
+                folder="posts"
+                aspect="video"
+              />
             </div>
 
             <div className="flex items-center justify-end gap-3 p-6 border-t border-white/5">
