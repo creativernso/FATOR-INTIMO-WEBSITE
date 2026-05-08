@@ -111,17 +111,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Header */}
         <header
           className="flex-shrink-0 border-b border-white/5 px-6 lg:px-10 flex items-center justify-between min-h-[64px] lg:min-h-[72px]"
-          style={{ background: 'linear-gradient(90deg, var(--header-start) 0%, var(--header-end) 100%)' }}
+          style={{ background: '#000000' }}
         >
           <div className="flex items-center gap-3">
             <div>
               <h1
-                className="font-body text-text-primary font-medium leading-none"
-                style={{ fontSize: 'clamp(0.95rem, 1.2vw, 1.15rem)' }}
+                className="font-body font-medium leading-none"
+                style={{ fontSize: 'clamp(0.95rem, 1.2vw, 1.15rem)', color: '#e0e0e0' }}
               >
                 {currentPage?.label ?? 'Admin'}
               </h1>
-              <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.85vw, 0.8rem)' }}>
+              <p className="mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.85vw, 0.8rem)', color: '#666666' }}>
                 Fator Íntimo · Painel de gestão
               </p>
             </div>
