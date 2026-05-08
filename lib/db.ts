@@ -1,6 +1,6 @@
 import { getAdminDb } from './firebase-admin';
 import type { Query } from 'firebase-admin/firestore';
-import { Post, Product, Testimonial, Lead, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport } from './types';
+import { Post, Product, Testimonial, Lead, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification } from './types';
 
 const db = () => getAdminDb();
 
@@ -91,6 +91,46 @@ export async function incrementLike(postSlug: string): Promise<number> {
   const ref = db().collection('reactions').doc(postSlug);
   await ref.set({ likes: (await ref.get()).data()?.likes + 1 || 1 }, { merge: true });
   return (await ref.get()).data()?.likes ?? 1;
+}
+
+// ─── Admin Notifications ──────────────────────────────────────────────────────
+
+export async function getAdminNotifications(onlyUnread = false): Promise<AdminNotification[]> {
+  const snap = await db().collection('admin_notifications').get();
+  let notes = snap.docs.map((d) => d.data() as AdminNotification);
+  if (onlyUnread) notes = notes.filter((n) => !n.read);
+  return notes.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+export const upsertAdminNotification = (n: AdminNotification): Promise<void> => upsertDoc('admin_notifications', n);
+
+export async function markNotificationsRead(ids?: string[]): Promise<void> {
+  const snap = await db().collection('admin_notifications').get();
+  const batch = db().batch();
+  for (const doc of snap.docs) {
+    if (!ids || ids.includes(doc.id)) {
+      batch.update(doc.ref, { read: true });
+    }
+  }
+  await batch.commit();
+}
+
+export async function createNotification(
+  type: AdminNotification['type'],
+  title: string,
+  body: string,
+  meta?: Record<string, string>
+): Promise<void> {
+  const { v4: uuid } = await import('uuid');
+  await upsertAdminNotification({
+    id: uuid(),
+    type,
+    title,
+    body,
+    read: false,
+    createdAt: new Date().toISOString(),
+    meta,
+  });
 }
 
 // ─── Community ────────────────────────────────────────────────────────────────

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { saveOrder } from '@/lib/orders';
-import { getProducts } from '@/lib/db';
+import { getProducts, createNotification } from '@/lib/db';
 import { purchaseConfirmationHtml, purchaseConfirmationText } from '@/lib/email-template';
 import { v4 as uuid } from 'uuid';
 
@@ -49,6 +49,13 @@ export async function POST(req: NextRequest) {
         downloadUrl: rawDownloadUrl,
       });
       console.log('[webhook] order saved:', session.id);
+      const amount = ((session.amount_total ?? 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      await createNotification(
+        'purchase',
+        'Nova compra realizada',
+        `${name || email} comprou "${product?.title ?? 'produto'}" por ${amount}.`,
+        { name, email, productTitle: product?.title ?? '', amount }
+      );
     } catch (err) {
       console.error('[webhook] failed to save order:', err);
     }

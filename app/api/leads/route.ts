@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLeads, upsertLead, getGuideConfig } from '@/lib/db';
+import { getLeads, upsertLead, getGuideConfig, createNotification } from '@/lib/db';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { guideDeliveryHtml, guideDeliveryText } from '@/lib/email-template';
 import { v4 as uuid } from 'uuid';
@@ -20,6 +20,12 @@ export async function POST(req: NextRequest) {
     guideDownloaded: false,
   };
   await upsertLead(newLead);
+  await createNotification(
+    'guide_download',
+    'Novo download do guia',
+    `${newLead.name || 'Alguém'} baixou o guia gratuito.`,
+    { name: newLead.name, email: newLead.email ?? '', source: newLead.source }
+  );
 
   // Auto-send guide delivery email if email provided
   if (resend && newLead.email) {

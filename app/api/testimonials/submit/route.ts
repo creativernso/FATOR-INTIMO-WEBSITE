@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { upsertTestimonial } from '@/lib/db';
+import { upsertTestimonial, createNotification } from '@/lib/db';
 import { v4 as uuid } from 'uuid';
 
 export async function POST(req: NextRequest) {
@@ -30,6 +30,13 @@ export async function POST(req: NextRequest) {
     featured: false,
     submittedAt: new Date().toISOString(),
   });
+
+  await createNotification(
+    'testimonial',
+    'Novo depoimento enviado',
+    `${anonymous ? 'Anônimo' : name?.trim() || 'Alguém'} enviou um depoimento para aprovação.`,
+    { name: anonymous ? 'Anônimo' : name?.trim() || '' }
+  );
 
   return NextResponse.json({ ok: true });
 }

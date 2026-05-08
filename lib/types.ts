@@ -74,6 +74,18 @@ export interface Comment {
   approved: boolean;
 }
 
+// ─── Admin Notifications ──────────────────────────────────────────────────────
+
+export interface AdminNotification {
+  id: string;
+  type: 'purchase' | 'guide_download' | 'community_join' | 'community_post' | 'community_report' | 'comment' | 'testimonial';
+  title: string;
+  body: string;
+  read: boolean;
+  createdAt: string;
+  meta?: Record<string, string>;
+}
+
 // ─── Community ────────────────────────────────────────────────────────────────
 
 export interface CommunityUser {

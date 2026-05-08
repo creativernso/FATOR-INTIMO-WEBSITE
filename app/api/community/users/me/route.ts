@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth } from '@/lib/firebase-admin';
-import { getCommunityUser, upsertCommunityUser } from '@/lib/db';
+import { getCommunityUser, upsertCommunityUser, createNotification } from '@/lib/db';
 import { CommunityUser } from '@/lib/types';
 
 async function verifyToken(req: NextRequest) {
@@ -36,6 +36,12 @@ export async function POST(req: NextRequest) {
   };
 
   await upsertCommunityUser(user);
+  await createNotification(
+    'community_join',
+    'Novo membro na Comunidade',
+    `${user.name} entrou na Comunidade Íntima.`,
+    { name: user.name }
+  );
   return NextResponse.json(user, { status: 201 });
 }
 

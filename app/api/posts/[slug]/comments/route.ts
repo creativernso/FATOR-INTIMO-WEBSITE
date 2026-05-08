@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getComments, upsertComment } from '@/lib/db';
+import { getComments, upsertComment, createNotification } from '@/lib/db';
 import { v4 as uuid } from 'uuid';
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
@@ -31,6 +31,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
     createdAt: new Date().toISOString(),
     approved: false,
   });
+
+  await createNotification(
+    'comment',
+    'Novo comentário no blog',
+    `${name.trim()} comentou no artigo "${slug}".`,
+    { name: name.trim(), slug }
+  );
 
   return NextResponse.json({ ok: true });
 }

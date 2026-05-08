@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton';
 import ThemeToggle from '@/components/ThemeToggle';
+import NotificationBell from '@/components/admin/NotificationBell';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
@@ -140,6 +141,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 Online
               </span>
             </div>
+            <NotificationBell />
             <ThemeToggle />
             <div
               className="w-8 h-8 lg:w-9 lg:h-9 rounded-full border border-accent/30 flex items-center justify-center text-accent font-semibold flex-shrink-0"
