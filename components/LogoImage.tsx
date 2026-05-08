@@ -26,7 +26,7 @@ export default function LogoImage({ height = 36, className = '' }: Props) {
     <Image
       src="/LOGO.png"
       alt="Fator Íntimo"
-      width={height * 3.5}
+      width={Math.round(height * 9.4)}
       height={height}
       className={`object-contain ${className}`}
       style={{ height, width: 'auto' }}

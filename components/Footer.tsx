@@ -35,7 +35,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-2">
             <Link href="/" className="inline-block mb-5">
-              <LogoImage height={19} />
+              <LogoImage height={26} />
             </Link>
             <p className="text-text-secondary text-sm leading-relaxed max-w-xs mb-6">
               Psicologia profunda para quem quer entender o amor, dominar suas relações e viver com presença emocional.
