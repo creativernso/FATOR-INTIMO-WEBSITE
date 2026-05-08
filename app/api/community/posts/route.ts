@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   if (!decoded) return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 });
 
   const body = await req.json();
-  const { title, body: bodyText, category, tags, anonymous } = body;
+  const { title, body: bodyText, category, tags, anonymous, images } = body;
 
   if (!title?.trim() || !bodyText?.trim() || !category) {
     return NextResponse.json({ error: 'Título, conteúdo e categoria são obrigatórios.' }, { status: 400 });
@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
     body: bodyText.trim(),
     category,
     tags: tags ?? [],
+    images: Array.isArray(images) ? images.slice(0, 3) : [],
     authorUid: decoded.uid,
     authorName: anonymous ? 'Anônimo' : user.name,
     authorAvatar: anonymous ? undefined : user.avatar,

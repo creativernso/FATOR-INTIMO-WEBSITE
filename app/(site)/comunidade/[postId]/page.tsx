@@ -93,6 +93,45 @@ export default async function PostPage({ params }: Props) {
         </div>
       </section>
 
+      {/* Post images */}
+      {post.images && post.images.length > 0 && (
+        <section className="px-6 pb-8">
+          <div className="max-w-3xl mx-auto">
+            <AnimateOnScroll>
+              <div className={`grid gap-2 ${
+                post.images.length === 1 ? 'grid-cols-1' :
+                post.images.length === 2 ? 'grid-cols-2' :
+                'grid-cols-2'
+              }`}>
+                {post.images.length === 3 ? (
+                  <>
+                    <div className="row-span-2 rounded-2xl overflow-hidden border border-white/6" style={{ aspectRatio: '2/3' }}>
+                      <img src={post.images[0]} alt="" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="rounded-xl overflow-hidden border border-white/6" style={{ aspectRatio: '4/3' }}>
+                      <img src={post.images[1]} alt="" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="rounded-xl overflow-hidden border border-white/6" style={{ aspectRatio: '4/3' }}>
+                      <img src={post.images[2]} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  </>
+                ) : (
+                  post.images.map((url, i) => (
+                    <div
+                      key={i}
+                      className="rounded-2xl overflow-hidden border border-white/6"
+                      style={{ aspectRatio: post.images!.length === 1 ? '16/9' : '4/3' }}
+                    >
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  ))
+                )}
+              </div>
+            </AnimateOnScroll>
+          </div>
+        </section>
+      )}
+
       {/* Interactions: reactions + comments (client) */}
       <PostInteractions postId={post.id} initialReactions={post.reactionCount} />
     </>

@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Send, Loader, EyeOff, CheckCircle, LogIn } from 'lucide-react';
+import { Send, Loader, EyeOff, CheckCircle, LogIn, Camera, X, ImageIcon } from 'lucide-react';
 import { useCommunity } from '@/components/community/CommunityProvider';
 import AuthModal from '@/components/community/AuthModal';
-import { authedFetch } from '@/lib/community-auth';
+import { authedFetch, getIdToken } from '@/lib/community-auth';
 import { COMMUNITY_CATEGORIES } from '@/lib/community';
+
+const MAX_IMAGES = 3;
 
 export default function CreatePostForm() {
   const router = useRouter();
@@ -17,9 +19,46 @@ export default function CreatePostForm() {
   const [body, setBody] = useState('');
   const [category, setCategory] = useState('');
   const [anonymous, setAnonymous] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
+  const [uploadingCount, setUploadingCount] = useState(0);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function handleImageFiles(files: FileList) {
+    const remaining = MAX_IMAGES - images.length;
+    const toProcess = Array.from(files).slice(0, remaining);
+    if (!toProcess.length) return;
+
+    setUploadingCount((n) => n + toProcess.length);
+    setError('');
+
+    const token = await getIdToken();
+    const results = await Promise.allSettled(
+      toProcess.map(async (file) => {
+        const fd = new FormData();
+        fd.append('file', file);
+        const res = await fetch('/api/community/posts/upload-image', {
+          method: 'POST',
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          body: fd,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? 'Erro no upload.');
+        return data.imageUrl as string;
+      })
+    );
+
+    const uploaded: string[] = [];
+    for (const r of results) {
+      if (r.status === 'fulfilled') uploaded.push(r.value);
+      else setError((r as PromiseRejectedResult).reason?.message ?? 'Erro ao enviar imagem.');
+    }
+
+    setImages((prev) => [...prev, ...uploaded].slice(0, MAX_IMAGES));
+    setUploadingCount((n) => n - toProcess.length);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,11 +69,10 @@ export default function CreatePostForm() {
     }
     setSending(true);
     setError('');
-
     try {
       const res = await authedFetch('/api/community/posts', {
         method: 'POST',
-        body: JSON.stringify({ title, body, category, anonymous }),
+        body: JSON.stringify({ title, body, category, anonymous, images }),
       });
       const data = await res.json();
       if (res.ok) setSent(true);
@@ -46,16 +84,18 @@ export default function CreatePostForm() {
     }
   };
 
-  if (loading) return <div className="max-w-2xl mx-auto px-6 pb-28 h-64 flex items-center justify-center"><Loader size={20} className="animate-spin text-text-muted" /></div>;
+  if (loading) return (
+    <div className="max-w-2xl mx-auto px-6 pb-28 h-64 flex items-center justify-center">
+      <Loader size={20} className="animate-spin text-text-muted" />
+    </div>
+  );
 
   if (!profile) {
     return (
       <div className="max-w-2xl mx-auto px-6 pb-28">
         <div className="rounded-2xl border border-white/5 bg-surface p-12 text-center">
           <p className="text-5xl mb-6 opacity-30">◎</p>
-          <h2 className="font-heading text-2xl font-light text-text-primary mb-3">
-            Entre na comunidade
-          </h2>
+          <h2 className="font-heading text-2xl font-light text-text-primary mb-3">Entre na comunidade</h2>
           <p className="text-text-muted text-sm mb-8 max-w-sm mx-auto leading-relaxed">
             Para publicar uma discussão, você precisa de uma conta. É rápido e gratuito.
           </p>
@@ -163,13 +203,76 @@ export default function CreatePostForm() {
         />
       </div>
 
+      {/* Image upload */}
+      <div>
+        <label className="block text-text-muted text-xs mb-3 flex items-center gap-1.5">
+          <Camera size={12} /> Fotos <span className="opacity-50">(opcional · até {MAX_IMAGES})</span>
+        </label>
+
+        {/* Thumbnails */}
+        {images.length > 0 && (
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            {images.map((url, i) => (
+              <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-white/8 group/img">
+                <img src={url} alt="" className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setImages((prev) => prev.filter((_, idx) => idx !== i))}
+                  className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/70 text-white flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity hover:bg-red-500/80"
+                >
+                  <X size={11} />
+                </button>
+              </div>
+            ))}
+            {/* Uploading placeholders */}
+            {Array.from({ length: uploadingCount }).map((_, i) => (
+              <div key={`uploading-${i}`} className="aspect-square rounded-xl border border-white/8 bg-white/4 flex items-center justify-center">
+                <Loader size={16} className="animate-spin text-text-muted" />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Add more button */}
+        {images.length < MAX_IMAGES && (
+          <>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              className="hidden"
+              onChange={(e) => e.target.files && handleImageFiles(e.target.files)}
+            />
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={uploadingCount > 0}
+              className="w-full flex items-center justify-center gap-2.5 border border-dashed border-white/12 hover:border-accent/30 rounded-2xl py-5 text-text-muted hover:text-text-secondary transition-all disabled:opacity-50 group/upload"
+            >
+              {uploadingCount > 0 ? (
+                <><Loader size={14} className="animate-spin" /> Enviando...</>
+              ) : (
+                <>
+                  <ImageIcon size={16} className="group-hover/upload:text-accent transition-colors" />
+                  <span className="text-sm">
+                    {images.length === 0 ? 'Adicionar fotos à sua história' : `Adicionar mais ${MAX_IMAGES - images.length} foto${MAX_IMAGES - images.length !== 1 ? 's' : ''}`}
+                  </span>
+                </>
+              )}
+            </button>
+            <p className="text-text-muted text-[11px] mt-1.5 text-center opacity-60">JPEG · PNG · WEBP · Máx. 8 MB por foto</p>
+          </>
+        )}
+      </div>
+
       {error && (
         <p className="text-red-400 text-sm bg-red-400/10 rounded-xl px-4 py-3 border border-red-400/20">{error}</p>
       )}
 
       <button
         type="submit"
-        disabled={sending || !title.trim() || !body.trim() || !category}
+        disabled={sending || !title.trim() || !body.trim() || !category || uploadingCount > 0}
         className="w-full flex items-center justify-center gap-2.5 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white py-4 rounded-2xl font-medium text-sm transition-all"
       >
         {sending ? <Loader size={15} className="animate-spin" /> : <Send size={15} />}

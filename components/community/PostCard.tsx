@@ -55,9 +55,20 @@ export default function PostCard({ post, featured }: Props) {
         </h3>
 
         {/* Excerpt */}
-        <p className="text-text-secondary text-sm leading-relaxed line-clamp-3 mb-5">
+        <p className={`text-text-secondary text-sm leading-relaxed mb-4 ${post.images?.length ? 'line-clamp-2' : 'line-clamp-3'}`}>
           {post.body}
         </p>
+
+        {/* Image strip */}
+        {post.images && post.images.length > 0 && (
+          <div className={`grid gap-1.5 mb-4 ${post.images.length === 1 ? 'grid-cols-1' : post.images.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+            {post.images.map((url, i) => (
+              <div key={i} className="rounded-lg overflow-hidden border border-white/6" style={{ aspectRatio: '4/3' }}>
+                <img src={url} alt="" className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Footer */}
         <div className="flex items-center justify-between">
