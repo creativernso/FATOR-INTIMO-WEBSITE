@@ -39,7 +39,7 @@ const facebookPosts = [
 ];
 
 export default async function SocialPage() {
-  const ytVideos = await getLatestVideos(3);
+  const ytVideos = await getLatestVideos(4);
   return (
     <>
       {/* Hero */}
@@ -84,7 +84,6 @@ export default async function SocialPage() {
             </div>
           </AnimateOnScroll>
 
-          {/* Latest videos grid */}
           {ytVideos.length === 0 ? (
             <div className="rounded-2xl border border-white/5 bg-surface p-10 text-center">
               <div className="w-12 h-12 rounded-full bg-[#FF0000]/10 border border-[#FF0000]/20 flex items-center justify-center mx-auto mb-4">
@@ -104,27 +103,50 @@ export default async function SocialPage() {
               </a>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              {ytVideos.map((video, i) => (
-                <AnimateOnScroll key={video.id} delay={i * 80}>
-                  <div className="rounded-2xl overflow-hidden border border-white/5 bg-surface flex flex-col">
-                    <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                      <iframe
-                        className="absolute inset-0 w-full h-full"
-                        src={`https://www.youtube.com/embed/${video.id}?rel=0&modestbranding=1`}
-                        title={video.title}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="px-4 py-3 border-t border-white/5">
-                      <p className="text-text-secondary text-xs line-clamp-2">{video.title}</p>
-                    </div>
+            <>
+              {/* Featured video — autoplay muted */}
+              <AnimateOnScroll>
+                <div className="rounded-2xl overflow-hidden border border-white/8 bg-surface mb-6">
+                  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                    <iframe
+                      className="absolute inset-0 w-full h-full"
+                      src={`https://www.youtube.com/embed/${ytVideos[0].id}?autoplay=1&mute=1&rel=0&modestbranding=1&loop=0`}
+                      title={ytVideos[0].title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
                   </div>
-                </AnimateOnScroll>
-              ))}
-            </div>
+                  <div className="px-5 py-4 border-t border-white/5">
+                    <p className="text-text-primary text-sm font-medium line-clamp-2">{ytVideos[0].title}</p>
+                  </div>
+                </div>
+              </AnimateOnScroll>
+
+              {/* Remaining videos */}
+              {ytVideos.length > 1 && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  {ytVideos.slice(1).map((video, i) => (
+                    <AnimateOnScroll key={video.id} delay={i * 80}>
+                      <div className="rounded-2xl overflow-hidden border border-white/5 bg-surface flex flex-col">
+                        <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                          <iframe
+                            className="absolute inset-0 w-full h-full"
+                            src={`https://www.youtube.com/embed/${video.id}?rel=0&modestbranding=1`}
+                            title={video.title}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            loading="lazy"
+                          />
+                        </div>
+                        <div className="px-4 py-3 border-t border-white/5">
+                          <p className="text-text-secondary text-xs line-clamp-2">{video.title}</p>
+                        </div>
+                      </div>
+                    </AnimateOnScroll>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
