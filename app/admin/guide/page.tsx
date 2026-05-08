@@ -1,7 +1,5 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-
 import { useState, useEffect, useRef } from 'react';
 import { Save, Upload, FileText, Plus, Trash2, CheckCircle, AlertCircle } from 'lucide-react';
 import { GuideConfig } from '@/lib/types';

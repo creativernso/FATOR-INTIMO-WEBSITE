@@ -1,7 +1,5 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-
 import { useState, useEffect, useMemo } from 'react';
 import { Users, Mail, MessageSquare, Download, Search, Trash2, RefreshCw, CheckCircle } from 'lucide-react';
 import { Lead } from '@/lib/types';

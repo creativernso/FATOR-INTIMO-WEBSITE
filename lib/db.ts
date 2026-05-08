@@ -62,8 +62,9 @@ export async function getGuideConfig(): Promise<GuideConfig> {
   if (doc.exists) return doc.data() as GuideConfig;
   return defaultGuideConfig();
 }
-export const saveGuideConfig = (config: GuideConfig): Promise<void> =>
-  db().collection('guide_config').doc('main').set(config);
+export const saveGuideConfig = async (config: GuideConfig): Promise<void> => {
+  await db().collection('guide_config').doc('main').set(config);
+};
 
 function defaultGuideConfig(): GuideConfig {
   return {
