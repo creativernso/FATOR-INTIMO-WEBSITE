@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth } from '@/lib/firebase-admin';
 import { getCommunityUser, upsertCommunityUser, createNotification } from '@/lib/db';
 import { CommunityUser } from '@/lib/types';
+import { resend, FROM_EMAIL } from '@/lib/resend';
+import { communityWelcomeHtml, communityWelcomeText } from '@/lib/email-template';
 
 async function verifyToken(req: NextRequest) {
   const auth = req.headers.get('authorization');
@@ -25,9 +27,12 @@ export async function POST(req: NextRequest) {
   if (existing) return NextResponse.json(existing);
 
   const body = await req.json();
+  const userEmail: string | undefined = decoded.email ?? undefined;
+
   const user: CommunityUser = {
     uid: decoded.uid,
     name: body.name ?? decoded.name ?? 'Participante',
+    email: userEmail,
     bio: '',
     avatar: decoded.picture ?? '',
     role: 'user',
@@ -42,6 +47,17 @@ export async function POST(req: NextRequest) {
     `${user.name} entrou na Comunidade Íntima.`,
     { name: user.name }
   );
+
+  if (resend && userEmail) {
+    resend.emails.send({
+      from: FROM_EMAIL,
+      to: userEmail,
+      subject: 'Bem-vindo à Comunidade Íntima.',
+      html: communityWelcomeHtml({ name: user.name }),
+      text: communityWelcomeText({ name: user.name }),
+    }).catch(() => {/* non-fatal */});
+  }
+
   return NextResponse.json(user, { status: 201 });
 }
 

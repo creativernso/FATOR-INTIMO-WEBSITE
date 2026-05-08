@@ -91,6 +91,7 @@ export interface AdminNotification {
 export interface CommunityUser {
   uid: string;
   name: string;
+  email?: string;
   bio?: string;
   avatar?: string;
   role: 'user' | 'moderator' | 'founder';

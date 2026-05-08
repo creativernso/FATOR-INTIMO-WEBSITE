@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react';
 import {
   Check, X, Sparkles, Pin, Trash2, Users, MessageSquare,
-  AlertTriangle, Search, ChevronDown, Eye,
+  AlertTriangle, Search, ChevronDown, Eye, Send,
 } from 'lucide-react';
 import { CommunityPost, CommunityReport, CommunityUser } from '@/lib/types';
 import { getCategoryBySlug } from '@/lib/community';
 
-type Tab = 'posts' | 'users' | 'reports';
+type Tab = 'posts' | 'users' | 'reports' | 'emails';
 type PostFilter = 'all' | 'pending' | 'approved' | 'rejected';
 
 const fs = (min: string, mid: string, max: string) => `clamp(${min}, ${mid}, ${max})`;
@@ -30,6 +30,10 @@ export default function AdminComunidade() {
   const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailBody, setEmailBody] = useState('');
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailResult, setEmailResult] = useState<{ sent: number; failed: number; total: number } | null>(null);
 
   const fetchAll = async () => {
     setLoading(true);
@@ -78,6 +82,28 @@ export default function AdminComunidade() {
     });
     await fetchAll();
     setBusy(null);
+  };
+
+  const sendEmail = async () => {
+    if (!emailSubject.trim() || !emailBody.trim()) return;
+    if (!confirm(`Enviar para todos os membros da comunidade com email cadastrado?`)) return;
+    setEmailSending(true);
+    setEmailResult(null);
+    try {
+      const res = await fetch('/api/admin/community/emails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject: emailSubject, body: emailBody }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setEmailResult(data);
+        setEmailSubject('');
+        setEmailBody('');
+      }
+    } finally {
+      setEmailSending(false);
+    }
   };
 
   const patchReport = async (id: string, status: string) => {
@@ -139,11 +165,12 @@ export default function AdminComunidade() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-surface border border-white/5 rounded-xl p-1 w-fit">
+      <div className="flex gap-1 bg-surface border border-white/5 rounded-xl p-1 w-fit flex-wrap">
         {([
           { id: 'posts', label: 'Publicações', icon: MessageSquare },
           { id: 'users', label: 'Membros', icon: Users },
           { id: 'reports', label: `Denúncias${pendingReports.length > 0 ? ` (${pendingReports.length})` : ''}`, icon: AlertTriangle },
+          { id: 'emails', label: 'E-mails', icon: Send },
         ] as { id: Tab; label: string; icon: React.FC<{ size?: number }> }[]).map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -351,6 +378,60 @@ export default function AdminComunidade() {
               </tbody>
             </table>
           )}
+        </div>
+      )}
+
+      {/* Emails tab */}
+      {tab === 'emails' && (
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-white/5 bg-surface p-6 space-y-4">
+            <div>
+              <p className="text-text-muted text-xs mb-1">
+                {users.filter((u) => u.email && !u.banned).length} membros com email cadastrado
+              </p>
+              <h3 className="text-text-primary font-medium text-sm">Enviar comunicado para a Comunidade</h3>
+            </div>
+
+            <div>
+              <label className="block text-xs text-text-muted mb-1.5">Assunto</label>
+              <input
+                value={emailSubject}
+                onChange={(e) => setEmailSubject(e.target.value)}
+                placeholder="Ex: Novidade na Comunidade Íntima"
+                className="w-full bg-background border border-white/8 rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/30 transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-text-muted mb-1.5">Mensagem</label>
+              <textarea
+                value={emailBody}
+                onChange={(e) => setEmailBody(e.target.value)}
+                rows={7}
+                placeholder="Escreva sua mensagem para a comunidade..."
+                className="w-full bg-background border border-white/8 rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/30 transition-colors resize-none"
+              />
+            </div>
+
+            {emailResult && (
+              <div className="bg-green-400/8 border border-green-400/15 rounded-xl px-4 py-3">
+                <p className="text-green-400 text-sm font-medium">
+                  Enviado! {emailResult.sent} enviados · {emailResult.failed} falhas · {emailResult.total} total
+                </p>
+              </div>
+            )}
+
+            <div className="flex justify-end">
+              <button
+                onClick={sendEmail}
+                disabled={emailSending || !emailSubject.trim() || !emailBody.trim()}
+                className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-6 py-2.5 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+              >
+                <Send size={13} />
+                {emailSending ? 'Enviando...' : 'Enviar para membros'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

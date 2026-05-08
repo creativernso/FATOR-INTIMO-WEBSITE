@@ -87,10 +87,10 @@ export default function Navbar() {
               </a>
             ))}
             <Link
-              href="/free-guide"
+              href="/comunidade"
               className="ml-2 text-sm px-5 py-2 rounded-full bg-accent hover:bg-accent-hover text-white font-medium transition-all hover:shadow-lg hover:shadow-accent/20 whitespace-nowrap"
             >
-              Guia Gratuito
+              Comunidade Íntima
             </Link>
           </div>
 
@@ -126,10 +126,10 @@ export default function Navbar() {
             </Link>
           ))}
           <Link
-            href="/free-guide"
+            href="/comunidade"
             className="mt-2 text-sm px-8 py-3 rounded-full bg-accent text-white font-medium hover:bg-accent-hover transition-colors"
           >
-            Guia Gratuito
+            Comunidade Íntima
           </Link>
           <div className="flex gap-5 mt-4">
             {socialLinks.map((s) => (

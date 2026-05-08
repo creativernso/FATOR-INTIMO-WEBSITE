@@ -64,6 +64,39 @@ export default async function CommunidadePage() {
         </div>
       </section>
 
+      {/* ── Onboarding / What is this ──────────────────── */}
+      <section className="px-6 pb-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              {
+                icon: '◎',
+                title: 'Um espaço sem julgamentos',
+                body: 'Aqui você pode falar sobre o que realmente sente, sem filtros. Tudo passa por moderação humana para garantir um ambiente respeitoso.',
+              },
+              {
+                icon: '✦',
+                title: 'Anônimo quando quiser',
+                body: 'Não precisa se expor para participar. Publique de forma anônima sempre que quiser compartilhar algo mais íntimo ou vulnerável.',
+              },
+              {
+                icon: '♡',
+                title: 'Curado por Rafael Moreira',
+                body: 'Cada categoria foi desenhada para reunir as conversas que mais importam. Rafael acompanha e participa da comunidade diretamente.',
+              },
+            ].map((card) => (
+              <AnimateOnScroll key={card.title}>
+                <div className="rounded-2xl border border-white/5 bg-surface p-6 h-full">
+                  <span className="text-2xl block mb-3 opacity-60">{card.icon}</span>
+                  <h3 className="text-text-primary font-medium text-sm mb-2">{card.title}</h3>
+                  <p className="text-text-muted text-sm leading-relaxed">{card.body}</p>
+                </div>
+              </AnimateOnScroll>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="px-6 pb-32">
         <div className="max-w-6xl mx-auto">
 
