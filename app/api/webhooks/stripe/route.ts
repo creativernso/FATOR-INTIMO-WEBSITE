@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 
     const allProducts = await getProducts();
     const product = productId ? allProducts.find((p) => p.id === productId) : null;
-    const rawDownloadUrl = product?.downloadUrl || session.metadata?.downloadUrl || '';
+    const rawDownloadUrl = product?.downloadUrl || '';
 
     // Save order
     try {
