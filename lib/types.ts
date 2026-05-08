@@ -57,6 +57,16 @@ export interface Lead {
   guideDownloaded?: boolean;
 }
 
+export interface Comment {
+  id: string;
+  postSlug: string;
+  name: string;
+  email?: string;
+  content: string;
+  createdAt: string;
+  approved: boolean;
+}
+
 export interface GuideConfig {
   id: string; // always 'main'
   title: string;

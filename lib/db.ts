@@ -1,5 +1,6 @@
 import { getAdminDb } from './firebase-admin';
-import { Post, Product, Testimonial, Lead, GuideConfig } from './types';
+import type { Query } from 'firebase-admin/firestore';
+import { Post, Product, Testimonial, Lead, GuideConfig, Comment } from './types';
 
 const db = () => getAdminDb();
 
@@ -65,6 +66,27 @@ export async function getGuideConfig(): Promise<GuideConfig> {
 export const saveGuideConfig = async (config: GuideConfig): Promise<void> => {
   await db().collection('guide_config').doc('main').set(config);
 };
+
+// Comments
+export async function getComments(postSlug?: string): Promise<Comment[]> {
+  let query: Query = db().collection('comments');
+  if (postSlug) query = query.where('postSlug', '==', postSlug);
+  const snap = await query.get();
+  return snap.docs.map((d) => d.data() as Comment);
+}
+export const upsertComment = (c: Comment): Promise<void> => upsertDoc('comments', c);
+export const deleteComment = (id: string): Promise<void> => deleteDoc('comments', id);
+
+// Reactions (likes per post)
+export async function getLikes(postSlug: string): Promise<number> {
+  const doc = await db().collection('reactions').doc(postSlug).get();
+  return doc.exists ? (doc.data()?.likes ?? 0) : 0;
+}
+export async function incrementLike(postSlug: string): Promise<number> {
+  const ref = db().collection('reactions').doc(postSlug);
+  await ref.set({ likes: (await ref.get()).data()?.likes + 1 || 1 }, { merge: true });
+  return (await ref.get()).data()?.likes ?? 1;
+}
 
 function defaultGuideConfig(): GuideConfig {
   return {

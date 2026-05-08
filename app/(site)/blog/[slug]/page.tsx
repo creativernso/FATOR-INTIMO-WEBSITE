@@ -3,7 +3,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Clock, Calendar } from 'lucide-react';
-import { getPosts } from '@/lib/db';
+import { getPosts, getComments, getLikes } from '@/lib/db';
+import ReactionsBar from './ReactionsBar';
+import CommentsSection from './CommentsSection';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,6 +41,10 @@ export default async function BlogPost({ params }: Props) {
   if (!post) notFound();
 
   const related = posts.filter((p) => p.id !== post.id && p.category === post.category).slice(0, 2);
+  const [approvedComments, likes] = await Promise.all([
+    getComments(post.slug).then((cs) => cs.filter((c) => c.approved)),
+    getLikes(post.slug),
+  ]);
 
   return (
     <>
@@ -103,6 +109,9 @@ export default async function BlogPost({ params }: Props) {
             dangerouslySetInnerHTML={{ __html: formatContent(post.content) }}
           />
 
+          {/* Reactions */}
+          <ReactionsBar slug={post.slug} commentCount={approvedComments.length} />
+
           {/* CTA */}
           <div className="mt-14 rounded-2xl border border-white/5 bg-surface p-8 text-center">
             <h3 className="font-heading text-2xl font-medium text-text-primary mb-3">
@@ -118,6 +127,9 @@ export default async function BlogPost({ params }: Props) {
               Baixar Guia Gratuito
             </Link>
           </div>
+
+          {/* Comments */}
+          <CommentsSection slug={post.slug} />
 
           {/* Related */}
           {related.length > 0 && (
