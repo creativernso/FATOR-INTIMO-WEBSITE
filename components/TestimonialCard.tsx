@@ -20,8 +20,8 @@ export default function TestimonialCard({ testimonial, featured }: Props) {
   return (
     <div className={`relative flex flex-col rounded-3xl transition-all duration-300 overflow-hidden ${
       isFeatured
-        ? 'bg-surface border border-accent/15 hover:border-accent/25'
-        : 'bg-surface border border-white/6 hover:border-white/12'
+        ? 'bg-surface border border-white/20 hover:border-white/30'
+        : 'bg-surface border border-white/20 hover:border-white/30'
     }`}
     style={{ boxShadow: '0 4px 32px rgba(0,0,0,0.35)' }}>
 
