@@ -294,6 +294,14 @@ h1, h2, h3, h4, h5 {
 /* Select options */
 [data-theme="light"] select.admin-input option { background: #ffffff; color: #111111; }
 
+/* Admin chrome (sidebar + header) — dark: solid black, light: solid white */
+.admin-chrome {
+  background: #000000;
+}
+[data-theme="light"] .admin-chrome {
+  background: #ffffff;
+}
+
 /* Admin sidebar elevation */
 [data-theme="light"] .admin-sidebar {
   box-shadow: 2px 0 24px rgba(0, 0, 0, 0.07);

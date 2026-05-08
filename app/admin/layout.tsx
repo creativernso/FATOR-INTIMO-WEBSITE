@@ -39,8 +39,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Sidebar */}
       <aside
-        className="admin-sidebar w-[72px] lg:w-[260px] flex-shrink-0 flex flex-col border-r border-white/5 relative"
-        style={{ background: '#000000' }}
+        className="admin-sidebar w-[72px] lg:w-[260px] flex-shrink-0 flex flex-col border-r border-white/5 relative admin-chrome"
       >
         {/* Top glow */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
@@ -54,14 +53,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Image src="/FAV.png" alt="Fator Íntimo" width={22} height={22} className="object-contain" />
           </div>
           <div className="hidden lg:block leading-none">
-            <span className="font-body text-sm font-medium block tracking-wide" style={{ color: '#e0e0e0' }}>Fator Íntimo</span>
-            <span className="text-[11px] tracking-widest uppercase mt-0.5 block" style={{ color: '#666666' }}>Admin Panel</span>
+            <span className="font-body text-sm font-medium block tracking-wide text-text-primary">Fator Íntimo</span>
+            <span className="text-[11px] tracking-widest uppercase mt-0.5 block text-text-muted">Admin Panel</span>
           </div>
         </div>
 
         {/* Nav */}
         <nav className="flex-1 p-2 lg:p-4 space-y-1 pt-4">
-          <p className="hidden lg:block text-[10px] tracking-widest uppercase px-3 mb-3" style={{ color: '#555555' }}>
+          <p className="hidden lg:block text-[10px] tracking-widest uppercase px-3 mb-3 text-text-muted opacity-60">
             Navegação
           </p>
           {navItems.map((item) => {
@@ -73,7 +72,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 className={`relative flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all duration-200 group ${
                   isActive
                     ? 'bg-accent/10 text-accent'
-                    : 'text-[#aaaaaa] hover:text-white hover:bg-white/5'
+                    : 'text-text-muted hover:text-text-primary hover:bg-white/5'
                 }`}
               >
                 {isActive && (
@@ -91,7 +90,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link
             href="/"
             target="_blank"
-            className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm hover:text-white hover:bg-white/5 transition-all" style={{ color: '#aaaaaa' } as React.CSSProperties}
+            className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-text-muted hover:text-text-primary hover:bg-white/5 transition-all"
           >
             <ExternalLink size={15} className="flex-shrink-0" />
             <span className="hidden lg:block">Ver site</span>
@@ -110,18 +109,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Header */}
         <header
-          className="flex-shrink-0 border-b border-white/5 px-6 lg:px-10 flex items-center justify-between min-h-[64px] lg:min-h-[72px]"
-          style={{ background: '#000000' }}
+          className="admin-chrome flex-shrink-0 border-b border-white/5 px-6 lg:px-10 flex items-center justify-between min-h-[64px] lg:min-h-[72px]"
         >
           <div className="flex items-center gap-3">
             <div>
               <h1
-                className="font-body font-medium leading-none"
-                style={{ fontSize: 'clamp(0.95rem, 1.2vw, 1.15rem)', color: '#e0e0e0' }}
+                className="font-body font-medium leading-none text-text-primary"
+                style={{ fontSize: 'clamp(0.95rem, 1.2vw, 1.15rem)' }}
               >
                 {currentPage?.label ?? 'Admin'}
               </h1>
-              <p className="mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.85vw, 0.8rem)', color: '#666666' }}>
+              <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.85vw, 0.8rem)' }}>
                 Fator Íntimo · Painel de gestão
               </p>
             </div>
