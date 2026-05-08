@@ -380,8 +380,8 @@ export default async function SocialPage() {
                 Além das redes sociais, temos artigos, guias e produtos para transformação real.
               </p>
               <div className="flex flex-wrap gap-3 justify-center">
-                <Link href="/free-guide" className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-6 py-3 rounded-full text-sm font-medium transition-all">
-                  Guia Gratuito
+                <Link href="/guia" className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-6 py-3 rounded-full text-sm font-medium transition-all">
+                  Guias Gratuitos
                 </Link>
                 <Link href="/blog" className="inline-flex items-center gap-2 border border-white/10 hover:border-white/20 text-text-secondary hover:text-text-primary px-6 py-3 rounded-full text-sm transition-all">
                   Ler Artigos

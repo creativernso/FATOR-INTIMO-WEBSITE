@@ -207,10 +207,10 @@ export default async function CommunidadePage() {
                     <PenLine size={14} /> Compartilhar algo
                   </Link>
                   <Link
-                    href="/free-guide"
+                    href="/guia"
                     className="inline-flex items-center gap-2 border border-white/10 hover:border-white/20 text-text-secondary hover:text-text-primary px-7 py-3.5 rounded-full text-sm transition-all"
                   >
-                    Guia gratuito <ArrowRight size={13} />
+                    Guias gratuitos <ArrowRight size={13} />
                   </Link>
                 </div>
               </div>

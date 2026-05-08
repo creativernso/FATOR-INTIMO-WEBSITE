@@ -101,10 +101,10 @@ export default async function Home() {
           <AnimateOnScroll delay={200}>
             <div className="flex flex-col sm:flex-row gap-4 justify-center sm:justify-start">
               <Link
-                href="/free-guide"
+                href="/guia"
                 className="group inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-white px-8 py-4 rounded-full font-medium text-sm transition-all hover:shadow-xl hover:shadow-accent/25"
               >
-                Baixar Guia Gratuito
+                Explorar Guias Gratuitos
                 <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
               </Link>
               <Link
@@ -405,13 +405,13 @@ export default async function Home() {
                 <span style={{ color: '#fe0050' }}>o mais importante</span>
               </h2>
               <p className="text-text-secondary text-sm leading-relaxed mb-8 max-w-md mx-auto">
-                Baixe o guia gratuito <strong className="text-text-primary">7 Erros que Fazem Alguém Perder o Interesse</strong> e comece a entender os padrões invisíveis que sabotam suas relações.
+                Explore a biblioteca de guias psicológicos gratuitos criados para quem quer entender, de verdade, os padrões invisíveis que moldam as relações.
               </p>
               <Link
-                href="/free-guide"
+                href="/guia"
                 className="group inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-9 py-4 rounded-full font-medium text-sm transition-all hover:shadow-xl hover:shadow-accent/25"
               >
-                Quero o Guia Gratuito
+                Explorar Guias Gratuitos
                 <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </div>

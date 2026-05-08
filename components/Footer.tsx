@@ -73,12 +73,12 @@ export default function Footer() {
           {/* CTA */}
           <div>
             <h4 className="text-text-primary text-xs font-medium tracking-widest uppercase mb-5">Começar Agora</h4>
-            <p className="text-text-secondary text-sm mb-5 leading-relaxed">Baixe o guia gratuito e dê o primeiro passo.</p>
+            <p className="text-text-secondary text-sm mb-5 leading-relaxed">Acesse os guias psicológicos gratuitos da Biblioteca Emocional.</p>
             <Link
-              href="/free-guide"
+              href="/guia"
               className="inline-block text-sm px-5 py-2.5 rounded-full bg-accent hover:bg-accent-hover text-white font-medium transition-all"
             >
-              Guia Gratuito
+              Explorar Guias
             </Link>
             <div className="mt-6">
               <h4 className="text-text-primary text-xs font-medium tracking-widest uppercase mb-3">No YouTube</h4>

@@ -118,13 +118,13 @@ export default async function BlogPost({ params }: Props) {
               Gostou deste conteúdo?
             </h3>
             <p className="text-text-secondary text-sm mb-5 leading-relaxed">
-              Baixe o guia gratuito e aprofunde ainda mais seu entendimento sobre relacionamentos.
+              Explore a biblioteca de guias psicológicos gratuitos e aprofunde seu entendimento sobre relacionamentos.
             </p>
             <Link
-              href="/free-guide"
+              href="/guia"
               className="inline-block bg-accent hover:bg-accent-hover text-white px-7 py-3 rounded-full font-medium text-sm transition-all"
             >
-              Baixar Guia Gratuito
+              Explorar Guias Gratuitos
             </Link>
           </div>
 

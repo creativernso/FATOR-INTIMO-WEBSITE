@@ -258,14 +258,14 @@ export default function AboutPage() {
               Pronto para começar?
             </h2>
             <p className="text-text-secondary text-sm mb-8 leading-relaxed">
-              Comece pelo guia gratuito. Explore nossos artigos e produtos.
+              Explore a biblioteca de guias gratuitos. Comece pelo que ressoa com o que você vive.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/free-guide"
+                href="/guia"
                 className="group inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-white px-7 py-3.5 rounded-full font-medium text-sm transition-all"
               >
-                Guia Gratuito <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                Explorar Guias <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
               </Link>
               <Link
                 href="/blog"

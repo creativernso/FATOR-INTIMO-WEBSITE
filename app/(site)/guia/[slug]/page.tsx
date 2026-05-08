@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const guide = await getGuideBySlug(slug);
   if (!guide?.published) return {};
   return {
-    title: `${guide.title} — Guia Gratuito`,
+    title: `${guide.title} — Biblioteca Emocional`,
     description: guide.subtitle || guide.description.slice(0, 160),
   };
 }
@@ -60,7 +60,7 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ sl
                 )}
 
                 <span className="text-xs text-accent tracking-[0.3em] uppercase mb-4 block">
-                  Guia Gratuito
+                  Biblioteca Emocional · Gratuito
                 </span>
 
                 <h1 className="font-heading text-4xl sm:text-5xl font-light text-text-primary leading-[1.08] mb-5">
