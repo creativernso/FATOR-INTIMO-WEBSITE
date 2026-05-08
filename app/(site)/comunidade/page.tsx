@@ -35,10 +35,9 @@ export default async function CommunidadePage() {
 
         <div className="relative max-w-4xl mx-auto text-center">
           <AnimateOnScroll>
-            <div className="inline-flex items-center gap-2 border border-white/10 bg-white/3 rounded-full px-4 py-1.5 mb-8">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-              <span className="text-text-muted text-xs tracking-widest uppercase">Comunidade Íntima</span>
-            </div>
+            <span className="text-xs text-accent tracking-[0.3em] uppercase mb-5 block">
+              Comunidade Íntima
+            </span>
 
             <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl font-light text-text-primary mb-6 leading-[1.0]">
               Um espaço para<br />
