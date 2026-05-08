@@ -250,7 +250,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 <AnimateOnScroll key={t.id} delay={i * 80}>
                   <div className="p-6 rounded-2xl border border-white/5 bg-surface flex flex-col gap-4">
                     <div className="flex gap-0.5">
-                      {Array.from({ length: t.rating }).map((_, s) => (
+                      {Array.from({ length: t.rating ?? 0 }).map((_, s) => (
                         <Star key={s} size={13} className="text-accent fill-accent" />
                       ))}
                     </div>
