@@ -75,35 +75,14 @@ export default async function TestimonialsPage() {
                 </div>
               </AnimateOnScroll>
 
-              {/* Featured stories */}
-              {featured.length > 0 && (
-                <div className="mb-12">
-                  <AnimateOnScroll>
-                    <p className="text-xs text-accent tracking-[0.25em] uppercase mb-5 flex items-center gap-2">
-                      <Star size={11} className="fill-accent" /> Histórias em destaque
-                    </p>
+              {/* All stories — unified 3-col grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {testimonials.map((t, i) => (
+                  <AnimateOnScroll key={t.id} delay={i * 60}>
+                    <TestimonialCard testimonial={t} />
                   </AnimateOnScroll>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    {featured.map((t, i) => (
-                      <AnimateOnScroll key={t.id} delay={i * 70}>
-                        <TestimonialCard testimonial={t} featured />
-                      </AnimateOnScroll>
-                    ))}
-                  </div>
-                  {rest.length > 0 && <div className="border-t border-white/5 mt-10 mb-10" />}
-                </div>
-              )}
-
-              {/* All others */}
-              {rest.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {rest.map((t, i) => (
-                    <AnimateOnScroll key={t.id} delay={i * 60}>
-                      <TestimonialCard testimonial={t} />
-                    </AnimateOnScroll>
-                  ))}
-                </div>
-              )}
+                ))}
+              </div>
             </>
           )}
 
