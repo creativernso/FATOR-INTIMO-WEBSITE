@@ -1,6 +1,6 @@
 import { getAdminDb } from './firebase-admin';
 import type { Query } from 'firebase-admin/firestore';
-import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification } from './types';
+import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification, MarqueePhrase } from './types';
 
 const db = () => getAdminDb();
 
@@ -211,6 +211,30 @@ export async function toggleCommunityPostReaction(postId: string, uid: string): 
   await incrementCommunityPostStat(postId, 'reactionCount', 1);
   return 'added';
 }
+
+// ─── Marquee ──────────────────────────────────────────────────────────────────
+
+const DEFAULT_MARQUEE_PHRASES: MarqueePhrase[] = [
+  { id: '1', text: 'O amor que você merece começa pelo amor que você dá a si mesmo', order: 1, active: true },
+  { id: '2', text: 'Padrões que se repetem são mensagens que ainda não foram lidas', order: 2, active: true },
+  { id: '3', text: 'Solidão não é ausência de pessoas — é ausência de conexão real', order: 3, active: true },
+  { id: '4', text: 'Atração é química. Amor é escolha. Intimidade é construção.', order: 4, active: true },
+  { id: '5', text: 'Cada relacionamento é um espelho da sua relação com você mesmo', order: 5, active: true },
+  { id: '6', text: 'A cura começa quando você para de fugir do que sente', order: 6, active: true },
+  { id: '7', text: 'Entender o comportamento humano é o maior ato de compaixão', order: 7, active: true },
+  { id: '8', text: 'Relações saudáveis começam com conversas honestas consigo mesmo', order: 8, active: true },
+];
+
+export async function getMarqueePhrases(): Promise<MarqueePhrase[]> {
+  const snap = await db().collection('marquee_phrases').get();
+  if (snap.empty) return DEFAULT_MARQUEE_PHRASES;
+  return snap.docs
+    .map((d) => d.data() as MarqueePhrase)
+    .sort((a, b) => a.order - b.order);
+}
+
+export const upsertMarqueePhrase = (p: MarqueePhrase): Promise<void> => upsertDoc('marquee_phrases', p);
+export const deleteMarqueePhrase = (id: string): Promise<void> => deleteDoc('marquee_phrases', id);
 
 // ─── Guides (multi-guide system) ──────────────────────────────────────────────
 

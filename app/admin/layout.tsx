@@ -17,6 +17,7 @@ import {
   Send,
   MessagesSquare,
   Heart,
+  Sparkles,
 } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -33,6 +34,7 @@ const navItems = [
   { href: '/admin/orders', label: 'Pedidos', icon: ShoppingBag },
   { href: '/admin/comments', label: 'Comentários', icon: MessagesSquare },
   { href: '/admin/comunidade', label: 'Comunidade', icon: Heart },
+  { href: '/admin/marquee', label: 'Marquee', icon: Sparkles },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

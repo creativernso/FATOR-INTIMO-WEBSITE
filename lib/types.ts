@@ -178,6 +178,15 @@ export interface CommunityReport {
   status: 'pending' | 'reviewed' | 'resolved';
 }
 
+// ─── Marquee ──────────────────────────────────────────────────────────────────
+
+export interface MarqueePhrase {
+  id: string;
+  text: string;
+  order: number;
+  active: boolean;
+}
+
 // ─── Guide ─────────────────────────────────────────────────────────────────────
 
 export interface GuideConfig {
