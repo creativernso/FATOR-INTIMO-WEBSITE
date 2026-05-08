@@ -6,7 +6,6 @@ import {
   Check, X, Star, Trash2, Eye, EyeOff, Sparkles, Clock,
   MessageSquare, Search, ChevronDown,
 } from 'lucide-react';
-import Image from 'next/image';
 
 type Filter = 'all' | 'pending' | 'approved' | 'rejected';
 
@@ -175,9 +174,8 @@ export default function AdminTestimonials() {
                   {/* Avatar */}
                   <div className="flex-shrink-0">
                     {t.avatar && !t.anonymous ? (
-                      <div className="relative w-10 h-10 rounded-full overflow-hidden border border-white/10">
-                        <Image src={t.avatar} alt={displayName} fill className="object-cover" />
-                      </div>
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={t.avatar} alt={displayName} className="w-10 h-10 rounded-full object-cover border border-white/10 flex-shrink-0" />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
                         <span className="font-heading text-sm text-text-primary">
