@@ -13,6 +13,8 @@ import {
   ExternalLink,
   Users,
   ShoppingBag,
+  BookOpen,
+  Send,
 } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -22,7 +24,9 @@ const navItems = [
   { href: '/admin/blog', label: 'Blog', icon: FileText },
   { href: '/admin/products', label: 'Produtos', icon: Package },
   { href: '/admin/testimonials', label: 'Depoimentos', icon: MessageSquare },
+  { href: '/admin/guide', label: 'Guia Gratuito', icon: BookOpen },
   { href: '/admin/leads', label: 'Leads', icon: Users },
+  { href: '/admin/emails', label: 'E-mails', icon: Send },
   { href: '/admin/orders', label: 'Pedidos', icon: ShoppingBag },
 ];
 

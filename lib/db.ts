@@ -1,5 +1,5 @@
 import { getAdminDb } from './firebase-admin';
-import { Post, Product, Testimonial, Lead } from './types';
+import { Post, Product, Testimonial, Lead, GuideConfig } from './types';
 
 const db = () => getAdminDb();
 
@@ -54,3 +54,41 @@ export const deleteTestimonial = (id: string): Promise<void> => deleteDoc('testi
 export const getLeads = (): Promise<Lead[]> => getCollection<Lead>('leads');
 export const saveLeads = (leads: Lead[]): Promise<void> => replaceCollection('leads', leads);
 export const upsertLead = (lead: Lead): Promise<void> => upsertDoc('leads', lead);
+export const deleteLead = (id: string): Promise<void> => deleteDoc('leads', id);
+
+// Guide config (single doc with id='main')
+export async function getGuideConfig(): Promise<GuideConfig> {
+  const doc = await db().collection('guide_config').doc('main').get();
+  if (doc.exists) return doc.data() as GuideConfig;
+  return defaultGuideConfig();
+}
+export const saveGuideConfig = (config: GuideConfig): Promise<void> =>
+  db().collection('guide_config').doc('main').set(config);
+
+function defaultGuideConfig(): GuideConfig {
+  return {
+    id: 'main',
+    title: '7 Erros que Fazem Alguém Perder o Interesse',
+    headline: '7 Erros que Fazem',
+    headlineAccent: 'Alguém Perder o Interesse',
+    description: 'Um guia psicológico profundo sobre os padrões invisíveis que sabotam relacionamentos. Aprenda a identificá-los em você mesmo.',
+    bullets: [
+      'Os 7 erros psicológicos que destroem o interesse antes mesmo de começar',
+      'Como a teoria do apego explica por que você repete os mesmos padrões',
+      'O princípio da escassez emocional, aprenda como aplicá-lo de forma autêntica',
+      'Por que "dar tudo de si" afasta quem você quer por perto',
+      'O mapa mental para identificar apegos disfuncionais em menos de 24h',
+      'Estratégias baseadas em neurociência para criar conexões mais profundas',
+      'O exercício diário de 5 minutos que transforma sua inteligência emocional',
+    ],
+    ctaText: 'Quero o Guia Gratuito',
+    authorName: 'Rafael Moreira',
+    authorRole: 'Especialista em Psicologia das Relações',
+    authorQuote: 'Este guia é a síntese do que mais vejo repetido nas pessoas que buscam entender por que seus relacionamentos não funcionam.',
+    formTitle: 'Quero o guia gratuito',
+    formSubtitle: 'Preencha abaixo e receba acesso imediato.',
+    successTitle: 'Acesso confirmado!',
+    successMessage: 'O guia foi enviado para o seu e-mail. Enquanto isso, explore nossos artigos.',
+    updatedAt: new Date().toISOString(),
+  };
+}

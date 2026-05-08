@@ -54,4 +54,24 @@ export interface Lead {
   name: string;
   source: string;
   createdAt: string;
+  guideDownloaded?: boolean;
+}
+
+export interface GuideConfig {
+  id: string; // always 'main'
+  title: string;
+  headline: string;
+  headlineAccent: string;
+  description: string;
+  bullets: string[];
+  ctaText: string;
+  authorName: string;
+  authorRole: string;
+  authorQuote: string;
+  formTitle: string;
+  formSubtitle: string;
+  successTitle: string;
+  successMessage: string;
+  guideFilePath?: string; // Firebase Storage path e.g. guide/ebook.pdf
+  updatedAt: string;
 }
