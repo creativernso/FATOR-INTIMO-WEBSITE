@@ -7,6 +7,7 @@ import ProductCard from '@/components/ProductCard';
 import EmotionalMarquee from '@/components/EmotionalMarquee';
 import TestimonialsSlider from '@/components/TestimonialsSlider';
 import { getPosts, getProducts, getTestimonials, getMarqueePhrases, getGuides, getCommunityPosts } from '@/lib/db';
+import { getLatestVideos } from '@/lib/youtube';
 
 function TikTokIcon({ size = 18 }: { size?: number }) {
   return (
@@ -17,21 +18,6 @@ function TikTokIcon({ size = 18 }: { size?: number }) {
 }
 
 export const dynamic = 'force-dynamic';
-
-const deepQuotes = [
-  {
-    quote: 'Não escolhemos de quem nos apaixonamos. Escolhemos quem nos tornamos durante o processo.',
-    author: 'Rafael Moreira',
-  },
-  {
-    quote: 'O maior vício humano é querer ser amado sem se conhecer.',
-    author: 'Fator Íntimo',
-  },
-  {
-    quote: 'Todo padrão que se repete é um pedido silencioso de cura que ainda não foi atendido.',
-    author: 'Rafael Moreira',
-  },
-];
 
 const topics = [
   { icon: '◈', title: 'Teoria do Apego', desc: 'Por que você se prende a certas pessoas e afasta outras — os padrões que vêm da infância.' },
@@ -49,13 +35,14 @@ const principles = [
 ];
 
 export default async function Home() {
-  const [allPostsRaw, allProducts, allTestimonials, marqueePhrases, allGuides, communityPosts] = await Promise.all([
+  const [allPostsRaw, allProducts, allTestimonials, marqueePhrases, allGuides, communityPosts, ytVideos] = await Promise.all([
     getPosts(),
     getProducts(),
     getTestimonials(true),
     getMarqueePhrases(),
     getGuides(true),
     getCommunityPosts({ status: 'approved' }),
+    getLatestVideos(1),
   ]);
 
   const allPosts = allPostsRaw.sort((a, b) => {
@@ -111,9 +98,7 @@ export default async function Home() {
       </section>
 
       {/* ── EMOTIONAL MARQUEE ── */}
-      {activePhrases.length > 0 && (
-        <EmotionalMarquee phrases={activePhrases} />
-      )}
+      <EmotionalMarquee phrases={activePhrases} />
 
       {/* ── TESTIMONIALS SLIDER ── */}
       {testimonials.length > 0 && (
@@ -132,8 +117,7 @@ export default async function Home() {
             </AnimateOnScroll>
             <AnimateOnScroll>
               <div className="text-center mt-10">
-                <Link href="/testimonials"
-                  className="text-sm text-text-secondary hover:text-accent transition-colors">
+                <Link href="/testimonials" className="text-sm text-text-secondary hover:text-accent transition-colors">
                   Ver todas as histórias →
                 </Link>
               </div>
@@ -142,35 +126,117 @@ export default async function Home() {
         </section>
       )}
 
-      {/* ── PENSAMENTOS PROFUNDOS ── */}
-      <section className="py-28 px-6 border-t border-white/5 relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full opacity-4"
-            style={{ background: 'radial-gradient(ellipse, #fe0050 0%, transparent 70%)' }} />
-        </div>
-        <div className="max-w-4xl mx-auto">
-          <AnimateOnScroll>
-            <div className="text-center mb-16">
-              <span className="text-xs text-accent tracking-widest uppercase mb-3 block">Pensamentos Profundos</span>
-            </div>
-          </AnimateOnScroll>
-
-          <div className="space-y-16">
-            {deepQuotes.map((item, i) => (
-              <AnimateOnScroll key={i} delay={i * 100} direction="up">
-                <div className={`relative ${i % 2 === 0 ? 'text-left pl-0 md:pl-8' : 'text-right pr-0 md:pr-8'}`}>
-                  <div className={`absolute top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-accent/30 to-transparent pointer-events-none ${i % 2 === 0 ? 'left-0' : 'right-0'}`} />
-                  <blockquote className="font-heading font-light text-text-primary/90 leading-tight"
-                    style={{ fontSize: 'clamp(1.4rem, 3vw, 2.2rem)', letterSpacing: '-0.02em' }}>
-                    "{item.quote}"
-                  </blockquote>
-                  <p className="text-xs text-text-muted mt-4 tracking-widest uppercase">— {item.author}</p>
+      {/* ── YOUTUBE ── */}
+      {ytVideos.length > 0 && (
+        <section className="pt-10 pb-28 md:py-28 px-6 border-t border-white/5">
+          <div className="max-w-5xl mx-auto">
+            <AnimateOnScroll>
+              <div className="flex items-end justify-between mb-12">
+                <div>
+                  <span className="text-xs text-accent tracking-widest uppercase mb-3 block">Conteúdo</span>
+                  <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary">
+                    Último <span style={{ color: '#fe0050' }}>vídeo</span>
+                  </h2>
                 </div>
-              </AnimateOnScroll>
-            ))}
+                <a
+                  href="https://www.youtube.com/@fatorintimo"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hidden md:flex items-center gap-2 text-sm text-text-secondary hover:text-accent transition-colors"
+                >
+                  Ver canal <ArrowRight size={14} />
+                </a>
+              </div>
+            </AnimateOnScroll>
+
+            <AnimateOnScroll>
+              <div className="rounded-2xl overflow-hidden border border-white/5 bg-surface">
+                <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                  <iframe
+                    className="absolute inset-0 w-full h-full"
+                    src={`https://www.youtube.com/embed/${ytVideos[0].id}?rel=0&modestbranding=1`}
+                    title={ytVideos[0].title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    loading="lazy"
+                  />
+                </div>
+                <div className="flex items-center justify-between px-5 py-3.5 border-t border-white/5">
+                  <div className="flex items-center gap-2.5">
+                    <Youtube size={14} className="text-[#FF0000]" />
+                    <span className="text-text-secondary text-xs truncate max-w-xs">{ytVideos[0].title}</span>
+                  </div>
+                  <a
+                    href="https://www.youtube.com/@fatorintimo"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-text-muted hover:text-accent transition-colors flex items-center gap-1 flex-shrink-0"
+                  >
+                    Ver canal <ArrowRight size={11} />
+                  </a>
+                </div>
+              </div>
+            </AnimateOnScroll>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
+      {/* ── GUIDES CAROUSEL ── */}
+      {guides.length > 0 && (
+        <section className="py-28 px-6 border-t border-white/5">
+          <div className="max-w-5xl mx-auto">
+            <AnimateOnScroll>
+              <div className="flex items-end justify-between mb-12">
+                <div>
+                  <span className="text-xs text-accent tracking-widest uppercase mb-3 block">Biblioteca Gratuita</span>
+                  <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary">
+                    Guias de <span style={{ color: '#fe0050' }}>psicologia</span>
+                  </h2>
+                </div>
+                <Link href="/guia"
+                  className="hidden md:flex items-center gap-2 text-sm text-text-secondary hover:text-accent transition-colors">
+                  Ver biblioteca <ArrowRight size={14} />
+                </Link>
+              </div>
+            </AnimateOnScroll>
+
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none -mx-6 px-6">
+              {guides.map((guide, i) => (
+                <AnimateOnScroll key={guide.id} delay={i * 60} className="flex-shrink-0">
+                  <Link href={`/guia/${guide.slug}`}
+                    className="group block w-44 md:w-52 rounded-2xl border border-white/5 bg-surface overflow-hidden hover:border-accent/20 transition-all duration-500">
+                    <div className="relative overflow-hidden" style={{ aspectRatio: '2/3' }}>
+                      {guide.coverImage ? (
+                        <img src={guide.coverImage} alt={guide.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-accent/10 to-transparent">
+                          <span className="font-heading text-4xl font-light text-accent/30">◎</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <span className="text-[9px] text-accent tracking-widest uppercase">Gratuito</span>
+                        <h3 className="font-heading text-white text-xs font-medium leading-snug mt-1 line-clamp-3">
+                          {guide.title}
+                        </h3>
+                      </div>
+                    </div>
+                  </Link>
+                </AnimateOnScroll>
+              ))}
+            </div>
+
+            <AnimateOnScroll>
+              <div className="text-center mt-8 md:hidden">
+                <Link href="/guia" className="text-sm text-text-secondary hover:text-accent transition-colors">
+                  Ver todos os guias →
+                </Link>
+              </div>
+            </AnimateOnScroll>
+          </div>
+        </section>
+      )}
 
       {/* ── COMMUNITY PREVIEW ── */}
       <section className="py-28 px-6 border-t border-white/5">
@@ -248,63 +314,6 @@ export default async function Home() {
           </AnimateOnScroll>
         </div>
       </section>
-
-      {/* ── GUIDES CAROUSEL ── */}
-      {guides.length > 0 && (
-        <section className="py-28 px-6 border-t border-white/5">
-          <div className="max-w-5xl mx-auto">
-            <AnimateOnScroll>
-              <div className="flex items-end justify-between mb-12">
-                <div>
-                  <span className="text-xs text-accent tracking-widest uppercase mb-3 block">Biblioteca Gratuita</span>
-                  <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary">
-                    Guias de <span style={{ color: '#fe0050' }}>psicologia</span>
-                  </h2>
-                </div>
-                <Link href="/guia"
-                  className="hidden md:flex items-center gap-2 text-sm text-text-secondary hover:text-accent transition-colors">
-                  Ver biblioteca <ArrowRight size={14} />
-                </Link>
-              </div>
-            </AnimateOnScroll>
-
-            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none -mx-6 px-6">
-              {guides.map((guide, i) => (
-                <AnimateOnScroll key={guide.id} delay={i * 60} className="flex-shrink-0">
-                  <Link href={`/guia/${guide.slug}`}
-                    className="group block w-44 md:w-52 rounded-2xl border border-white/5 bg-surface overflow-hidden hover:border-accent/20 transition-all duration-500">
-                    <div className="relative overflow-hidden" style={{ aspectRatio: '2/3' }}>
-                      {guide.coverImage ? (
-                        <img src={guide.coverImage} alt={guide.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-accent/10 to-transparent">
-                          <span className="font-heading text-4xl font-light text-accent/30">◎</span>
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                      <div className="absolute bottom-3 left-3 right-3">
-                        <span className="text-[9px] text-accent tracking-widest uppercase">Gratuito</span>
-                        <h3 className="font-heading text-white text-xs font-medium leading-snug mt-1 line-clamp-3">
-                          {guide.title}
-                        </h3>
-                      </div>
-                    </div>
-                  </Link>
-                </AnimateOnScroll>
-              ))}
-            </div>
-
-            <AnimateOnScroll>
-              <div className="text-center mt-8 md:hidden">
-                <Link href="/guia" className="text-sm text-text-secondary hover:text-accent transition-colors">
-                  Ver todos os guias →
-                </Link>
-              </div>
-            </AnimateOnScroll>
-          </div>
-        </section>
-      )}
 
       {/* ── O QUE VOCÊ VAI ENTENDER ── */}
       <section className="py-28 px-6 border-t border-white/5">
@@ -384,9 +393,9 @@ export default async function Home() {
             <AnimateOnScroll>
               <div className="flex items-end justify-between mb-12">
                 <div>
-                  <span className="text-xs text-accent tracking-widest uppercase mb-3 block">Conteúdo</span>
+                  <span className="text-xs text-accent tracking-widest uppercase mb-3 block">Artigos</span>
                   <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary">
-                    Artigos <span style={{ color: '#fe0050' }}>recentes</span>
+                    Leituras <span style={{ color: '#fe0050' }}>recentes</span>
                   </h2>
                 </div>
                 <Link href="/blog"
