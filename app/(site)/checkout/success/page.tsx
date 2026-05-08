@@ -22,9 +22,10 @@ export default async function SuccessPage({
     redirect('/products');
   }
 
-  if (session.payment_status !== 'paid' && session.payment_status !== 'no_payment_required') {
-    redirect('/products');
-  }
+  const isPaid = session.payment_status === 'paid' || session.payment_status === 'no_payment_required';
+  const isPending = session.payment_status === 'unpaid';
+
+  if (!isPaid && !isPending) redirect('/products');
 
   const productId = session.metadata?.productId;
   const product = productId ? (await getProducts()).find((p) => p.id === productId) : null;
@@ -37,40 +38,56 @@ export default async function SuccessPage({
 
         {/* Success card */}
         <div className="relative rounded-2xl border border-white/8 bg-surface overflow-hidden mb-5">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-green-400/50 to-transparent" />
+          <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent ${isPending ? 'via-yellow-400/50' : 'via-green-400/50'} to-transparent`} />
 
           <div className="p-10 text-center">
-            <div className="w-16 h-16 rounded-full bg-green-400/10 border border-green-400/20 flex items-center justify-center mx-auto mb-6">
-              <CheckCircle size={28} className="text-green-400" />
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${isPending ? 'bg-yellow-400/10 border border-yellow-400/20' : 'bg-green-400/10 border border-green-400/20'}`}>
+              <CheckCircle size={28} className={isPending ? 'text-yellow-400' : 'text-green-400'} />
             </div>
 
-            <span className="text-xs text-accent tracking-widest uppercase mb-3 block">Compra confirmada</span>
+            <span className="text-xs text-accent tracking-widest uppercase mb-3 block">
+              {isPending ? 'Aguardando pagamento' : 'Compra confirmada'}
+            </span>
             <h1 className="font-body text-3xl font-medium text-text-primary mb-2">
-              Bem-vindo ao próximo nível.
+              {isPending ? 'PIX gerado com sucesso.' : 'Bem-vindo ao próximo nível.'}
             </h1>
-            {product && (
+            {isPending ? (
               <p className="text-text-secondary text-sm mb-1">
-                <span className="text-text-primary font-medium">{product.title}</span> foi adquirido.
+                Após o pagamento via PIX ser confirmado, você receberá o acesso por email.
               </p>
-            )}
-            {email && (
-              <p className="text-text-muted text-xs mt-1">
-                Confirmação enviada para <span className="text-text-secondary">{email}</span>
-              </p>
+            ) : (
+              <>
+                {product && (
+                  <p className="text-text-secondary text-sm mb-1">
+                    <span className="text-text-primary font-medium">{product.title}</span> foi adquirido.
+                  </p>
+                )}
+                {email && (
+                  <p className="text-text-muted text-xs mt-1">
+                    Confirmação enviada para <span className="text-text-secondary">{email}</span>
+                  </p>
+                )}
+              </>
             )}
           </div>
 
-          {/* Download section */}
-          <div className="border-t border-white/5 p-8">
-            <DownloadButton sessionId={session_id} />
-          </div>
+          {/* Download section — only show when paid */}
+          {isPaid && (
+            <div className="border-t border-white/5 p-8">
+              <DownloadButton sessionId={session_id} />
+            </div>
+          )}
 
           {/* Email notice */}
           <div className="border-t border-white/5 px-8 py-5">
             <div className="flex items-start gap-3">
               <Mail size={14} className="text-accent mt-0.5 flex-shrink-0" />
               <p className="text-text-muted text-xs leading-relaxed">
-                {name ? `${name}, um` : 'Um'} email de confirmação foi enviado para <span className="text-text-secondary">{email || 'o seu email'}</span> com o link de download. Verifique também o spam.
+                {isPending
+                  ? 'Assim que o PIX for confirmado, enviaremos o link de download para o seu email. Verifique também o spam.'
+                  : `${name ? `${name}, um` : 'Um'} email de confirmação foi enviado para `}
+                {!isPending && <span className="text-text-secondary">{email || 'o seu email'}</span>}
+                {!isPending && '. Verifique também o spam.'}
               </p>
             </div>
           </div>
