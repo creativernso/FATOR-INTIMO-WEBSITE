@@ -30,16 +30,23 @@ export function middleware(request: NextRequest) {
     urlLocale ??
     (cookieLocale && SUPPORTED_LOCALES.includes(cookieLocale) ? cookieLocale : 'pt');
 
+  // x-locale must go on the REQUEST headers so server components
+  // can read it via headers() — response headers are invisible to them.
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-locale', locale);
+
   let response: NextResponse;
 
   if (urlLocale) {
     const rewritePath = localeMatch![2] || '/';
-    response = NextResponse.rewrite(new URL(rewritePath, request.url));
+    response = NextResponse.rewrite(new URL(rewritePath, request.url), {
+      request: { headers: requestHeaders },
+    });
   } else {
-    response = NextResponse.next();
+    response = NextResponse.next({
+      request: { headers: requestHeaders },
+    });
   }
-
-  response.headers.set('x-locale', locale);
 
   if (urlLocale && cookieLocale !== urlLocale) {
     response.cookies.set(LOCALE_COOKIE, urlLocale, {
