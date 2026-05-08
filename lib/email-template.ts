@@ -135,9 +135,10 @@ interface GuideEmailData {
   name?: string;
   downloadUrl?: string;
   guideTitle?: string;
+  guideSubtitle?: string;
 }
 
-export function guideDeliveryHtml({ name, downloadUrl, guideTitle }: GuideEmailData): string {
+export function guideDeliveryHtml({ name, downloadUrl, guideTitle, guideSubtitle }: GuideEmailData): string {
   const displayName = name || 'você';
   const title = guideTitle || '7 Erros que Fazem Alguém Perder o Interesse';
   return `<!DOCTYPE html>
@@ -145,64 +146,121 @@ export function guideDeliveryHtml({ name, downloadUrl, guideTitle }: GuideEmailD
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Seu guia gratuito chegou.</title>
+  <title>Seu guia chegou.</title>
 </head>
 <body style="margin:0;padding:0;background-color:#0a0a0a;font-family:'Inter',system-ui,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:48px 16px;">
     <tr>
       <td align="center">
         <table width="100%" style="max-width:580px;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;">
+
+          <!-- Accent line -->
           <tr><td style="height:1px;background:linear-gradient(to right,transparent,#fe0050,transparent);"></td></tr>
+
+          <!-- Brand -->
           <tr>
             <td align="center" style="padding:36px 40px 0;">
               <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#fe0050;">FATOR ÍNTIMO</p>
             </td>
           </tr>
+
+          <!-- Heading -->
           <tr>
             <td style="padding:28px 40px 8px;">
-              <h1 style="margin:0;font-size:28px;font-weight:400;color:#dcdcdc;line-height:1.3;">
-                Seu guia gratuito chegou.
+              <h1 style="margin:0;font-size:28px;font-weight:300;color:#dcdcdc;line-height:1.3;">
+                Seu guia chegou.
               </h1>
+              ${guideSubtitle ? `<p style="margin:8px 0 0;font-size:14px;color:#666666;font-style:italic;">${guideSubtitle}</p>` : ''}
             </td>
           </tr>
+
+          <!-- Divider -->
           <tr>
             <td style="padding:0 40px;">
               <div style="height:1px;background:rgba(255,255,255,0.06);margin:16px 0;"></div>
             </td>
           </tr>
+
+          <!-- Body -->
           <tr>
-            <td style="padding:0 40px 32px;">
-              <p style="margin:0 0 14px;font-size:15px;line-height:1.8;color:#a0a0a0;">Olá${name ? `, ${displayName}` : ''},</p>
-              <p style="margin:0 0 14px;font-size:15px;line-height:1.8;color:#a0a0a0;">
+            <td style="padding:0 40px 28px;">
+              <p style="margin:0 0 14px;font-size:15px;line-height:1.85;color:#a0a0a0;">
+                Olá${name ? `, <strong style="color:#dcdcdc;">${displayName}</strong>` : ''},
+              </p>
+              <p style="margin:0 0 14px;font-size:15px;line-height:1.85;color:#a0a0a0;">
                 O seu guia <strong style="color:#dcdcdc;">${title}</strong> está pronto para download.
               </p>
-              <p style="margin:0 0 28px;font-size:15px;line-height:1.8;color:#a0a0a0;">
-                Clique no botão abaixo para acessar o material.
+              <p style="margin:0 0 28px;font-size:15px;line-height:1.85;color:#a0a0a0;">
+                Este material foi criado para quem quer entender, de verdade, o que acontece dentro das relações — e dentro de si mesmo.
               </p>
+
               ${downloadUrl ? `
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center">
-                    <a href="${downloadUrl}" style="display:inline-block;background:#fe0050;color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:50px;font-size:14px;font-weight:600;letter-spacing:0.5px;">
+                    <a href="${downloadUrl}"
+                      style="display:inline-block;background:#fe0050;color:#ffffff;text-decoration:none;padding:15px 44px;border-radius:50px;font-size:14px;font-weight:600;letter-spacing:0.5px;">
                       Baixar Guia Gratuito →
                     </a>
                   </td>
                 </tr>
               </table>
-              <p style="margin:20px 0 0;font-size:12px;color:#666666;text-align:center;">
-                O link expira em 7 dias. Salve o arquivo após o download.
+              <p style="margin:16px 0 0;font-size:12px;color:#555555;text-align:center;">
+                O link expira em 24 horas. Salve o arquivo após o download.
               </p>` : `
               <p style="margin:0;font-size:14px;color:#a0a0a0;">Seu link de acesso será enviado em breve.</p>`}
             </td>
           </tr>
+
+          <!-- Community CTA -->
           <tr>
-            <td style="padding:24px 40px;border-top:1px solid rgba(255,255,255,0.05);">
-              <p style="margin:0;font-size:12px;color:#555555;text-align:center;">
+            <td style="padding:0 40px 32px;">
+              <div style="background:rgba(254,0,80,0.04);border:1px solid rgba(254,0,80,0.12);border-radius:12px;padding:22px;">
+                <p style="margin:0 0 8px;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#fe0050;">Comunidade Íntima</p>
+                <p style="margin:0 0 14px;font-size:14px;line-height:1.7;color:#888888;">
+                  Junte-se à comunidade onde pessoas reais partilham o que vivem, sentem e aprendem sobre relacionamentos.
+                </p>
+                <a href="https://fatorintimo.com/comunidade"
+                  style="display:inline-block;color:#fe0050;text-decoration:none;font-size:13px;font-weight:500;border:1px solid rgba(254,0,80,0.3);padding:8px 20px;border-radius:50px;">
+                  Conhecer a Comunidade →
+                </a>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr>
+            <td style="padding:0 40px;">
+              <div style="height:1px;background:rgba(255,255,255,0.05);"></div>
+            </td>
+          </tr>
+
+          <!-- Footer links -->
+          <tr>
+            <td style="padding:24px 40px;">
+              <p style="margin:0 0 10px;font-size:12px;color:#555555;">Explore também:</p>
+              <p style="margin:0 0 6px;font-size:12px;">
+                ✦ &nbsp;<a href="https://fatorintimo.com/blog" style="color:#777777;text-decoration:none;">Artigos sobre psicologia das relações</a>
+              </p>
+              <p style="margin:0 0 6px;font-size:12px;">
+                ✦ &nbsp;<a href="https://fatorintimo.com/products" style="color:#777777;text-decoration:none;">Materiais e e-books</a>
+              </p>
+              <p style="margin:0;font-size:12px;">
+                ✦ &nbsp;<a href="https://www.instagram.com/fatorintimo/" style="color:#777777;text-decoration:none;">Instagram @fatorintimo</a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer brand -->
+          <tr>
+            <td style="padding:20px 40px 36px;border-top:1px solid rgba(255,255,255,0.04);">
+              <p style="margin:0;font-size:12px;color:#444444;text-align:center;">
                 Fator Íntimo · Psicologia das Relações<br/>
                 <a href="https://fatorintimo.com" style="color:#fe0050;text-decoration:none;">fatorintimo.com</a>
               </p>
             </td>
           </tr>
+
         </table>
       </td>
     </tr>
@@ -213,13 +271,19 @@ export function guideDeliveryHtml({ name, downloadUrl, guideTitle }: GuideEmailD
 
 export function guideDeliveryText({ name, downloadUrl, guideTitle }: GuideEmailData): string {
   const title = guideTitle || '7 Erros que Fazem Alguém Perder o Interesse';
-  return `Seu guia gratuito chegou.
+  return `Seu guia chegou.
 
 Olá${name ? `, ${name}` : ''},
 
 O seu guia "${title}" está pronto para download.
 
 ${downloadUrl ? `Clique aqui para baixar: ${downloadUrl}` : 'Seu link será enviado em breve.'}
+
+Junte-se à Comunidade Íntima: https://fatorintimo.com/comunidade
+
+Explore mais:
+- Artigos: https://fatorintimo.com/blog
+- Materiais: https://fatorintimo.com/products
 
 — Fator Íntimo
 fatorintimo.com`;

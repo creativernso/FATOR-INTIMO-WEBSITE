@@ -1,6 +1,6 @@
 import { getAdminDb } from './firebase-admin';
 import type { Query } from 'firebase-admin/firestore';
-import { Post, Product, Testimonial, Lead, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification } from './types';
+import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification } from './types';
 
 const db = () => getAdminDb();
 
@@ -212,7 +212,34 @@ export async function toggleCommunityPostReaction(postId: string, uid: string): 
   return 'added';
 }
 
-// ─── Guide ─────────────────────────────────────────────────────────────────────
+// ─── Guides (multi-guide system) ──────────────────────────────────────────────
+
+export async function getGuides(publishedOnly = false): Promise<Guide[]> {
+  const snap = await db().collection('guides').get();
+  let guides = snap.docs.map((d) => d.data() as Guide);
+  if (publishedOnly) guides = guides.filter((g) => g.published);
+  return guides.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+export async function getGuideBySlug(slug: string): Promise<Guide | null> {
+  const snap = await db().collection('guides').where('slug', '==', slug).limit(1).get();
+  if (snap.empty) return null;
+  return snap.docs[0].data() as Guide;
+}
+
+export const upsertGuide = (guide: Guide): Promise<void> => upsertDoc('guides', guide);
+export const deleteGuide = (id: string): Promise<void> => deleteDoc('guides', id);
+
+export async function incrementGuideDownloads(id: string): Promise<void> {
+  const ref = db().collection('guides').doc(id);
+  const doc = await ref.get();
+  if (doc.exists) {
+    const current = ((doc.data() as Guide).downloadCount) ?? 0;
+    await ref.update({ downloadCount: current + 1 });
+  }
+}
+
+// ─── Guide config (legacy single-guide) ───────────────────────────────────────
 
 function defaultGuideConfig(): GuideConfig {
   return {

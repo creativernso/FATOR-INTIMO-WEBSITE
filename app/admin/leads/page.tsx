@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Users, Mail, MessageSquare, Download, Search, Trash2, RefreshCw, CheckCircle } from 'lucide-react';
+import { Users, Mail, MessageSquare, Download, Search, Trash2, RefreshCw, CheckCircle, BookOpen, Tag } from 'lucide-react';
 import { Lead } from '@/lib/types';
 
 const fs = (min: string, mid: string, max: string) => `clamp(${min}, ${mid}, ${max})`;
@@ -11,6 +11,7 @@ export default function AdminLeads() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'email' | 'whatsapp'>('all');
+  const [guideFilter, setGuideFilter] = useState<string>('all');
   const [deleting, setDeleting] = useState<string | null>(null);
   const [exported, setExported] = useState(false);
 
@@ -23,23 +24,30 @@ export default function AdminLeads() {
 
   useEffect(() => { fetchLeads(); }, []);
 
+  const guideSlugs = useMemo(() => {
+    const slugs = new Set(leads.map((l) => l.guideSlug).filter(Boolean) as string[]);
+    return Array.from(slugs).sort();
+  }, [leads]);
+
   const filtered = useMemo(() => {
     let list = [...leads].sort(
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
     if (filter === 'email') list = list.filter((l) => !!l.email);
     if (filter === 'whatsapp') list = list.filter((l) => !!l.whatsapp && !l.email);
+    if (guideFilter !== 'all') list = list.filter((l) => l.guideSlug === guideFilter);
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
         (l) =>
           l.name.toLowerCase().includes(q) ||
           (l.email || '').toLowerCase().includes(q) ||
-          (l.whatsapp || '').includes(q)
+          (l.whatsapp || '').includes(q) ||
+          (l.guideSlug || '').includes(q)
       );
     }
     return list;
-  }, [leads, filter, search]);
+  }, [leads, filter, guideFilter, search]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Remover este lead?')) return;
@@ -62,6 +70,7 @@ export default function AdminLeads() {
   const emailCount = leads.filter((l) => !!l.email).length;
   const whatsappCount = leads.filter((l) => !!l.whatsapp).length;
   const guideCount = leads.filter((l) => l.guideDownloaded).length;
+  const uniqueGuides = guideSlugs.length;
 
   return (
     <div className="space-y-6 lg:space-y-8">
@@ -102,6 +111,7 @@ export default function AdminLeads() {
           { label: 'Por e-mail', value: emailCount, icon: Mail, color: '#3b82f6', bg: 'rgba(59,130,246,0.06)', border: 'rgba(59,130,246,0.12)' },
           { label: 'Por WhatsApp', value: whatsappCount, icon: MessageSquare, color: '#10b981', bg: 'rgba(16,185,129,0.06)', border: 'rgba(16,185,129,0.12)' },
           { label: 'Guia enviado', value: guideCount, icon: Download, color: '#a855f7', bg: 'rgba(168,85,247,0.06)', border: 'rgba(168,85,247,0.12)' },
+          { label: 'Guias únicos', value: uniqueGuides, icon: BookOpen, color: '#f59e0b', bg: 'rgba(245,158,11,0.06)', border: 'rgba(245,158,11,0.12)' },
         ].map((s) => (
           <div key={s.label} className="rounded-2xl border p-4 lg:p-5" style={{ background: s.bg, borderColor: s.border }}>
             <s.icon size={14} style={{ color: s.color }} className="mb-3" />
@@ -114,30 +124,50 @@ export default function AdminLeads() {
       </div>
 
       {/* Search + filter */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por nome, e-mail ou WhatsApp..."
-            className="admin-input pl-9 w-full"
-          />
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar por nome, e-mail, WhatsApp ou guia..."
+              className="admin-input pl-9 w-full"
+            />
+          </div>
+          <div className="flex rounded-xl overflow-hidden border border-white/8">
+            {(['all', 'email', 'whatsapp'] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-4 py-2.5 text-xs font-medium transition-all ${
+                  filter === f ? 'bg-accent text-white' : 'text-text-muted hover:text-text-primary'
+                }`}
+              >
+                {f === 'all' ? 'Todos' : f === 'email' ? 'E-mail' : 'WhatsApp'}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="flex rounded-xl overflow-hidden border border-white/8">
-          {(['all', 'email', 'whatsapp'] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-2.5 text-xs font-medium transition-all ${
-                filter === f ? 'bg-accent text-white' : 'text-text-muted hover:text-text-primary'
-              }`}
-            >
-              {f === 'all' ? 'Todos' : f === 'email' ? 'E-mail' : 'WhatsApp'}
-            </button>
-          ))}
-        </div>
+        {guideSlugs.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-text-muted text-xs flex items-center gap-1"><Tag size={10} /> Por guia:</span>
+            {(['all', ...guideSlugs] as string[]).map((slug) => (
+              <button
+                key={slug}
+                onClick={() => setGuideFilter(slug)}
+                className={`px-3 py-1 rounded-full text-xs transition-all border ${
+                  guideFilter === slug
+                    ? 'bg-accent/15 text-accent border-accent/25'
+                    : 'border-white/8 text-text-muted hover:border-white/16 hover:text-text-secondary'
+                }`}
+              >
+                {slug === 'all' ? `Todos (${leads.length})` : `${slug} (${leads.filter((l) => l.guideSlug === slug).length})`}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Table */}
@@ -159,10 +189,10 @@ export default function AdminLeads() {
           <table className="w-full">
             <thead>
               <tr style={{ borderBottom: '1px solid #333333' }}>
-                {['Lead', 'Contato', 'Fonte', 'Guia', 'Data', ''].map((h, i) => (
+                {['Lead', 'Contato', 'Guia', 'Tags', 'Data', ''].map((h, i) => (
                   <th
                     key={i}
-                    className={`text-left px-5 lg:px-6 py-4 font-medium tracking-widest uppercase ${i === 2 ? 'hidden md:table-cell' : ''} ${i === 3 ? 'hidden lg:table-cell' : ''} ${i === 4 ? 'hidden lg:table-cell' : ''} ${i === 5 ? 'text-right' : ''}`}
+                    className={`text-left px-5 lg:px-6 py-4 font-medium tracking-widest uppercase ${i === 2 ? 'hidden md:table-cell' : ''} ${i === 3 ? 'hidden xl:table-cell' : ''} ${i === 4 ? 'hidden lg:table-cell' : ''} ${i === 5 ? 'text-right' : ''}`}
                     style={{ fontSize: fs('0.6rem', '0.68vw', '0.66rem'), color: '#666666' }}
                   >
                     {h}
@@ -204,15 +234,31 @@ export default function AdminLeads() {
                     ) : '—'}
                   </td>
                   <td className="px-5 lg:px-6 py-4 hidden md:table-cell">
-                    <span className="px-2 py-0.5 rounded-full text-xs border border-white/8" style={{ color: '#888888' }}>
-                      {lead.source}
-                    </span>
-                  </td>
-                  <td className="px-5 lg:px-6 py-4 hidden lg:table-cell">
-                    {lead.guideDownloaded ? (
-                      <span className="flex items-center gap-1 text-green-400" style={{ fontSize: '0.7rem' }}>
-                        <CheckCircle size={11} /> Enviado
+                    {lead.guideSlug ? (
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <BookOpen size={10} className="text-accent flex-shrink-0" />
+                          <span className="text-text-secondary font-mono" style={{ fontSize: '0.7rem' }}>{lead.guideSlug}</span>
+                        </div>
+                        {lead.guideDownloaded && (
+                          <span className="flex items-center gap-1 text-green-400" style={{ fontSize: '0.65rem' }}>
+                            <CheckCircle size={9} /> Enviado
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded-full text-xs border border-white/8" style={{ color: '#888888' }}>
+                        {lead.source}
                       </span>
+                    )}
+                  </td>
+                  <td className="px-5 lg:px-6 py-4 hidden xl:table-cell">
+                    {lead.tags && lead.tags.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {lead.tags.slice(0, 3).map((tag) => (
+                          <span key={tag} className="text-[9px] border border-white/6 rounded px-1.5 py-0.5 text-text-muted">{tag}</span>
+                        ))}
+                      </div>
                     ) : (
                       <span style={{ fontSize: '0.7rem', color: '#555555' }}>—</span>
                     )}

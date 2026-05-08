@@ -18,12 +18,15 @@ export async function GET() {
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
-  const header = ['Nome', 'E-mail', 'WhatsApp', 'Fonte', 'Data'];
+  const header = ['Nome', 'E-mail', 'WhatsApp', 'Fonte', 'Guia', 'Tags', 'Guia Enviado', 'Data'];
   const rows = sorted.map((l) => [
     l.name,
     l.email || '',
     l.whatsapp || '',
     l.source,
+    l.guideSlug || '',
+    (l.tags ?? []).join(';'),
+    l.guideDownloaded ? 'Sim' : 'Não',
     new Date(l.createdAt).toLocaleString('pt-BR'),
   ]);
 

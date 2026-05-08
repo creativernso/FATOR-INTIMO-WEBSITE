@@ -60,8 +60,38 @@ export interface Lead {
   whatsapp?: string;
   name: string;
   source: string;
+  guideSlug?: string;
+  guideName?: string;
+  tags?: string[];
   createdAt: string;
   guideDownloaded?: boolean;
+}
+
+export interface Guide {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle?: string;
+  description: string;
+  emotionalHook?: string;
+  bullets?: string[];
+  ctaText?: string;
+  coverImage?: string;
+  pdfPath?: string;
+  tags?: string[];
+  category?: string;
+  featured?: boolean;
+  published?: boolean;
+  downloadCount?: number;
+  formTitle?: string;
+  formSubtitle?: string;
+  successTitle?: string;
+  successMessage?: string;
+  authorName?: string;
+  authorRole?: string;
+  authorQuote?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Comment {
