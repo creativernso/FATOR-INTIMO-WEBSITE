@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, Youtube, Instagram, Facebook } from 'lucide-react';
 import LogoImage from './LogoImage';
+import LanguageSwitcher from './LanguageSwitcher';
+import { useLocale } from './LocaleProvider';
 
 function TikTokIcon({ size = 16 }: { size?: number }) {
   return (
@@ -13,16 +15,6 @@ function TikTokIcon({ size = 16 }: { size?: number }) {
     </svg>
   );
 }
-
-const navLinks = [
-  { href: '/', label: 'Início' },
-  { href: '/about', label: 'Sobre' },
-  { href: '/blog', label: 'Artigos' },
-  { href: '/products', label: 'Produtos' },
-  { href: '/guia', label: 'Guias' },
-  { href: '/comunidade', label: 'Comunidade' },
-  { href: '/testimonials', label: 'Histórias' },
-];
 
 const socialLinks = [
   { href: 'https://www.youtube.com/@fatorintimo', icon: Youtube, label: 'YouTube' },
@@ -35,6 +27,17 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const { t } = useLocale();
+
+  const navLinks = [
+    { href: '/', label: t('nav.home') },
+    { href: '/about', label: t('nav.about') },
+    { href: '/blog', label: t('nav.blog') },
+    { href: '/products', label: t('nav.products') },
+    { href: '/guia', label: t('nav.guides') },
+    { href: '/comunidade', label: t('nav.community') },
+    { href: '/testimonials', label: t('nav.stories') },
+  ];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -72,7 +75,7 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Right: socials + CTA */}
+          {/* Right: socials + language + CTA */}
           <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
             {socialLinks.map((s) => (
               <a
@@ -86,11 +89,12 @@ export default function Navbar() {
                 <s.icon size={15} />
               </a>
             ))}
+            <LanguageSwitcher />
             <Link
               href="/comunidade"
-              className="ml-2 text-sm px-5 py-2 rounded-full bg-accent hover:bg-accent-hover text-white font-medium transition-all hover:shadow-lg hover:shadow-accent/20 whitespace-nowrap"
+              className="ml-1 text-sm px-5 py-2 rounded-full bg-accent hover:bg-accent-hover text-white font-medium transition-all hover:shadow-lg hover:shadow-accent/20 whitespace-nowrap"
             >
-              Comunidade Íntima
+              {t('nav.cta')}
             </Link>
           </div>
 
@@ -129,9 +133,10 @@ export default function Navbar() {
             href="/comunidade"
             className="mt-2 text-sm px-8 py-3 rounded-full bg-accent text-white font-medium hover:bg-accent-hover transition-colors"
           >
-            Comunidade Íntima
+            {t('nav.cta')}
           </Link>
-          <div className="flex gap-5 mt-4">
+          <div className="flex items-center gap-5 mt-2">
+            <LanguageSwitcher />
             {socialLinks.map((s) => (
               <a
                 key={s.label}

@@ -4,15 +4,19 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowRight, BookOpen, Download, TrendingUp, Sparkles, Clock } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
+import { useLocale } from '@/components/LocaleProvider';
+import { Locale } from '@/lib/i18n';
 import { Guide } from '@/lib/types';
 
 type SortMode = 'recentes' | 'downloads' | 'destaque';
 
 interface Props {
   guides: Guide[];
+  locale: Locale;
 }
 
 export default function GuideLibraryContent({ guides }: Props) {
+  const { t } = useLocale();
   const [activeTag, setActiveTag] = useState<string>('todos');
   const [sort, setSort] = useState<SortMode>('recentes');
 
@@ -20,7 +24,7 @@ export default function GuideLibraryContent({ guides }: Props) {
     const tags = new Set<string>();
     guides.forEach((g) => {
       if (g.category) tags.add(g.category);
-      (g.tags ?? []).forEach((t) => tags.add(t));
+      (g.tags ?? []).forEach((tag) => tags.add(tag));
     });
     return Array.from(tags).slice(0, 10);
   }, [guides]);
@@ -56,21 +60,21 @@ export default function GuideLibraryContent({ guides }: Props) {
         <div className="relative max-w-5xl mx-auto text-center">
           <AnimateOnScroll>
             <span className="text-xs text-accent tracking-[0.4em] uppercase mb-6 block">
-              Biblioteca Emocional
+              {t('library.badge')}
             </span>
             <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl font-light text-text-primary leading-[1.0] mb-6">
-              Recursos para entender<br />
-              <span style={{ color: '#fe0050' }}>o amor e as relações</span>
+              {t('library.headline_1')}<br />
+              <span style={{ color: '#fe0050' }}>{t('library.headline_2')}</span>
             </h1>
             <p className="text-text-secondary text-base sm:text-lg leading-relaxed max-w-2xl mx-auto mb-10">
-              Guias psicológicos gratuitos criados por Rafael Moreira para quem quer ir fundo — nos relacionamentos, nas emoções e em si mesmo.
+              {t('library.subtext')}
             </p>
 
             {/* Stats strip */}
             <div className="flex flex-wrap items-center justify-center gap-6 text-text-muted text-sm">
               <div className="flex items-center gap-1.5">
                 <BookOpen size={13} />
-                <span>{guides.length} guia{guides.length !== 1 ? 's' : ''} disponíve{guides.length !== 1 ? 'is' : 'l'}</span>
+                <span>{guides.length} {t(guides.length === 1 ? 'library.guide_one' : 'library.guide_other')}</span>
               </div>
               <span className="w-px h-3 bg-white/15 hidden sm:block" />
               {totalDownloads > 0 && (
@@ -82,7 +86,7 @@ export default function GuideLibraryContent({ guides }: Props) {
                   <span className="w-px h-3 bg-white/15 hidden sm:block" />
                 </>
               )}
-              <span>100% gratuito</span>
+              <span>{t('library.stats_free')}</span>
             </div>
           </AnimateOnScroll>
         </div>
@@ -95,7 +99,7 @@ export default function GuideLibraryContent({ guides }: Props) {
             <AnimateOnScroll>
               <div className="flex items-center gap-2 mb-8">
                 <Sparkles size={12} className="text-accent" />
-                <p className="text-xs text-accent tracking-[0.3em] uppercase">Em destaque</p>
+                <p className="text-xs text-accent tracking-[0.3em] uppercase">{t('library.featured_label')}</p>
               </div>
             </AnimateOnScroll>
 
@@ -113,8 +117,8 @@ export default function GuideLibraryContent({ guides }: Props) {
       )}
 
       {/* ── Filter + Sort ─────────────────────────────────────── */}
-      <section className="px-6 pb-6 sticky top-[72px] z-20 bg-background/80 backdrop-blur-xl border-b border-white/4">
-        <div className="max-w-6xl mx-auto py-4">
+      <section className="px-6 sticky top-[72px] z-20 bg-background/80 backdrop-blur-xl">
+        <div className="max-w-6xl mx-auto py-4 border-b border-white/6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 
             {/* Tag filter */}
@@ -129,7 +133,7 @@ export default function GuideLibraryContent({ guides }: Props) {
                       : 'bg-white/4 border border-white/8 text-text-muted hover:border-white/16 hover:text-text-secondary'
                   }`}
                 >
-                  {tag === 'todos' ? 'Todos os guias' : tag}
+                  {tag === 'todos' ? t('library.filter_all') : tag}
                 </button>
               ))}
             </div>
@@ -137,8 +141,8 @@ export default function GuideLibraryContent({ guides }: Props) {
             {/* Sort */}
             <div className="flex items-center gap-1 bg-white/4 border border-white/8 rounded-xl p-1 flex-shrink-0">
               {[
-                { id: 'recentes' as SortMode, icon: Clock, label: 'Recentes' },
-                { id: 'downloads' as SortMode, icon: TrendingUp, label: 'Populares' },
+                { id: 'recentes' as SortMode, icon: Clock, label: t('library.sort_recent') },
+                { id: 'downloads' as SortMode, icon: TrendingUp, label: t('library.sort_popular') },
               ].map(({ id, icon: Icon, label }) => (
                 <button
                   key={id}
@@ -163,18 +167,18 @@ export default function GuideLibraryContent({ guides }: Props) {
             <AnimateOnScroll>
               <div className="text-center py-32">
                 <BookOpen size={44} className="text-white/8 mx-auto mb-5" />
-                <h2 className="font-heading text-2xl font-light text-text-primary mb-3">Em breve.</h2>
+                <h2 className="font-heading text-2xl font-light text-text-primary mb-3">{t('library.empty_title')}</h2>
                 <p className="text-text-muted text-sm max-w-sm mx-auto leading-relaxed">
-                  Os primeiros guias da Biblioteca Emocional estão sendo preparados por Rafael Moreira.
+                  {t('library.empty_text')}
                 </p>
               </div>
             </AnimateOnScroll>
           ) : filtered.length === 0 ? (
             <AnimateOnScroll>
               <div className="text-center py-20">
-                <p className="text-text-muted text-sm">Nenhum guia nesta categoria ainda.</p>
+                <p className="text-text-muted text-sm">{t('library.empty_category')}</p>
                 <button onClick={() => setActiveTag('todos')} className="mt-4 text-accent text-sm hover:underline">
-                  Ver todos os guias
+                  {t('library.empty_category_cta')}
                 </button>
               </div>
             </AnimateOnScroll>
@@ -190,8 +194,8 @@ export default function GuideLibraryContent({ guides }: Props) {
 
               <AnimateOnScroll>
                 <p className="text-center text-text-muted text-xs mt-10">
-                  {filtered.length} guia{filtered.length !== 1 ? 's' : ''} disponíve{filtered.length !== 1 ? 'is' : 'l'}
-                  {activeTag !== 'todos' && ` em "${activeTag}"`}
+                  {filtered.length} {t(filtered.length === 1 ? 'library.guide_one' : 'library.guide_other')}
+                  {activeTag !== 'todos' && ` ${t('library.guide_in')} "${activeTag}"`}
                 </p>
               </AnimateOnScroll>
             </>
@@ -205,9 +209,10 @@ export default function GuideLibraryContent({ guides }: Props) {
 /* ── Portrait Guide Card ─────────────────────────────────── */
 
 function GuidePortraitCard({ guide, large = false }: { guide: Guide; large?: boolean }) {
+  const { t } = useLocale();
   return (
     <Link href={`/guia/${guide.slug}`} className="group block h-full">
-      <div className={`relative overflow-hidden rounded-2xl border border-white/6 bg-surface transition-all duration-300 group-hover:border-accent/25 group-hover:shadow-xl group-hover:shadow-accent/6 flex flex-col h-full ${large ? '' : ''}`}>
+      <div className="relative overflow-hidden rounded-2xl border border-white/6 bg-surface transition-all duration-300 group-hover:border-accent/25 group-hover:shadow-xl group-hover:shadow-accent/6 flex flex-col h-full">
 
         {/* Portrait cover — 2:3 ratio */}
         <div
@@ -221,7 +226,6 @@ function GuidePortraitCard({ guide, large = false }: { guide: Guide; large?: boo
                 alt={guide.title}
                 className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.03]"
               />
-              {/* Gradient overlay */}
               <div
                 className="absolute inset-0"
                 style={{ background: 'linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.35) 65%, rgba(0,0,0,0.85) 100%)' }}
@@ -273,7 +277,7 @@ function GuidePortraitCard({ guide, large = false }: { guide: Guide; large?: boo
           )}
 
           <div className={`flex items-center gap-1.5 text-accent font-medium mt-auto ${large ? 'text-sm' : 'text-xs'}`}>
-            Acessar guia <ArrowRight size={large ? 13 : 11} className="group-hover:translate-x-0.5 transition-transform" />
+            {t('library.access')} <ArrowRight size={large ? 13 : 11} className="group-hover:translate-x-0.5 transition-transform" />
           </div>
         </div>
       </div>

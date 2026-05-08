@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Youtube, Instagram, Facebook } from 'lucide-react';
 import LogoImage from './LogoImage';
+import { getLocale, createT } from '@/lib/i18n';
 
 function TikTokIcon({ size = 16 }: { size?: number }) {
   return (
@@ -17,16 +18,19 @@ const socialLinks = [
   { href: 'https://www.tiktok.com/@fatorintimo', icon: TikTokIcon, label: 'TikTok', color: 'hover:text-white' },
 ];
 
-const navLinks = [
-  { href: '/', label: 'Início' },
-  { href: '/about', label: 'Sobre' },
-  { href: '/blog', label: 'Artigos' },
-  { href: '/products', label: 'Produtos' },
-  { href: '/testimonials', label: 'Histórias' },
-  { href: '/social', label: 'Redes Sociais' },
-];
+export default async function Footer() {
+  const locale = await getLocale();
+  const t = createT(locale);
 
-export default function Footer() {
+  const navLinks = [
+    { href: '/', label: t('nav.home') },
+    { href: '/about', label: t('nav.about') },
+    { href: '/blog', label: t('nav.blog') },
+    { href: '/products', label: t('nav.products') },
+    { href: '/testimonials', label: t('nav.stories') },
+    { href: '/guia', label: t('nav.guides') },
+  ];
+
   return (
     <footer className="border-t border-white/5 bg-background">
       <div className="max-w-6xl mx-auto px-6 py-16">
@@ -38,7 +42,7 @@ export default function Footer() {
               <LogoImage height={26} />
             </Link>
             <p className="text-text-secondary text-sm leading-relaxed max-w-xs mb-6">
-              Psicologia profunda para quem quer entender o amor, dominar suas relações e viver com presença emocional.
+              {t('footer.brand_description')}
             </p>
             <div className="flex gap-3">
               {socialLinks.map((s) => (
@@ -58,7 +62,7 @@ export default function Footer() {
 
           {/* Nav */}
           <div>
-            <h4 className="text-text-primary text-xs font-medium tracking-widest uppercase mb-5">Navegar</h4>
+            <h4 className="text-text-primary text-xs font-medium tracking-widest uppercase mb-5">{t('footer.nav_heading')}</h4>
             <ul className="space-y-3">
               {navLinks.map((link) => (
                 <li key={link.href}>
@@ -72,16 +76,16 @@ export default function Footer() {
 
           {/* CTA */}
           <div>
-            <h4 className="text-text-primary text-xs font-medium tracking-widest uppercase mb-5">Começar Agora</h4>
-            <p className="text-text-secondary text-sm mb-5 leading-relaxed">Acesse os guias psicológicos gratuitos da Biblioteca Emocional.</p>
+            <h4 className="text-text-primary text-xs font-medium tracking-widest uppercase mb-5">{t('footer.cta_heading')}</h4>
+            <p className="text-text-secondary text-sm mb-5 leading-relaxed">{t('footer.cta_description')}</p>
             <Link
               href="/guia"
               className="inline-block text-sm px-5 py-2.5 rounded-full bg-accent hover:bg-accent-hover text-white font-medium transition-all"
             >
-              Explorar Guias
+              {t('footer.cta_button')}
             </Link>
             <div className="mt-6">
-              <h4 className="text-text-primary text-xs font-medium tracking-widest uppercase mb-3">No YouTube</h4>
+              <h4 className="text-text-primary text-xs font-medium tracking-widest uppercase mb-3">{t('footer.youtube_heading')}</h4>
               <a
                 href="https://www.youtube.com/@fatorintimo"
                 target="_blank"
@@ -95,7 +99,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-14 pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-text-muted text-xs">© {new Date().getFullYear()} Fator Íntimo. Todos os direitos reservados.</p>
+          <p className="text-text-muted text-xs">© {new Date().getFullYear()} Fator Íntimo. {t('footer.copyright')}</p>
           <div className="flex items-center gap-4">
             {socialLinks.map((s) => (
               <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className={`text-text-muted text-xs ${s.color} transition-colors`}>

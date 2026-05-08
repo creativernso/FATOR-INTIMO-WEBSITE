@@ -15,6 +15,7 @@ type Mode = 'list' | 'create' | { type: 'edit'; guide: Guide };
 const emptyGuide = (): Guide => ({
   id: uuid(),
   slug: '',
+  locale: 'pt',
   title: '',
   subtitle: '',
   description: '',
@@ -484,6 +485,26 @@ export default function AdminGuidePage() {
                   <span className="text-text-secondary text-sm">{label}</span>
                 </label>
               ))}
+
+              <div>
+                <label className="text-xs text-text-muted block mb-1.5">Idioma</label>
+                <div className="flex gap-2">
+                  {(['pt', 'en', 'fr'] as const).map((loc) => (
+                    <button
+                      key={loc}
+                      type="button"
+                      onClick={() => setField('locale', loc)}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+                        (form.locale ?? 'pt') === loc
+                          ? 'bg-accent/15 border-accent/30 text-accent'
+                          : 'bg-white/4 border-white/8 text-text-muted hover:border-white/16'
+                      }`}
+                    >
+                      {loc.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               <div>
                 <label className="text-xs text-text-muted block mb-1.5">Categoria</label>

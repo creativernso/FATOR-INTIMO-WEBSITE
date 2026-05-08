@@ -70,6 +70,7 @@ export interface Lead {
 export interface Guide {
   id: string;
   slug: string;
+  locale?: 'pt' | 'en' | 'fr';
   title: string;
   subtitle?: string;
   description: string;

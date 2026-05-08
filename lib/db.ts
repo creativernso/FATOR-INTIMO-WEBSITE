@@ -214,10 +214,14 @@ export async function toggleCommunityPostReaction(postId: string, uid: string): 
 
 // ─── Guides (multi-guide system) ──────────────────────────────────────────────
 
-export async function getGuides(publishedOnly = false): Promise<Guide[]> {
+export async function getGuides(publishedOnly = false, locale?: string): Promise<Guide[]> {
   const snap = await db().collection('guides').get();
   let guides = snap.docs.map((d) => d.data() as Guide);
   if (publishedOnly) guides = guides.filter((g) => g.published);
+  // locale filter: return guides matching locale, or those with no locale set (default PT content)
+  if (locale && locale !== 'pt') {
+    guides = guides.filter((g) => g.locale === locale || !g.locale);
+  }
   return guides.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 

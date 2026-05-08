@@ -1,0 +1,47 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "blog": "Articles",
+    "products": "Products",
+    "guides": "Guides",
+    "community": "Community",
+    "stories": "Stories",
+    "cta": "Intimate Circle"
+  },
+  "footer": {
+    "brand_description": "Deep psychology for those who want to understand love, master their relationships, and live with emotional presence.",
+    "nav_heading": "Explore",
+    "cta_heading": "Start Now",
+    "cta_description": "Access free psychological guides from the Emotional Library.",
+    "cta_button": "Explore Guides",
+    "youtube_heading": "On YouTube",
+    "copyright": "All rights reserved."
+  },
+  "library": {
+    "badge": "Emotional Library",
+    "headline_1": "Resources to understand",
+    "headline_2": "love and relationships",
+    "subtext": "Free psychological guides created by Rafael Moreira for those who want to go deep — into relationships, emotions, and themselves.",
+    "stats_free": "100% free",
+    "featured_label": "Featured",
+    "filter_all": "All guides",
+    "sort_recent": "Recent",
+    "sort_popular": "Popular",
+    "empty_title": "Coming soon.",
+    "empty_text": "The first guides of the Emotional Library are being prepared by Rafael Moreira.",
+    "empty_category": "No guides in this category yet.",
+    "empty_category_cta": "See all guides",
+    "access": "Read guide",
+    "guide_one": "guide available",
+    "guide_other": "guides available",
+    "guide_in": "in"
+  },
+  "guide": {
+    "badge_library": "Emotional Library",
+    "badge_free": "Free",
+    "back": "All guides",
+    "learn_heading": "What you'll learn",
+    "related_heading": "More free guides"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "about": "À propos",
+    "blog": "Articles",
+    "products": "Produits",
+    "guides": "Guides",
+    "community": "Communauté",
+    "stories": "Témoignages",
+    "cta": "Cercle Intime"
+  },
+  "footer": {
+    "brand_description": "Psychologie profonde pour ceux qui veulent comprendre l'amour, maîtriser leurs relations et vivre avec une présence émotionnelle.",
+    "nav_heading": "Explorer",
+    "cta_heading": "Commencer",
+    "cta_description": "Accédez aux guides psychologiques gratuits de la Bibliothèque Émotionnelle.",
+    "cta_button": "Explorer les Guides",
+    "youtube_heading": "Sur YouTube",
+    "copyright": "Tous droits réservés."
+  },
+  "library": {
+    "badge": "Bibliothèque Émotionnelle",
+    "headline_1": "Des ressources pour comprendre",
+    "headline_2": "l'amour et les relations",
+    "subtext": "Guides psychologiques gratuits créés par Rafael Moreira pour ceux qui veulent aller au fond — des relations, des émotions et d'eux-mêmes.",
+    "stats_free": "100% gratuit",
+    "featured_label": "À la une",
+    "filter_all": "Tous les guides",
+    "sort_recent": "Récents",
+    "sort_popular": "Populaires",
+    "empty_title": "Bientôt disponible.",
+    "empty_text": "Les premiers guides de la Bibliothèque Émotionnelle sont en préparation par Rafael Moreira.",
+    "empty_category": "Aucun guide dans cette catégorie pour l'instant.",
+    "empty_category_cta": "Voir tous les guides",
+    "access": "Lire le guide",
+    "guide_one": "guide disponible",
+    "guide_other": "guides disponibles",
+    "guide_in": "dans"
+  },
+  "guide": {
+    "badge_library": "Bibliothèque Émotionnelle",
+    "badge_free": "Gratuit",
+    "back": "Tous les guides",
+    "learn_heading": "Ce que vous allez apprendre",
+    "related_heading": "Autres guides gratuits"
+  }
+}

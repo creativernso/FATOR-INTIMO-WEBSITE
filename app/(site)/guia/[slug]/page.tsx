@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { BookOpen, Check, ArrowLeft, ArrowRight } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import { getGuideBySlug, getGuides } from '@/lib/db';
+import { getLocale, createT } from '@/lib/i18n';
 import GuideSubscribeForm from './GuideSubscribeForm';
 
 export const dynamic = 'force-dynamic';
@@ -12,15 +13,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const guide = await getGuideBySlug(slug);
   if (!guide?.published) return {};
+  const locale = await getLocale();
+  const t = createT(locale);
   return {
-    title: `${guide.title} — Biblioteca Emocional`,
+    title: `${guide.title} — ${t('guide.badge_library')}`,
     description: guide.subtitle || guide.description.slice(0, 160),
   };
 }
 
 export default async function GuideDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [guide, allGuides] = await Promise.all([getGuideBySlug(slug), getGuides(true)]);
+  const locale = await getLocale();
+  const t = createT(locale);
+
+  const [guide, allGuides] = await Promise.all([getGuideBySlug(slug), getGuides(true, locale)]);
 
   if (!guide?.published) notFound();
 
@@ -40,7 +46,7 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ sl
               href="/guia"
               className="inline-flex items-center gap-1.5 text-text-muted text-xs hover:text-accent transition-colors mb-10"
             >
-              <ArrowLeft size={11} /> Todos os guias
+              <ArrowLeft size={11} /> {t('guide.back')}
             </Link>
           </AnimateOnScroll>
 
@@ -60,7 +66,7 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ sl
                 )}
 
                 <span className="text-xs text-accent tracking-[0.3em] uppercase mb-4 block">
-                  Biblioteca Emocional · Gratuito
+                  {t('guide.badge_library')} · {t('guide.badge_free')}
                 </span>
 
                 <h1 className="font-heading text-4xl sm:text-5xl font-light text-text-primary leading-[1.08] mb-5">
@@ -87,7 +93,7 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ sl
 
                 {guide.bullets && guide.bullets.length > 0 && (
                   <div className="space-y-3 mb-8">
-                    <p className="text-xs text-text-muted tracking-widest uppercase mb-4">O que você vai aprender</p>
+                    <p className="text-xs text-text-muted tracking-widest uppercase mb-4">{t('guide.learn_heading')}</p>
                     {guide.bullets.map((bullet, i) => (
                       <div key={i} className="flex items-start gap-3">
                         <div className="w-5 h-5 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -121,7 +127,6 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ sl
             {/* Right — Cover + Form */}
             <div className="space-y-6">
               <AnimateOnScroll delay={120}>
-                {/* Cover image */}
                 {guide.coverImage ? (
                   <div className="relative w-full overflow-hidden rounded-2xl border border-white/8" style={{ aspectRatio: '4/3' }}>
                     <img
@@ -142,7 +147,6 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ sl
               </AnimateOnScroll>
 
               <AnimateOnScroll delay={180}>
-                {/* Form card */}
                 <div
                   className="rounded-2xl border border-white/8 bg-surface p-6 sm:p-8"
                   style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.4)' }}
@@ -169,7 +173,7 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ sl
           <div className="max-w-6xl mx-auto">
             <div className="border-t border-white/5 pt-14">
               <AnimateOnScroll>
-                <p className="text-xs text-text-muted tracking-[0.3em] uppercase mb-8">Outros guias gratuitos</p>
+                <p className="text-xs text-text-muted tracking-[0.3em] uppercase mb-8">{t('guide.related_heading')}</p>
               </AnimateOnScroll>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                 {related.map((g, i) => (
@@ -188,7 +192,7 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ sl
                           <p className="text-text-muted text-xs leading-relaxed line-clamp-2">{g.emotionalHook}</p>
                         )}
                         <div className="flex items-center gap-1 text-accent text-xs mt-3">
-                          Acessar <ArrowRight size={10} />
+                          {t('library.access')} <ArrowRight size={10} />
                         </div>
                       </div>
                     </Link>

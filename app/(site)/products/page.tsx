@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
+import { ArrowRight } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import { getProducts } from '@/lib/db';
 
@@ -54,9 +55,9 @@ export default async function ProductsPage() {
 
                 return (
                   <AnimateOnScroll key={product.id} delay={i * 60}>
-                    <div className="group">
+                    <div className="group rounded-2xl border border-white/8 bg-surface p-3 transition-all duration-300 hover:border-white/16">
                       {/* Cover — portrait, clickable */}
-                      <Link href={`/products/${product.slug}`} className="block relative aspect-[3/4] rounded-xl overflow-hidden mb-4 border border-white/6 bg-surface">
+                      <Link href={`/products/${product.slug}`} className="block relative aspect-[3/4] rounded-lg overflow-hidden mb-4 bg-surface">
                         <Image
                           src={product.coverImage}
                           alt={product.title}
@@ -72,7 +73,7 @@ export default async function ProductsPage() {
                       </Link>
 
                       {/* Info below image */}
-                      <div className="px-0.5">
+                      <div className="px-1 pb-1">
                         <p className="text-accent text-[0.62rem] tracking-[0.2em] uppercase mb-1.5 font-medium">
                           {product.category}
                         </p>
@@ -82,7 +83,7 @@ export default async function ProductsPage() {
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
                             {product.originalPrice && (
-                              <span className="text-text-muted text-xs line-through">
+                              <span className="text-accent/70 text-xs line-through">
                                 R${product.originalPrice}
                               </span>
                             )}
@@ -94,7 +95,7 @@ export default async function ProductsPage() {
                             href={`/products/${product.slug}`}
                             className="flex items-center gap-1.5 bg-accent hover:bg-accent-hover text-white text-xs font-medium px-3.5 py-2 rounded-full transition-all whitespace-nowrap"
                           >
-                            Ver produto
+                            Ver produto <ArrowRight size={11} />
                           </Link>
                         </div>
                       </div>
