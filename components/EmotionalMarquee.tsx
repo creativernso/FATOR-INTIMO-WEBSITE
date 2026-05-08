@@ -1,6 +1,6 @@
 'use client';
 
-const WELCOME = 'BEM-VINDO AO FATOR ÍNTIMO — UM ESPAÇO PARA ENTENDER O AMOR, AS RELAÇÕES MODERNAS E A PSICOLOGIA POR TRÁS DAS CONEXÕES HUMANAS.';
+const WELCOME = 'Bem-vindo ao Fator Íntimo — um espaço para entender o amor, as relações modernas e a psicologia por trás das conexões humanas.';
 
 interface Props {
   phrases: string[];
@@ -16,8 +16,8 @@ export default function EmotionalMarquee({ phrases }: Props) {
         {doubled.map((phrase, i) => (
           <span key={i} className="inline-flex items-center flex-shrink-0" style={{ paddingLeft: '3rem', paddingRight: '3rem' }}>
             <span
-              className="font-heading font-semibold whitespace-nowrap text-white uppercase"
-              style={{ fontSize: 'clamp(1.5rem, 2.8vw, 2.2rem)', letterSpacing: '0.08em' }}
+              className="font-heading font-light whitespace-nowrap text-white"
+              style={{ fontSize: 'clamp(1.5rem, 2.8vw, 2.2rem)', letterSpacing: '-0.02em' }}
             >
               {phrase}
             </span>
