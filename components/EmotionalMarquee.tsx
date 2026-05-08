@@ -11,13 +11,13 @@ export default function EmotionalMarquee({ phrases }: Props) {
   const doubled = [...allPhrases, ...allPhrases];
 
   return (
-    <div className="relative w-full overflow-hidden" style={{ backgroundColor: '#fe0050', paddingTop: '1.75rem', paddingBottom: '1.75rem' }}>
+    <div className="relative w-full overflow-hidden" style={{ backgroundColor: '#fe0050', paddingTop: '2.25rem', paddingBottom: '2.25rem' }}>
       <div className="marquee-track">
         {doubled.map((phrase, i) => (
           <span key={i} className="inline-flex items-center flex-shrink-0" style={{ paddingLeft: '3rem', paddingRight: '3rem' }}>
             <span
-              className="font-heading font-bold whitespace-nowrap text-white uppercase"
-              style={{ fontSize: 'clamp(1.1rem, 2vw, 1.5rem)', letterSpacing: '0.1em' }}
+              className="font-heading font-semibold whitespace-nowrap text-white uppercase"
+              style={{ fontSize: 'clamp(1.5rem, 2.8vw, 2.2rem)', letterSpacing: '0.08em' }}
             >
               {phrase}
             </span>
