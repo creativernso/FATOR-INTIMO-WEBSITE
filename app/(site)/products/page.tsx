@@ -55,7 +55,7 @@ export default async function ProductsPage() {
 
                 return (
                   <AnimateOnScroll key={product.id} delay={i * 60}>
-                    <div className="group rounded-2xl border border-white/8 bg-surface p-3 transition-all duration-300 hover:border-white/16">
+                    <div className="group rounded-2xl border border-white/12 bg-surface p-3 transition-all duration-300 hover:border-accent/60">
                       {/* Cover — portrait, clickable */}
                       <Link href={`/products/${product.slug}`} className="block relative aspect-[3/4] rounded-lg overflow-hidden mb-4 bg-surface">
                         <Image
