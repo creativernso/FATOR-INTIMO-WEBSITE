@@ -273,15 +273,13 @@ export default function AdminProducts() {
               />
 
               <div>
-                <label className="text-text-muted text-xs mb-1.5 block">Link de download (após pagamento)</label>
-                <input className="admin-input mb-2" value={form.downloadUrl} onChange={(e) => setForm({ ...form, downloadUrl: e.target.value })} placeholder="https://drive.google.com/... ou use upload abaixo" />
-                {editingId && (
+                <label className="text-text-muted text-xs mb-1.5 block">PDF de download (após pagamento)</label>
+                {editingId ? (
                   <UploadPDF
                     productId={editingId}
                     onUploaded={(url) => setForm((f) => ({ ...f, downloadUrl: url }))}
                   />
-                )}
-                {!editingId && (
+                ) : (
                   <p className="text-text-muted text-xs">Salve o produto primeiro para fazer upload do PDF.</p>
                 )}
               </div>
