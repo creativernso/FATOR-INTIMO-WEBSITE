@@ -1,5 +1,4 @@
 import { Star, Quote } from 'lucide-react';
-import Image from 'next/image';
 import { Testimonial } from '@/lib/types';
 
 interface Props {
@@ -25,16 +24,14 @@ export default function TestimonialCard({ testimonial, featured }: Props) {
       {/* Profile photo — prominent at top */}
       <div className="flex flex-col items-center text-center mb-6">
         {showPhoto ? (
-          <div className={`relative rounded-full overflow-hidden border-2 mb-4 flex-shrink-0 ${
-            isFeatured ? 'w-24 h-24 border-accent/30' : 'w-20 h-20 border-white/15'
-          }`}>
-            <Image
-              src={testimonial.avatar!}
-              alt={displayName}
-              fill
-              className="object-cover"
-            />
-          </div>
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={testimonial.avatar!}
+            alt={displayName}
+            className={`rounded-full object-cover border-2 mb-4 flex-shrink-0 ${
+              isFeatured ? 'w-24 h-24 border-accent/30' : 'w-20 h-20 border-white/15'
+            }`}
+          />
         ) : (
           <div className={`rounded-full bg-white/5 border-2 flex items-center justify-center mb-4 flex-shrink-0 ${
             isFeatured ? 'w-24 h-24 border-accent/20' : 'w-20 h-20 border-white/10'
