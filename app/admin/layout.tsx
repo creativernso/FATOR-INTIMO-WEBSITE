@@ -45,7 +45,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
 
         {/* Logo */}
-        <div className="p-4 lg:p-6 border-b border-white/5 flex items-center gap-3 min-h-[72px] lg:min-h-[80px]">
+        <div className="px-4 lg:px-6 border-b border-white/5 flex items-center gap-3 min-h-[72px] lg:min-h-[80px]">
           <div
             className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 border border-white/10"
             style={{ background: 'var(--logo-bg)' }}
