@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import { ArrowRight, PenLine, Star } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import TestimonialCard from '@/components/TestimonialCard';
 import { getTestimonials } from '@/lib/db';
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Histórias',
@@ -13,40 +13,58 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function TestimonialsPage() {
-  const testimonials = await getTestimonials();
+  const testimonials = await getTestimonials(true);
+  const featured = testimonials.filter((t) => t.featured);
+  const rest = testimonials.filter((t) => !t.featured);
+  const avgRating = testimonials.filter((t) => t.rating).reduce((acc, t) => acc + (t.rating ?? 0), 0) / (testimonials.filter((t) => t.rating).length || 1);
 
   return (
     <>
       {/* Hero */}
-      <section className="pt-36 pb-16 px-6 text-center relative">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[300px] opacity-5 pointer-events-none rounded-full"
-          style={{ background: 'radial-gradient(ellipse, #fe0050 0%, transparent 70%)' }} />
+      <section className="pt-36 pb-16 px-6 text-center relative overflow-hidden">
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[400px] pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at top, rgba(254,0,80,0.06) 0%, transparent 65%)' }}
+        />
         <div className="relative max-w-3xl mx-auto">
           <AnimateOnScroll>
-            <span className="text-xs text-accent tracking-widest uppercase mb-4 block">Histórias Reais</span>
-            <h1 className="font-heading text-5xl md:text-6xl font-light text-text-primary mb-5">
-              <span style={{ color: '#fe0050' }}>Transformações</span> reais
+            <span className="text-xs text-accent tracking-[0.3em] uppercase mb-5 block">Histórias Reais</span>
+            <h1 className="font-heading text-5xl md:text-6xl font-light text-text-primary mb-5 leading-[1.05]">
+              <span style={{ color: '#fe0050' }}>Transformações</span> que aconteceram
             </h1>
-            <p className="text-text-secondary text-base leading-relaxed max-w-xl mx-auto">
+            <p className="text-text-secondary text-base leading-relaxed max-w-xl mx-auto mb-8">
               Estas são histórias de pessoas que decidiram entender seus padrões e mudaram o rumo dos seus relacionamentos.
             </p>
+            <Link
+              href="/testimonials/submit"
+              className="inline-flex items-center gap-2 border border-accent/30 hover:bg-accent/10 text-accent px-6 py-3 rounded-full text-sm font-medium transition-all"
+            >
+              <PenLine size={14} />
+              Compartilhe sua história
+            </Link>
           </AnimateOnScroll>
         </div>
       </section>
 
-      {/* Testimonials */}
       <section className="py-10 px-6 pb-28">
         <div className="max-w-5xl mx-auto">
+
           {testimonials.length === 0 ? (
-            <p className="text-center text-text-muted py-20">Depoimentos em breve.</p>
+            <div className="text-center py-20">
+              <p className="text-text-muted text-sm mb-8">Seja o primeiro a compartilhar sua transformação.</p>
+              <Link href="/testimonials/submit"
+                className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-6 py-3 rounded-full text-sm font-medium transition-all">
+                <PenLine size={14} /> Contar minha história
+              </Link>
+            </div>
           ) : (
             <>
-              {/* Stats bar */}
+              {/* Stats */}
               <AnimateOnScroll>
                 <div className="grid grid-cols-3 gap-4 mb-14">
                   {[
-                    { value: `${testimonials.length}+`, label: 'Depoimentos' },
-                    { value: '⭐ 5.0', label: 'Avaliação média' },
+                    { value: `${testimonials.length}+`, label: 'Histórias compartilhadas' },
+                    { value: `⭐ ${avgRating.toFixed(1)}`, label: 'Avaliação média' },
                     { value: '10k+', label: 'Pessoas impactadas' },
                   ].map((stat, i) => (
                     <div key={i} className="rounded-xl border border-white/5 bg-surface p-5 text-center">
@@ -57,32 +75,64 @@ export default async function TestimonialsPage() {
                 </div>
               </AnimateOnScroll>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {testimonials.map((testimonial, i) => (
-                  <AnimateOnScroll key={testimonial.id} delay={i * 70}>
-                    <TestimonialCard testimonial={testimonial} />
+              {/* Featured stories */}
+              {featured.length > 0 && (
+                <div className="mb-12">
+                  <AnimateOnScroll>
+                    <p className="text-xs text-accent tracking-[0.25em] uppercase mb-5 flex items-center gap-2">
+                      <Star size={11} className="fill-accent" /> Histórias em destaque
+                    </p>
                   </AnimateOnScroll>
-                ))}
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {featured.map((t, i) => (
+                      <AnimateOnScroll key={t.id} delay={i * 70}>
+                        <TestimonialCard testimonial={t} featured />
+                      </AnimateOnScroll>
+                    ))}
+                  </div>
+                  {rest.length > 0 && <div className="border-t border-white/5 mt-10 mb-10" />}
+                </div>
+              )}
+
+              {/* All others */}
+              {rest.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {rest.map((t, i) => (
+                    <AnimateOnScroll key={t.id} delay={i * 60}>
+                      <TestimonialCard testimonial={t} />
+                    </AnimateOnScroll>
+                  ))}
+                </div>
+              )}
             </>
           )}
 
-          {/* CTA */}
+          {/* Submit CTA */}
           <AnimateOnScroll>
-            <div className="mt-16 rounded-2xl border border-white/5 bg-surface p-10 text-center">
+            <div className="mt-20 relative rounded-2xl border border-white/5 bg-surface p-10 text-center overflow-hidden">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
+              <p className="text-xs text-accent tracking-widest uppercase mb-4">Comunidade</p>
               <h2 className="font-heading text-3xl font-light text-text-primary mb-3">
-                Pronto para escrever a sua história?
+                A sua história importa.
               </h2>
-              <p className="text-text-secondary text-sm mb-6 leading-relaxed max-w-md mx-auto">
-                Comece com o guia gratuito e dê o primeiro passo em direção a relacionamentos mais conscientes e saudáveis.
+              <p className="text-text-secondary text-sm mb-8 leading-relaxed max-w-md mx-auto">
+                Cada transformação compartilhada inspira outra pessoa a dar o primeiro passo. Conte a sua.
               </p>
-              <Link
-                href="/free-guide"
-                className="group inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-7 py-3.5 rounded-full font-medium text-sm transition-all"
-              >
-                Baixar Guia Gratuito
-                <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
-              </Link>
+              <div className="flex flex-wrap gap-3 justify-center">
+                <Link
+                  href="/testimonials/submit"
+                  className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-7 py-3.5 rounded-full font-medium text-sm transition-all"
+                >
+                  <PenLine size={14} />
+                  Contar minha história
+                </Link>
+                <Link
+                  href="/free-guide"
+                  className="inline-flex items-center gap-2 border border-white/10 hover:border-white/20 text-text-secondary hover:text-text-primary px-7 py-3.5 rounded-full text-sm transition-all"
+                >
+                  Baixar Guia Gratuito <ArrowRight size={13} />
+                </Link>
+              </div>
             </div>
           </AnimateOnScroll>
         </div>

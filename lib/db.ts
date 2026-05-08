@@ -46,7 +46,12 @@ export const upsertProduct = (product: Product): Promise<void> => upsertDoc('pro
 export const deleteProduct = (id: string): Promise<void> => deleteDoc('products', id);
 
 // Testimonials
-export const getTestimonials = (): Promise<Testimonial[]> => getCollection<Testimonial>('testimonials');
+export async function getTestimonials(onlyApproved = false): Promise<Testimonial[]> {
+  const all = await getCollection<Testimonial>('testimonials');
+  if (!onlyApproved) return all;
+  // treat missing status as approved (backward compat with manually added ones)
+  return all.filter((t) => !t.status || t.status === 'approved');
+}
 export const saveTestimonials = (t: Testimonial[]): Promise<void> => replaceCollection('testimonials', t);
 export const upsertTestimonial = (t: Testimonial): Promise<void> => upsertDoc('testimonials', t);
 export const deleteTestimonial = (id: string): Promise<void> => deleteDoc('testimonials', id);

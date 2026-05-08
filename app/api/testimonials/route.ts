@@ -3,7 +3,7 @@ import { getTestimonials, upsertTestimonial } from '@/lib/db';
 import { v4 as uuid } from 'uuid';
 
 export async function GET() {
-  return NextResponse.json(await getTestimonials());
+  return NextResponse.json(await getTestimonials(true));
 }
 
 export async function POST(req: NextRequest) {

@@ -39,12 +39,19 @@ export interface Product {
 export interface Testimonial {
   id: string;
   name: string;
-  role: string;
+  role?: string;
+  age?: number;
+  headline?: string;
   content: string;
-  transformation: string;
-  rating: number;
+  transformation?: string;
+  rating?: number;
   avatar?: string;
   productPurchased?: string;
+  socialHandle?: string;
+  anonymous?: boolean;
+  status?: 'pending' | 'approved' | 'rejected';
+  featured?: boolean;
+  submittedAt?: string;
 }
 
 export interface Lead {
