@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Send, Users, Mail, CheckCircle, AlertCircle, Loader } from 'lucide-react';
+import { Send, Users, Mail, CheckCircle, AlertCircle, Loader, FlaskConical } from 'lucide-react';
 
 const fs = (min: string, mid: string, max: string) => `clamp(${min}, ${mid}, ${max})`;
 
@@ -34,6 +34,9 @@ export default function AdminEmails() {
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<{ sent: number; failed: number; total: number } | null>(null);
   const [error, setError] = useState('');
+  const [testEmail, setTestEmail] = useState('');
+  const [testSending, setTestSending] = useState(false);
+  const [testResult, setTestResult] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     fetch('/api/leads')
@@ -78,6 +81,25 @@ export default function AdminEmails() {
     }
   };
 
+  const handleTestEmail = async () => {
+    if (!testEmail.trim()) return;
+    setTestSending(true);
+    setTestResult(null);
+    try {
+      const res = await fetch('/api/admin/test-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: testEmail }),
+      });
+      const data = await res.json();
+      setTestResult(data);
+    } catch (e) {
+      setTestResult({ error: String(e) });
+    } finally {
+      setTestSending(false);
+    }
+  };
+
   const segmentLabel = segment === 'all' ? 'Todos com e-mail' : segment === 'email' ? 'Somente e-mail' : 'Somente WhatsApp';
 
   return (
@@ -111,6 +133,41 @@ export default function AdminEmails() {
           </p>
           <p className="text-text-muted mt-1" style={{ fontSize: fs('0.68rem', '0.78vw', '0.74rem') }}>Com e-mail cadastrado</p>
         </div>
+      </div>
+
+      {/* Test Email Diagnostics */}
+      <div className="rounded-2xl border border-white/8 bg-surface p-6 space-y-4">
+        <div className="flex items-center gap-2">
+          <FlaskConical size={14} className="text-text-muted" />
+          <h3 className="text-text-primary font-medium" style={{ fontSize: fs('0.9rem', '1vw', '0.95rem') }}>
+            Diagnóstico — Email de Teste
+          </h3>
+        </div>
+        <p className="text-text-muted" style={{ fontSize: '0.78rem' }}>
+          Envia um email de teste e exibe o resultado completo da API Resend para diagnóstico.
+        </p>
+        <div className="flex gap-3">
+          <input
+            type="email"
+            value={testEmail}
+            onChange={(e) => setTestEmail(e.target.value)}
+            placeholder="seu@email.com"
+            className="admin-input flex-1"
+          />
+          <button
+            onClick={handleTestEmail}
+            disabled={testSending || !testEmail.trim()}
+            className="flex items-center gap-2 bg-white/8 hover:bg-white/12 disabled:opacity-50 text-text-primary px-4 py-2.5 rounded-xl text-sm transition-all whitespace-nowrap"
+          >
+            {testSending ? <Loader size={13} className="animate-spin" /> : <Send size={13} />}
+            Testar
+          </button>
+        </div>
+        {testResult && (
+          <pre className="bg-black/40 border border-white/6 rounded-xl p-4 text-xs text-text-muted overflow-auto max-h-60 leading-relaxed">
+            {JSON.stringify(testResult, null, 2)}
+          </pre>
+        )}
       </div>
 
       {/* Templates */}
