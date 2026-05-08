@@ -58,9 +58,9 @@
   --bg:           247 244 240;
   --surface:      255 255 255;
   --surface-2:    238 235 231;
-  --text-primary: 10 10 10;
-  --text-sec:     70 65 60;
-  --text-muted:   136 130 124;
+  --text-primary: 30 30 30;
+  --text-sec:     80 80 80;
+  --text-muted:   130 130 130;
 
   --sidebar-start:  #ffffff;
   --sidebar-end:    #f0ede8;
@@ -81,8 +81,8 @@
   --input-bg:          rgba(0, 0, 0, 0.025);
   --input-border:      rgba(0, 0, 0, 0.10);
   --input-border-hov:  rgba(0, 0, 0, 0.16);
-  --input-color:       #111111;
-  --input-placeholder: #aaaaaa;
+  --input-color:       #1e1e1e;
+  --input-placeholder: #909090;
 
   --scroll-track: #eeeae5;
   --scroll-thumb: #cccccc;
