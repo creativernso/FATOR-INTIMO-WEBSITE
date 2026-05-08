@@ -17,9 +17,9 @@
   --bg:           6 6 6;
   --surface:      13 11 9;
   --surface-2:    20 16 12;
-  --text-primary: 245 242 238;
-  --text-sec:     138 128 117;
-  --text-muted:   90 82 72;
+  --text-primary: 220 220 220;
+  --text-sec:     160 160 160;
+  --text-muted:   110 110 110;
 
   /* Admin layout values used in inline styles */
   --sidebar-start:  #120e09;
@@ -43,8 +43,8 @@
   --input-bg:          rgba(255, 255, 255, 0.03);
   --input-border:      rgba(255, 255, 255, 0.07);
   --input-border-hov:  rgba(255, 255, 255, 0.12);
-  --input-color:       #f5f0e8;
-  --input-placeholder: #5a5248;
+  --input-color:       #dcdcdc;
+  --input-placeholder: #6e6e6e;
 
   /* Scrollbar */
   --scroll-track: #0f0a04;
