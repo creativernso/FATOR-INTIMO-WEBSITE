@@ -96,12 +96,12 @@ export async function incrementLike(postSlug: string): Promise<number> {
 // ─── Community ────────────────────────────────────────────────────────────────
 
 export async function getCommunityPosts(filter?: { status?: string; category?: string; featured?: boolean }): Promise<CommunityPost[]> {
-  let query: Query = db().collection('community_posts');
-  if (filter?.status) query = query.where('status', '==', filter.status);
-  if (filter?.category) query = query.where('category', '==', filter.category);
-  if (filter?.featured) query = query.where('featured', '==', true);
-  const snap = await query.orderBy('createdAt', 'desc').get();
-  return snap.docs.map((d) => d.data() as CommunityPost);
+  const snap = await db().collection('community_posts').get();
+  let posts = snap.docs.map((d) => d.data() as CommunityPost);
+  if (filter?.status) posts = posts.filter((p) => p.status === filter.status);
+  if (filter?.category) posts = posts.filter((p) => p.category === filter.category);
+  if (filter?.featured) posts = posts.filter((p) => !!p.featured);
+  return posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
 export async function getCommunityPost(id: string): Promise<CommunityPost | null> {
@@ -113,11 +113,11 @@ export const upsertCommunityPost = (p: CommunityPost): Promise<void> => upsertDo
 export const deleteCommunityPost = (id: string): Promise<void> => deleteDoc('community_posts', id);
 
 export async function getCommunityComments(postId: string): Promise<CommunityComment[]> {
-  const snap = await db().collection('community_comments')
-    .where('postId', '==', postId)
-    .orderBy('createdAt', 'asc')
-    .get();
-  return snap.docs.map((d) => d.data() as CommunityComment);
+  const snap = await db().collection('community_comments').get();
+  return snap.docs
+    .map((d) => d.data() as CommunityComment)
+    .filter((c) => c.postId === postId)
+    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
 }
 
 export const upsertCommunityComment = (c: CommunityComment): Promise<void> => upsertDoc('community_comments', c);
@@ -138,10 +138,10 @@ export const upsertCommunityUser = async (u: CommunityUser): Promise<void> => {
 };
 
 export async function getCommunityReports(status?: string): Promise<CommunityReport[]> {
-  let query: Query = db().collection('community_reports');
-  if (status) query = query.where('status', '==', status);
-  const snap = await query.orderBy('createdAt', 'desc').get();
-  return snap.docs.map((d) => d.data() as CommunityReport);
+  const snap = await db().collection('community_reports').get();
+  let reports = snap.docs.map((d) => d.data() as CommunityReport);
+  if (status) reports = reports.filter((r) => r.status === status);
+  return reports.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
 export const upsertCommunityReport = (r: CommunityReport): Promise<void> => upsertDoc('community_reports', r);
