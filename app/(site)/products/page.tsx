@@ -54,53 +54,51 @@ export default async function ProductsPage() {
 
                 return (
                   <AnimateOnScroll key={product.id} delay={i * 60}>
-                    <Link href={`/products/${product.slug}`} className="group block">
-                      {/* Cover — portrait */}
-                      <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 border border-white/6 bg-surface">
+                    <div className="group">
+                      {/* Cover — portrait, clickable */}
+                      <Link href={`/products/${product.slug}`} className="block relative aspect-[3/4] rounded-xl overflow-hidden mb-4 border border-white/6 bg-surface">
                         <Image
                           src={product.coverImage}
                           alt={product.title}
                           fill
                           className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                         />
-                        {/* Subtle gradient at bottom */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-
-                        {/* Discount badge */}
                         {discount && (
                           <div className="absolute top-3 right-3 bg-accent text-white text-[0.6rem] font-bold px-2.5 py-1 rounded-full tracking-wide">
                             {discount}% OFF
                           </div>
                         )}
-
-                        {/* Hover overlay with CTA */}
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-5">
-                          <span className="flex items-center gap-1.5 bg-white text-black text-xs font-semibold px-4 py-2 rounded-full tracking-wide">
-                            Ver produto
-                          </span>
-                        </div>
-                      </div>
+                      </Link>
 
                       {/* Info below image */}
                       <div className="px-0.5">
                         <p className="text-accent text-[0.62rem] tracking-[0.2em] uppercase mb-1.5 font-medium">
                           {product.category}
                         </p>
-                        <h2 className="font-heading text-base md:text-lg font-medium text-text-primary leading-snug mb-2.5 group-hover:text-accent transition-colors duration-200 line-clamp-2">
+                        <h2 className="font-heading text-base md:text-lg font-medium text-text-primary leading-snug mb-3 line-clamp-2">
                           {product.title}
                         </h2>
-                        <div className="flex items-center gap-2">
-                          {product.originalPrice && (
-                            <span className="text-text-muted text-xs line-through">
-                              R${product.originalPrice}
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            {product.originalPrice && (
+                              <span className="text-text-muted text-xs line-through">
+                                R${product.originalPrice}
+                              </span>
+                            )}
+                            <span className="font-heading text-lg font-medium text-text-primary">
+                              R${product.price}<span className="text-sm">,00</span>
                             </span>
-                          )}
-                          <span className="font-heading text-lg font-medium text-text-primary">
-                            R${product.price}<span className="text-sm">,00</span>
-                          </span>
+                          </div>
+                          <Link
+                            href={`/products/${product.slug}`}
+                            className="flex items-center gap-1.5 bg-accent hover:bg-accent-hover text-white text-xs font-medium px-3.5 py-2 rounded-full transition-all whitespace-nowrap"
+                          >
+                            Ver produto
+                          </Link>
                         </div>
                       </div>
-                    </Link>
+                    </div>
                   </AnimateOnScroll>
                 );
               })}
