@@ -109,7 +109,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Header */}
         <header
-          className="admin-chrome flex-shrink-0 border-b border-white/5 px-6 lg:px-10 flex items-center justify-between min-h-[64px] lg:min-h-[72px]"
+          className="admin-chrome flex-shrink-0 border-b border-white/5 px-6 lg:px-10 flex items-center justify-between min-h-[72px] lg:min-h-[80px]"
         >
           <div className="flex items-center gap-3">
             <div>
