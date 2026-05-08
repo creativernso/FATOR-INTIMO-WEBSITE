@@ -21,7 +21,7 @@ module.exports = {
         border:          '#1a1a1a',
       },
       fontFamily: {
-        heading: ['var(--font-cormorant)', 'Georgia', 'serif'],
+        heading: ['var(--font-inter)', 'system-ui', 'sans-serif'],
         body: ['var(--font-inter)', 'system-ui', 'sans-serif'],
       },
       fontSize: {
