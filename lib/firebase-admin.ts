@@ -19,7 +19,11 @@ let _db: Firestore | undefined;
 export function getAdminDb(): Firestore {
   if (!_db) {
     _db = getFirestore(getAdminApp());
-    _db.settings({ ignoreUndefinedProperties: true });
+    try {
+      _db.settings({ ignoreUndefinedProperties: true });
+    } catch {
+      // settings already applied on a prior invocation
+    }
   }
   return _db;
 }
