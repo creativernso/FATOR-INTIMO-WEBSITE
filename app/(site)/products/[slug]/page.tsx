@@ -38,7 +38,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
           {/* Cover */}
           <AnimateOnScroll>
-            <div className="relative rounded-2xl overflow-hidden border border-white/8 shadow-2xl shadow-black/40 aspect-[4/3] lg:aspect-auto lg:h-[480px]">
+            <div className="relative rounded-2xl overflow-hidden border border-white/8 shadow-2xl shadow-black/40 aspect-[3/4] lg:aspect-auto lg:h-[560px]">
               <Image
                 src={product.coverImage}
                 alt={product.title}
@@ -113,12 +113,37 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               </div>
 
               {/* Trust bar */}
-              <div className="flex flex-wrap gap-3">
-                {['PIX', 'Cartão de crédito', 'Pagamento seguro'].map((t) => (
-                  <span key={t} className="text-xs text-text-muted border border-white/8 rounded-full px-3 py-1.5">
-                    {t}
-                  </span>
-                ))}
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Visa */}
+                <div className="h-8 px-3 rounded-lg border border-white/10 bg-white flex items-center justify-center">
+                  <svg height="16" viewBox="0 0 780 500" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M293.2 348.7l33.4-195.6h53.4l-33.4 195.6h-53.4zm246.7-191.1c-10.6-3.9-27.1-8.1-47.8-8.1-52.7 0-89.8 26.4-90.1 64.3-.3 28 26.5 43.6 46.7 52.9 20.7 9.5 27.7 15.6 27.6 24.1-.1 13-16.6 19-31.9 19-21.3 0-32.6-2.9-50.1-10l-6.9-3.1-7.5 43.5c12.4 5.4 35.4 10.1 59.3 10.3 56 0 92.4-26.1 92.8-66.5.2-22.2-14-39.1-44.7-53-18.6-9-30-15-29.9-24.2 0-8.1 9.7-16.8 30.5-16.8 17.4-.3 30 3.5 39.8 7.4l4.8 2.2 7.4-42zm136.9-4.5h-41.2c-12.8 0-22.3 3.5-27.9 16.1l-79.2 178.7h56l11.1-29h68.3l6.5 29h49.5l-43.1-194.8zm-65.7 125.9l20.9-53.5c-.3.5 4.3-11 6.9-18.1l3.5 16.4 12 55.2h-43.3zm-444.9-125.9l-52.3 133.5-5.6-27.2c-9.7-31-40-64.6-73.9-81.4l47.8 171.5 56.5-.1 84-196.3h-56.5z" fill="#1a1f71"/>
+                    <path d="M146.9 153.1H58.5l-.7 4c69.1 16.6 114.8 56.7 133.8 104.9l-19.3-92.1c-3.3-12.4-12.7-16.3-25.4-16.8z" fill="#f9a533"/>
+                  </svg>
+                </div>
+                {/* Mastercard */}
+                <div className="h-8 px-3 rounded-lg border border-white/10 bg-white flex items-center justify-center">
+                  <svg height="20" viewBox="0 0 131.39 86.9" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="131.39" height="86.9" rx="8" fill="white"/>
+                    <circle cx="49.98" cy="43.45" r="30" fill="#EB001B"/>
+                    <circle cx="81.41" cy="43.45" r="30" fill="#F79E1B"/>
+                    <path d="M65.7 19.67a30 30 0 0 1 0 47.56 30 30 0 0 1 0-47.56z" fill="#FF5F00"/>
+                  </svg>
+                </div>
+                {/* PIX */}
+                <div className="h-8 px-3 rounded-lg border border-white/10 bg-[#32bcad] flex items-center justify-center gap-1.5">
+                  <svg height="14" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" fill="white">
+                    <path d="M112.57 391.19a63.67 63.67 0 0 0 45.23 18.71h.49a63.54 63.54 0 0 0 45-18.71l84.44-85.15 84.43 85.15a63.88 63.88 0 0 0 90.46 0l9.55-9.63-107.8-108.7 107.8-108.65-9.55-9.63a63.88 63.88 0 0 0-90.46 0l-84.43 85.15-84.44-85.15a63.88 63.88 0 0 0-90.46 0l-9.55 9.63 107.8 108.65-107.8 108.7z"/>
+                  </svg>
+                  <span className="text-white text-xs font-bold tracking-wide">PIX</span>
+                </div>
+                {/* Stripe / Secure */}
+                <div className="h-8 px-3 rounded-lg border border-white/10 bg-white flex items-center justify-center gap-1.5">
+                  <svg height="14" viewBox="0 0 60 25" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 0h60v25H0z" fill="white"/>
+                    <path d="M29.4 7.6c-2 0-3.6.9-3.6 2.7 0 3.4 4.7 2.5 4.7 4.1 0 .6-.6 1-1.5 1-1.3 0-2.8-.5-4-1.3v3c1.3.6 2.7.9 4 .9 2.1 0 3.8-1 3.8-2.8 0-3.5-4.8-2.6-4.8-4.1 0-.6.5-.9 1.3-.9 1.2 0 2.5.4 3.5 1V8.1c-1-.4-2.2-.5-3.4-.5zm-8.8.2L18 17.8h2.5l.5-1.6h3.5l.5 1.6H27L24.4 7.8h-3.8zm1.6 2.4l1.2 3.8h-2.4l1.2-3.8zm-9.5-2.4v10h2.6v-10h-2.6zm-5.7 0H3v10h2.6v-3.3h.9c2.1 0 3.6-1.1 3.6-3.4 0-2.1-1.4-3.3-3.5-3.3zm-.1 2.1c.9 0 1.2.5 1.2 1.2 0 .8-.4 1.2-1.2 1.2H5.6v-2.4h1.3zm29.7 5.7c-1.2 0-1.9-1-1.9-2.5 0-1.6.7-2.5 1.9-2.5s1.9 1 1.9 2.5c0 1.6-.7 2.5-1.9 2.5zm0-7.8c-2.6 0-4.5 1.9-4.5 5.3s1.9 5.3 4.5 5.3 4.5-1.9 4.5-5.3-1.9-5.3-4.5-5.3zm13.2.2h-2.8l-2 3.4-2-3.4h-2.8l3.4 5.2-3.6 4.8H44l2.3-3.7 2.3 3.7h2.8l-3.6-4.8 3.4-5.2z" fill="#635bff"/>
+                  </svg>
+                </div>
               </div>
             </div>
           </AnimateOnScroll>
