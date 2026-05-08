@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getProducts, saveProducts } from '@/lib/db';
+import { getProducts, upsertProduct } from '@/lib/db';
 import { v4 as uuid } from 'uuid';
 
 export async function GET() {
-  return NextResponse.json(getProducts());
+  return NextResponse.json(await getProducts());
 }
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const products = getProducts();
   const slugify = (s: string) =>
     s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
@@ -31,7 +30,6 @@ export async function POST(req: NextRequest) {
     faq: Array.isArray(body.faq) ? body.faq : [],
     downloadUrl: body.downloadUrl || '',
   };
-  products.push(newProduct);
-  saveProducts(products);
+  await upsertProduct(newProduct);
   return NextResponse.json(newProduct, { status: 201 });
 }

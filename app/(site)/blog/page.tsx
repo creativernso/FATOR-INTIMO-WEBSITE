@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
 const categories = ['Todos', 'Psicologia', 'Comunicação', 'Atração', 'Autoconhecimento'];
 
 export default async function BlogPage() {
-  const posts = getPosts();
+  const posts = await getPosts();
   const sorted = [...posts].sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   );

@@ -1,6 +1,8 @@
 import * as admin from 'firebase-admin';
+import { getFirestore } from 'firebase-admin/firestore';
+import type { Firestore } from 'firebase-admin/firestore';
 
-function getAdminApp(): admin.app.App {
+export function getAdminApp(): admin.app.App {
   if (admin.apps.length) return admin.app();
   return admin.initializeApp({
     credential: admin.credential.cert({
@@ -10,6 +12,16 @@ function getAdminApp(): admin.app.App {
     }),
     storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   });
+}
+
+let _db: Firestore | undefined;
+
+export function getAdminDb(): Firestore {
+  if (!_db) {
+    _db = getFirestore(getAdminApp());
+    _db.settings({ ignoreUndefinedProperties: true });
+  }
+  return _db;
 }
 
 export function getAdminAuth(): admin.auth.Auth {

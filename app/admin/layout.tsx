@@ -15,6 +15,7 @@ import {
   ShoppingBag,
 } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
@@ -38,8 +39,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Sidebar */}
       <aside
-        className="w-[72px] lg:w-[260px] flex-shrink-0 flex flex-col border-r border-white/5 relative"
-        style={{ background: 'linear-gradient(180deg, #120e09 0%, #0f0a04 100%)' }}
+        className="admin-sidebar w-[72px] lg:w-[260px] flex-shrink-0 flex flex-col border-r border-white/5 relative"
+        style={{ background: 'linear-gradient(180deg, var(--sidebar-start) 0%, var(--sidebar-end) 100%)' }}
       >
         {/* Top glow */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
@@ -48,7 +49,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="p-4 lg:p-6 border-b border-white/5 flex items-center gap-3 min-h-[72px] lg:min-h-[80px]">
           <div
             className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 border border-white/10"
-            style={{ background: 'radial-gradient(circle at 30% 30%, #2a1810, #120e09)' }}
+            style={{ background: 'var(--logo-bg)' }}
           >
             <Image src="/FAV.png" alt="Fator Íntimo" width={22} height={22} className="object-contain" />
           </div>
@@ -110,7 +111,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Header */}
         <header
           className="flex-shrink-0 border-b border-white/5 px-6 lg:px-10 flex items-center justify-between min-h-[64px] lg:min-h-[72px]"
-          style={{ background: 'linear-gradient(90deg, #0f0a04 0%, #120e09 100%)' }}
+          style={{ background: 'linear-gradient(90deg, var(--header-start) 0%, var(--header-end) 100%)' }}
         >
           <div className="flex items-center gap-3">
             <div>
@@ -133,6 +134,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 Online
               </span>
             </div>
+            <ThemeToggle />
             <div
               className="w-8 h-8 lg:w-9 lg:h-9 rounded-full border border-accent/30 flex items-center justify-center text-accent font-semibold flex-shrink-0"
               style={{ background: 'radial-gradient(circle, rgba(254,0,80,0.15), transparent)', fontSize: 'clamp(0.7rem, 0.85vw, 0.8rem)' }}

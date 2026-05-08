@@ -23,7 +23,8 @@ export async function GET(req: NextRequest) {
   }
 
   const productId = session.metadata?.productId;
-  const product = productId ? getProducts().find((p) => p.id === productId) : null;
+  const allProducts = await getProducts();
+  const product = productId ? allProducts.find((p) => p.id === productId) : null;
 
   if (!product) return NextResponse.json({ error: 'Product not found' }, { status: 404 });
 
@@ -36,7 +37,7 @@ export async function GET(req: NextRequest) {
   try {
     resolvedUrl = await getSignedDownloadUrl(filePath, 60 * 60 * 1000);
   } catch {
-    const order = getOrderBySession(sessionId);
+    const order = await getOrderBySession(sessionId);
     resolvedUrl = order?.downloadUrl || product.downloadUrl || null;
   }
 

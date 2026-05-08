@@ -30,43 +30,56 @@ export async function POST(req: NextRequest) {
     const email = session.customer_details?.email ?? '';
     const name = session.customer_details?.name ?? '';
 
-    const product = productId ? getProducts().find((p) => p.id === productId) : null;
+    const allProducts = await getProducts();
+    const product = productId ? allProducts.find((p) => p.id === productId) : null;
     const rawDownloadUrl = product?.downloadUrl || session.metadata?.downloadUrl || '';
 
     // Save order
-    saveOrder({
-      id: uuid(),
-      sessionId: session.id,
-      productId: productId ?? '',
-      productTitle: product?.title ?? '',
-      customerEmail: email,
-      customerName: name,
-      amountTotal: session.amount_total ?? 0,
-      currency: session.currency ?? 'brl',
-      createdAt: new Date().toISOString(),
-      downloadUrl: rawDownloadUrl,
-    });
-
-    // Send confirmation email with secure download link
-    if (resend && email && product) {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
-      const secureDownloadUrl = `${baseUrl}/api/download?session_id=${session.id}&redirect=1`;
-
-      await resend.emails.send({
-        from: FROM_EMAIL,
-        to: email,
-        subject: 'Seu acesso chegou.',
-        html: purchaseConfirmationHtml({
-          productTitle: product.title,
-          customerName: name,
-          downloadUrl: secureDownloadUrl,
-        }),
-        text: purchaseConfirmationText({
-          productTitle: product.title,
-          customerName: name,
-          downloadUrl: secureDownloadUrl,
-        }),
+    try {
+      await saveOrder({
+        id: uuid(),
+        sessionId: session.id,
+        productId: productId ?? '',
+        productTitle: product?.title ?? '',
+        customerEmail: email,
+        customerName: name,
+        amountTotal: session.amount_total ?? 0,
+        currency: session.currency ?? 'brl',
+        createdAt: new Date().toISOString(),
+        downloadUrl: rawDownloadUrl,
       });
+      console.log('[webhook] order saved:', session.id);
+    } catch (err) {
+      console.error('[webhook] failed to save order:', err);
+    }
+
+    // Send confirmation email
+    if (resend && email && product) {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+        const secureDownloadUrl = `${baseUrl}/api/download?session_id=${session.id}&redirect=1`;
+
+        await resend.emails.send({
+          from: FROM_EMAIL,
+          to: email,
+          subject: 'Seu acesso chegou.',
+          html: purchaseConfirmationHtml({
+            productTitle: product.title,
+            customerName: name,
+            downloadUrl: secureDownloadUrl,
+          }),
+          text: purchaseConfirmationText({
+            productTitle: product.title,
+            customerName: name,
+            downloadUrl: secureDownloadUrl,
+          }),
+        });
+        console.log('[webhook] email sent to:', email);
+      } catch (err) {
+        console.error('[webhook] failed to send email:', err);
+      }
+    } else {
+      console.warn('[webhook] email skipped — resend:', !!resend, 'email:', email, 'product:', !!product);
     }
   }
 

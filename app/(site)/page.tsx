@@ -60,16 +60,20 @@ const principles = [
 ];
 
 export default async function Home() {
-  // Show 3 most recent posts (featured first, then by date)
-  const allPosts = getPosts().sort((a, b) => {
+  const [allPostsRaw, allProducts, allTestimonials, ytVideos] = await Promise.all([
+    getPosts(),
+    getProducts(),
+    getTestimonials(),
+    getLatestVideos(1),
+  ]);
+  const allPosts = allPostsRaw.sort((a, b) => {
     if (a.featured && !b.featured) return -1;
     if (!a.featured && b.featured) return 1;
     return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
   });
   const posts = allPosts.slice(0, 3);
-  const products = getProducts().filter((p) => p.featured).slice(0, 3);
-  const testimonials = getTestimonials().slice(0, 3);
-  const ytVideos = await getLatestVideos(1);
+  const products = allProducts.filter((p) => p.featured).slice(0, 3);
+  const testimonials = allTestimonials.slice(0, 3);
 
   return (
     <>

@@ -1,5 +1,4 @@
-import fs from 'fs';
-import path from 'path';
+import { getAdminDb } from './firebase-admin';
 
 export interface Order {
   id: string;
@@ -14,21 +13,19 @@ export interface Order {
   downloadUrl?: string;
 }
 
-const FILE = path.join(process.cwd(), 'data', 'orders.json');
+const db = () => getAdminDb();
 
-export function getOrders(): Order[] {
-  if (!fs.existsSync(FILE)) return [];
-  return JSON.parse(fs.readFileSync(FILE, 'utf-8'));
+export async function getOrders(): Promise<Order[]> {
+  const snap = await db().collection('orders').orderBy('createdAt', 'desc').get();
+  return snap.docs.map((d) => d.data() as Order);
 }
 
-export function saveOrder(order: Order): void {
-  const orders = getOrders();
-  const existing = orders.findIndex((o) => o.sessionId === order.sessionId);
-  if (existing === -1) orders.push(order);
-  else orders[existing] = order;
-  fs.writeFileSync(FILE, JSON.stringify(orders, null, 2));
+export async function saveOrder(order: Order): Promise<void> {
+  await db().collection('orders').doc(order.id).set(order);
 }
 
-export function getOrderBySession(sessionId: string): Order | undefined {
-  return getOrders().find((o) => o.sessionId === sessionId);
+export async function getOrderBySession(sessionId: string): Promise<Order | undefined> {
+  const snap = await db().collection('orders').where('sessionId', '==', sessionId).limit(1).get();
+  if (snap.empty) return undefined;
+  return snap.docs[0].data() as Order;
 }

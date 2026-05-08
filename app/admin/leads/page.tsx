@@ -3,8 +3,8 @@ import { Users, Mail, Phone } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
-export default function AdminLeads() {
-  const leads = getLeads().slice().reverse();
+export default async function AdminLeads() {
+  const leads = (await getLeads()).slice().reverse();
 
   return (
     <div className="space-y-6">

@@ -11,10 +11,10 @@ export const dynamic = 'force-dynamic';
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = getProducts().find((p) => p.slug === slug);
+  const product = (await getProducts()).find((p) => p.slug === slug);
   if (!product) notFound();
 
-  const testimonials = getTestimonials().filter(
+  const testimonials = (await getTestimonials()).filter(
     (t) => t.productPurchased === product.title
   );
 

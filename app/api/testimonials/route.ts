@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getTestimonials, saveTestimonials } from '@/lib/db';
+import { getTestimonials, upsertTestimonial } from '@/lib/db';
 import { v4 as uuid } from 'uuid';
 
 export async function GET() {
-  return NextResponse.json(getTestimonials());
+  return NextResponse.json(await getTestimonials());
 }
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const testimonials = getTestimonials();
   const newItem = {
     id: uuid(),
     name: body.name || '',
@@ -18,7 +17,6 @@ export async function POST(req: NextRequest) {
     rating: Number(body.rating) || 5,
     productPurchased: body.productPurchased || '',
   };
-  testimonials.push(newItem);
-  saveTestimonials(testimonials);
+  await upsertTestimonial(newItem);
   return NextResponse.json(newItem, { status: 201 });
 }

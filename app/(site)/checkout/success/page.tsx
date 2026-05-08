@@ -27,7 +27,7 @@ export default async function SuccessPage({
   }
 
   const productId = session.metadata?.productId;
-  const product = productId ? getProducts().find((p) => p.id === productId) : null;
+  const product = productId ? (await getProducts()).find((p) => p.id === productId) : null;
   const email = session.customer_details?.email ?? '';
   const name = session.customer_details?.name ?? '';
 

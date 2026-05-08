@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function TestimonialsPage() {
-  const testimonials = getTestimonials();
+  const testimonials = await getTestimonials();
 
   return (
     <>

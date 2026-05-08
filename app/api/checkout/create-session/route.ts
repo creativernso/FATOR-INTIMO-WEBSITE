@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { productId } = await req.json();
-  const products = getProducts();
+  const products = await getProducts();
   const product = products.find((p) => p.id === productId);
 
   if (!product) {

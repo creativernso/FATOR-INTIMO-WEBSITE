@@ -11,7 +11,11 @@
     "checkoutUrl": "#",
     "featured": true,
     "category": "Atração",
-    "tags": ["atração", "psicologia", "relacionamentos"],
+    "tags": [
+      "atração",
+      "psicologia",
+      "relacionamentos"
+    ],
     "benefits": [
       "Entenda como a atração realmente funciona no cérebro",
       "Ative gatilhos psicológicos de forma autêntica e não-manipuladora",
@@ -65,7 +69,11 @@
     "checkoutUrl": "#",
     "featured": true,
     "category": "Intimidade",
-    "tags": ["intimidade", "comunicação", "conexão"],
+    "tags": [
+      "intimidade",
+      "comunicação",
+      "conexão"
+    ],
     "benefits": [
       "Crie conexões profundas sem depender de aprovação externa",
       "Comunique-se de forma que o outro realmente escute",
@@ -119,7 +127,11 @@
     "checkoutUrl": "#",
     "featured": false,
     "category": "Autoconhecimento",
-    "tags": ["autoestima", "limites", "recuperação"],
+    "tags": [
+      "autoestima",
+      "limites",
+      "recuperação"
+    ],
     "benefits": [
       "Identifique padrões tóxicos antes que causem mais dano",
       "Reconstrua sua autoestima a partir de bases sólidas",

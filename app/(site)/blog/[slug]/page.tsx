@@ -7,13 +7,24 @@ import { getPosts } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
+function formatContent(content: string): string {
+  if (/<[a-z][\s\S]*>/i.test(content)) return content;
+  // Split on any newline (single or double) to create paragraphs
+  return content
+    .split(/\n+/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => `<p>${p}</p>`)
+    .join('');
+}
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPosts().find((p) => p.slug === slug);
+  const post = (await getPosts()).find((p) => p.slug === slug);
   if (!post) return { title: 'Artigo não encontrado' };
   return {
     title: post.title,
@@ -23,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPost({ params }: Props) {
   const { slug } = await params;
-  const posts = getPosts();
+  const posts = await getPosts();
   const post = posts.find((p) => p.slug === slug);
   if (!post) notFound();
 
@@ -89,7 +100,7 @@ export default async function BlogPost({ params }: Props) {
           {/* Content */}
           <div
             className="prose-dark"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{ __html: formatContent(post.content) }}
           />
 
           {/* CTA */}
