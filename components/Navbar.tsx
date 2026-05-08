@@ -19,6 +19,7 @@ const navLinks = [
   { href: '/about', label: 'Sobre' },
   { href: '/blog', label: 'Artigos' },
   { href: '/products', label: 'Produtos' },
+  { href: '/comunidade', label: 'Comunidade' },
   { href: '/testimonials', label: 'Histórias' },
   { href: '/social', label: 'Redes Sociais' },
 ];

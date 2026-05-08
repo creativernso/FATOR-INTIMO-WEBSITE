@@ -16,6 +16,7 @@ import {
   BookOpen,
   Send,
   MessagesSquare,
+  Heart,
 } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -30,6 +31,7 @@ const navItems = [
   { href: '/admin/emails', label: 'E-mails', icon: Send },
   { href: '/admin/orders', label: 'Pedidos', icon: ShoppingBag },
   { href: '/admin/comments', label: 'Comentários', icon: MessagesSquare },
+  { href: '/admin/comunidade', label: 'Comunidade', icon: Heart },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

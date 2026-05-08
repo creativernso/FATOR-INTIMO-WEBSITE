@@ -74,6 +74,68 @@ export interface Comment {
   approved: boolean;
 }
 
+// ─── Community ────────────────────────────────────────────────────────────────
+
+export interface CommunityUser {
+  uid: string;
+  name: string;
+  bio?: string;
+  avatar?: string;
+  role: 'user' | 'moderator' | 'founder';
+  joinedAt: string;
+  postCount: number;
+  banned?: boolean;
+}
+
+export interface CommunityPost {
+  id: string;
+  title: string;
+  body: string;
+  category: string;
+  tags?: string[];
+  images?: string[];
+  authorUid: string;
+  authorName: string;
+  authorAvatar?: string;
+  authorRole?: 'user' | 'moderator' | 'founder';
+  anonymous: boolean;
+  status: 'pending' | 'approved' | 'rejected';
+  featured?: boolean;
+  pinned?: boolean;
+  createdAt: string;
+  updatedAt?: string;
+  commentCount: number;
+  reactionCount: number;
+  viewCount?: number;
+  reportCount?: number;
+}
+
+export interface CommunityComment {
+  id: string;
+  postId: string;
+  authorUid: string;
+  authorName: string;
+  authorAvatar?: string;
+  authorRole?: 'user' | 'moderator' | 'founder';
+  anonymous: boolean;
+  content: string;
+  status: 'approved' | 'pending' | 'rejected';
+  createdAt: string;
+  reactionCount?: number;
+}
+
+export interface CommunityReport {
+  id: string;
+  targetId: string;
+  targetType: 'post' | 'comment';
+  reason: string;
+  reporterId?: string;
+  createdAt: string;
+  status: 'pending' | 'reviewed' | 'resolved';
+}
+
+// ─── Guide ─────────────────────────────────────────────────────────────────────
+
 export interface GuideConfig {
   id: string; // always 'main'
   title: string;

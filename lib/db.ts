@@ -1,6 +1,6 @@
 import { getAdminDb } from './firebase-admin';
 import type { Query } from 'firebase-admin/firestore';
-import { Post, Product, Testimonial, Lead, GuideConfig, Comment } from './types';
+import { Post, Product, Testimonial, Lead, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport } from './types';
 
 const db = () => getAdminDb();
 
@@ -92,6 +92,87 @@ export async function incrementLike(postSlug: string): Promise<number> {
   await ref.set({ likes: (await ref.get()).data()?.likes + 1 || 1 }, { merge: true });
   return (await ref.get()).data()?.likes ?? 1;
 }
+
+// ─── Community ────────────────────────────────────────────────────────────────
+
+export async function getCommunityPosts(filter?: { status?: string; category?: string; featured?: boolean }): Promise<CommunityPost[]> {
+  let query: Query = db().collection('community_posts');
+  if (filter?.status) query = query.where('status', '==', filter.status);
+  if (filter?.category) query = query.where('category', '==', filter.category);
+  if (filter?.featured) query = query.where('featured', '==', true);
+  const snap = await query.orderBy('createdAt', 'desc').get();
+  return snap.docs.map((d) => d.data() as CommunityPost);
+}
+
+export async function getCommunityPost(id: string): Promise<CommunityPost | null> {
+  const doc = await db().collection('community_posts').doc(id).get();
+  return doc.exists ? (doc.data() as CommunityPost) : null;
+}
+
+export const upsertCommunityPost = (p: CommunityPost): Promise<void> => upsertDoc('community_posts', p);
+export const deleteCommunityPost = (id: string): Promise<void> => deleteDoc('community_posts', id);
+
+export async function getCommunityComments(postId: string): Promise<CommunityComment[]> {
+  const snap = await db().collection('community_comments')
+    .where('postId', '==', postId)
+    .orderBy('createdAt', 'asc')
+    .get();
+  return snap.docs.map((d) => d.data() as CommunityComment);
+}
+
+export const upsertCommunityComment = (c: CommunityComment): Promise<void> => upsertDoc('community_comments', c);
+export const deleteCommunityComment = (id: string): Promise<void> => deleteDoc('community_comments', id);
+
+export async function getCommunityUser(uid: string): Promise<CommunityUser | null> {
+  const doc = await db().collection('community_users').doc(uid).get();
+  return doc.exists ? (doc.data() as CommunityUser) : null;
+}
+
+export async function getAllCommunityUsers(): Promise<CommunityUser[]> {
+  const snap = await db().collection('community_users').get();
+  return snap.docs.map((d) => d.data() as CommunityUser);
+}
+
+export const upsertCommunityUser = async (u: CommunityUser): Promise<void> => {
+  await db().collection('community_users').doc(u.uid).set(u);
+};
+
+export async function getCommunityReports(status?: string): Promise<CommunityReport[]> {
+  let query: Query = db().collection('community_reports');
+  if (status) query = query.where('status', '==', status);
+  const snap = await query.orderBy('createdAt', 'desc').get();
+  return snap.docs.map((d) => d.data() as CommunityReport);
+}
+
+export const upsertCommunityReport = (r: CommunityReport): Promise<void> => upsertDoc('community_reports', r);
+
+export async function incrementCommunityPostStat(postId: string, field: 'commentCount' | 'reactionCount' | 'viewCount', delta = 1): Promise<void> {
+  const ref = db().collection('community_posts').doc(postId);
+  const doc = await ref.get();
+  if (!doc.exists) return;
+  const current = (doc.data()?.[field] ?? 0) as number;
+  await ref.update({ [field]: current + delta });
+}
+
+export async function getCommunityPostReaction(postId: string, uid: string): Promise<boolean> {
+  const doc = await db().collection('community_reactions').doc(`${postId}_${uid}`).get();
+  return doc.exists;
+}
+
+export async function toggleCommunityPostReaction(postId: string, uid: string): Promise<'added' | 'removed'> {
+  const ref = db().collection('community_reactions').doc(`${postId}_${uid}`);
+  const doc = await ref.get();
+  if (doc.exists) {
+    await ref.delete();
+    await incrementCommunityPostStat(postId, 'reactionCount', -1);
+    return 'removed';
+  }
+  await ref.set({ postId, uid, createdAt: new Date().toISOString() });
+  await incrementCommunityPostStat(postId, 'reactionCount', 1);
+  return 'added';
+}
+
+// ─── Guide ─────────────────────────────────────────────────────────────────────
 
 function defaultGuideConfig(): GuideConfig {
   return {
