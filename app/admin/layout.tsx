@@ -40,7 +40,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar */}
       <aside
         className="admin-sidebar w-[72px] lg:w-[260px] flex-shrink-0 flex flex-col border-r border-white/5 relative"
-        style={{ background: 'linear-gradient(180deg, var(--sidebar-start) 0%, var(--sidebar-end) 100%)' }}
+        style={{ background: '#000000' }}
       >
         {/* Top glow */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
@@ -54,14 +54,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Image src="/FAV.png" alt="Fator Íntimo" width={22} height={22} className="object-contain" />
           </div>
           <div className="hidden lg:block leading-none">
-            <span className="font-body text-sm font-medium text-text-primary block tracking-wide">Fator Íntimo</span>
-            <span className="text-[11px] text-text-muted tracking-widest uppercase mt-0.5 block">Admin Panel</span>
+            <span className="font-body text-sm font-medium block tracking-wide" style={{ color: '#e0e0e0' }}>Fator Íntimo</span>
+            <span className="text-[11px] tracking-widest uppercase mt-0.5 block" style={{ color: '#666666' }}>Admin Panel</span>
           </div>
         </div>
 
         {/* Nav */}
         <nav className="flex-1 p-2 lg:p-4 space-y-1 pt-4">
-          <p className="hidden lg:block text-[10px] text-text-muted tracking-widest uppercase px-3 mb-3 opacity-60">
+          <p className="hidden lg:block text-[10px] tracking-widest uppercase px-3 mb-3" style={{ color: '#555555' }}>
             Navegação
           </p>
           {navItems.map((item) => {
@@ -73,7 +73,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 className={`relative flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all duration-200 group ${
                   isActive
                     ? 'bg-accent/10 text-accent'
-                    : 'text-text-muted hover:text-text-primary hover:bg-white/4'
+                    : 'text-[#aaaaaa] hover:text-white hover:bg-white/5'
                 }`}
               >
                 {isActive && (
@@ -91,7 +91,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link
             href="/"
             target="_blank"
-            className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-text-muted hover:text-text-primary hover:bg-white/4 transition-all"
+            className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm hover:text-white hover:bg-white/5 transition-all" style={{ color: '#aaaaaa' } as React.CSSProperties}
           >
             <ExternalLink size={15} className="flex-shrink-0" />
             <span className="hidden lg:block">Ver site</span>
