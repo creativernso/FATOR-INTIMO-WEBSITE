@@ -121,46 +121,46 @@ export default function AdminOrders() {
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b border-white/5">
+              <tr style={{ borderBottom: '1px solid #333333' }}>
                 {['Cliente', 'Produto', 'Valor', 'Data', ''].map((h, i) => (
                   <th
                     key={i}
-                    className={`text-left px-5 lg:px-6 py-4 text-text-muted font-medium tracking-widest uppercase ${i === 1 ? 'hidden md:table-cell' : ''} ${i === 2 ? 'hidden sm:table-cell' : ''} ${i === 3 ? 'hidden lg:table-cell' : ''} ${i === 4 ? 'text-right' : ''}`}
-                    style={{ fontSize: fs('0.62rem', '0.7vw', '0.68rem') }}
+                    className={`text-left px-5 lg:px-6 py-4 font-medium tracking-widest uppercase ${i === 1 ? 'hidden md:table-cell' : ''} ${i === 2 ? 'hidden sm:table-cell' : ''} ${i === 3 ? 'hidden lg:table-cell' : ''} ${i === 4 ? 'text-right' : ''}`}
+                    style={{ fontSize: fs('0.62rem', '0.7vw', '0.68rem'), color: '#666666' }}
                   >
                     {h}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/4">
+            <tbody style={{ borderColor: '#333333' }}>
               {[...orders].reverse().map((order) => (
-                <tr key={order.id} className="hover:bg-white/2 transition-colors group">
+                <tr key={order.id} className="hover:bg-white/2 transition-colors group" style={{ borderBottom: '1px solid #333333' }}>
                   <td className="px-5 lg:px-6 py-4 lg:py-5">
-                    <p className="text-text-primary font-medium" style={{ fontSize: fs('0.82rem', '0.95vw', '0.9rem') }}>
+                    <p className="font-medium" style={{ fontSize: fs('0.82rem', '0.95vw', '0.9rem'), color: '#e0e0e0' }}>
                       {order.customerName || '—'}
                     </p>
-                    <p className="text-text-muted mt-0.5 truncate max-w-[180px]" style={{ fontSize: fs('0.7rem', '0.78vw', '0.75rem') }}>
+                    <p className="mt-0.5 truncate max-w-[180px]" style={{ fontSize: fs('0.7rem', '0.78vw', '0.75rem'), color: '#888888' }}>
                       {order.customerEmail}
                     </p>
                   </td>
                   <td className="px-5 lg:px-6 py-4 hidden md:table-cell">
-                    <p className="text-text-secondary" style={{ fontSize: fs('0.78rem', '0.88vw', '0.84rem') }}>
+                    <p style={{ fontSize: fs('0.78rem', '0.88vw', '0.84rem'), color: '#aaaaaa' }}>
                       {order.productTitle || '—'}
                     </p>
                   </td>
                   <td className="px-5 lg:px-6 py-4 hidden sm:table-cell">
-                    <p className="text-text-primary font-medium" style={{ fontSize: fs('0.82rem', '0.92vw', '0.875rem') }}>
+                    <p className="font-medium" style={{ fontSize: fs('0.82rem', '0.92vw', '0.875rem'), color: '#e0e0e0' }}>
                       R$ {(order.amountTotal / 100).toFixed(2).replace('.', ',')}
                     </p>
                   </td>
-                  <td className="px-5 lg:px-6 py-4 hidden lg:table-cell text-text-muted" style={{ fontSize: fs('0.75rem', '0.85vw', '0.8rem') }}>
+                  <td className="px-5 lg:px-6 py-4 hidden lg:table-cell" style={{ fontSize: fs('0.75rem', '0.85vw', '0.8rem'), color: '#888888' }}>
                     {new Date(order.createdAt).toLocaleDateString('pt-BR', {
                       day: '2-digit',
                       month: '2-digit',
                       year: '2-digit',
                     })}
-                    <span className="block text-text-muted" style={{ fontSize: fs('0.68rem', '0.76vw', '0.72rem') }}>
+                    <span className="block" style={{ fontSize: fs('0.68rem', '0.76vw', '0.72rem'), color: '#666666' }}>
                       {new Date(order.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </td>
