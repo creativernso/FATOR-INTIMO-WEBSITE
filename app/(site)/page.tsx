@@ -220,7 +220,7 @@ export default async function Home() {
             {painPoints.map((point, i) => (
               <AnimateOnScroll key={i} delay={i * 80} direction="up">
                 <div className="p-6 rounded-2xl border border-white/5 bg-surface hover:border-accent/15 transition-all duration-300">
-                  <div className="w-8 h-px bg-accent mb-4" />
+                  <div className="w-5 h-5 rounded-full border border-accent/50 mb-4" />
                   <p className="text-text-secondary text-sm leading-relaxed">{point.text}</p>
                 </div>
               </AnimateOnScroll>
