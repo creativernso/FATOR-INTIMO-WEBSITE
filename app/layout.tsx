@@ -40,9 +40,6 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  other: {
-    'google-adsense-account': 'ca-pub-4821949064173943',
-  },
 };
 
 const LANG_ATTR: Record<string, string> = { pt: 'pt-BR', en: 'en', fr: 'fr' };
@@ -52,6 +49,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={LANG_ATTR[locale]} suppressHydrationWarning>
+      <head>
+        <meta name="google-adsense-account" content="ca-pub-4821949064173943" />
+      </head>
       <body className="bg-background text-text-primary antialiased">
         <Script
           id="theme-init"
