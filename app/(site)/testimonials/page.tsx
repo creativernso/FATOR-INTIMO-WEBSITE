@@ -4,7 +4,7 @@ import { ArrowRight, PenLine } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import TestimonialCard from '@/components/TestimonialCard';
 import { getTestimonials } from '@/lib/db';
-import { getLocale, createT } from '@/lib/i18n';
+import { createT } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: 'Histórias',
@@ -14,44 +14,18 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function TestimonialsPage() {
-  const locale = await getLocale();
-  const t = createT(locale);
+  const t = createT('pt');
 
   const testimonials = await getTestimonials(true);
   const avgRating = testimonials.filter((t) => t.rating).reduce((acc, t) => acc + (t.rating ?? 0), 0) / (testimonials.filter((t) => t.rating).length || 1);
 
-  const statsLabels =
-    locale === 'en'
-      ? ['Stories shared', 'Average rating', 'People impacted']
-      : locale === 'fr'
-      ? ['Histoires partagées', 'Note moyenne', 'Personnes impactées']
-      : ['Histórias compartilhadas', 'Avaliação média', 'Pessoas impactadas'];
-
-  const shareCta =
-    locale === 'en' ? 'Share your story' : locale === 'fr' ? 'Partager mon histoire' : 'Contar minha história';
-
-  const exploreGuides =
-    locale === 'en' ? 'Explore Guides' : locale === 'fr' ? 'Explorer les Guides' : 'Explorar Guias';
-
-  const communityLabel =
-    locale === 'en' ? 'Community' : locale === 'fr' ? 'Communauté' : 'Comunidade';
-
-  const ctaHeading =
-    locale === 'en' ? 'Your story matters.' : locale === 'fr' ? 'Votre histoire compte.' : 'A sua história importa.';
-
-  const ctaDesc =
-    locale === 'en'
-      ? 'Every shared transformation inspires someone else to take the first step. Share yours.'
-      : locale === 'fr'
-      ? 'Chaque transformation partagée inspire une autre personne à faire le premier pas. Racontez la vôtre.'
-      : 'Cada transformação compartilhada inspira outra pessoa a dar o primeiro passo. Conte a sua.';
-
-  const emptyText =
-    locale === 'en'
-      ? 'Be the first to share your transformation.'
-      : locale === 'fr'
-      ? 'Soyez le premier à partager votre transformation.'
-      : 'Seja o primeiro a compartilhar sua transformação.';
+  const statsLabels = ['Histórias compartilhadas', 'Avaliação média', 'Pessoas impactadas'];
+  const shareCta = 'Contar minha história';
+  const exploreGuides = 'Explorar Guias';
+  const communityLabel = 'Comunidade';
+  const ctaHeading = 'A sua história importa.';
+  const ctaDesc = 'Cada transformação compartilhada inspira outra pessoa a dar o primeiro passo. Conte a sua.';
+  const emptyText = 'Seja o primeiro a compartilhar sua transformação.';
 
   return (
     <>

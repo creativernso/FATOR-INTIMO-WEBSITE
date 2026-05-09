@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import { getProducts } from '@/lib/db';
-import { getLocale, createT } from '@/lib/i18n';
+import { createT } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: 'Produtos',
@@ -14,8 +14,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function ProductsPage() {
-  const locale = await getLocale();
-  const t = createT(locale);
+  const t = createT('pt');
 
   const products = await getProducts();
 
@@ -121,14 +120,10 @@ export default async function ProductsPage() {
                 🛡️
               </div>
               <h2 className="font-heading text-2xl font-medium text-text-primary mb-2">
-                {locale === 'en' ? '7-day unconditional guarantee' : locale === 'fr' ? 'Garantie inconditionnelle de 7 jours' : 'Garantia incondicional de 7 dias'}
+                Garantia incondicional de 7 dias
               </h2>
               <p className="text-text-secondary text-sm leading-relaxed max-w-md mx-auto">
-                {locale === 'en'
-                  ? 'If for any reason the product doesn\'t transform your perspective, we refund 100% of the value. No questions, no hassle.'
-                  : locale === 'fr'
-                  ? 'Si pour une raison quelconque le produit ne transforme pas votre perspective, nous remboursons 100% du montant. Sans questions, sans bureaucratie.'
-                  : 'Se por qualquer motivo o produto não transformar sua perspectiva, devolvemos 100% do valor. Sem perguntas, sem burocracia.'}
+                Se por qualquer motivo o produto não transformar sua perspectiva, devolvemos 100% do valor. Sem perguntas, sem burocracia.
               </p>
             </div>
           </AnimateOnScroll>

@@ -1,20 +1,12 @@
 import ptMessages from '../messages/pt.json';
-import enMessages from '../messages/en.json';
-import frMessages from '../messages/fr.json';
 
-export type Locale = 'pt' | 'en' | 'fr';
+export type Locale = 'pt';
 
-export const LOCALES: Locale[] = ['pt', 'en', 'fr'];
 export const DEFAULT_LOCALE: Locale = 'pt';
-export const LOCALE_COOKIE = 'fi-locale';
-export const LOCALE_HEADER = 'x-locale';
 
-const allMessages = { pt: ptMessages, en: enMessages, fr: frMessages };
+const msgs = ptMessages as unknown as Record<string, unknown>;
 
-export type Messages = typeof ptMessages;
-
-export function createT(locale: Locale) {
-  const msgs = allMessages[locale] as unknown as Record<string, unknown>;
+export function createT(_locale: Locale = 'pt') {
   return function t(key: string, vars?: Record<string, string | number>): string {
     const parts = key.split('.');
     let val: unknown = msgs;
@@ -33,13 +25,5 @@ export function createT(locale: Locale) {
 }
 
 export async function getLocale(): Promise<Locale> {
-  try {
-    const { headers } = await import('next/headers');
-    const h = await headers();
-    const locale = h.get(LOCALE_HEADER);
-    if (locale === 'en' || locale === 'fr') return locale as Locale;
-  } catch {
-    // not in server context
-  }
   return DEFAULT_LOCALE;
 }

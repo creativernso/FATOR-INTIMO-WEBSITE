@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, Youtube, Instagram, Facebook } from 'lucide-react';
 import LogoImage from './LogoImage';
-import LanguageSwitcher from './LanguageSwitcher';
-import { useLocale } from './LocaleProvider';
 
 function TikTokIcon({ size = 16 }: { size?: number }) {
   return (
@@ -27,16 +25,14 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
-  const { t } = useLocale();
-
   const navLinks = [
-    { href: '/', label: t('nav.home') },
-    { href: '/about', label: t('nav.about') },
-    { href: '/blog', label: t('nav.blog') },
-    { href: '/products', label: t('nav.products') },
-    { href: '/guia', label: t('nav.guides') },
-    { href: '/comunidade', label: t('nav.community') },
-    { href: '/testimonials', label: t('nav.stories') },
+    { href: '/', label: 'Início' },
+    { href: '/about', label: 'Sobre' },
+    { href: '/blog', label: 'Artigos' },
+    { href: '/products', label: 'Produtos' },
+    { href: '/guia', label: 'Guias' },
+    { href: '/comunidade', label: 'Comunidade' },
+    { href: '/testimonials', label: 'Histórias' },
   ];
 
   useEffect(() => {
@@ -89,12 +85,11 @@ export default function Navbar() {
                 <s.icon size={15} />
               </a>
             ))}
-            <LanguageSwitcher />
             <Link
               href="/comunidade"
               className="ml-1 text-sm px-5 py-2 rounded-full bg-accent hover:bg-accent-hover text-white font-medium transition-all hover:shadow-lg hover:shadow-accent/20 whitespace-nowrap"
             >
-              {t('nav.cta')}
+              Comunidade Íntima
             </Link>
           </div>
 
@@ -133,10 +128,9 @@ export default function Navbar() {
             href="/comunidade"
             className="mt-2 text-sm px-8 py-3 rounded-full bg-accent text-white font-medium hover:bg-accent-hover transition-colors"
           >
-            {t('nav.cta')}
+            Comunidade Íntima
           </Link>
           <div className="flex items-center gap-5 mt-2">
-            <LanguageSwitcher />
             {socialLinks.map((s) => (
               <a
                 key={s.label}
