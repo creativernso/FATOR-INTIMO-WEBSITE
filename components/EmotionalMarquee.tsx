@@ -11,12 +11,12 @@ export default function EmotionalMarquee({ phrases }: Props) {
   const doubled = [...allPhrases, ...allPhrases];
 
   return (
-    <div className="relative overflow-hidden mx-4 md:mx-0 rounded-2xl md:rounded-none" style={{ backgroundColor: '#fe0050', paddingTop: '2.25rem', paddingBottom: '2.25rem' }}>
+    <div className="relative overflow-hidden mx-4 md:mx-0 rounded-2xl md:rounded-none py-3 md:py-5" style={{ backgroundColor: '#fe0050' }}>
       <div className="marquee-track">
         {doubled.map((phrase, i) => (
           <span key={i} className="inline-flex items-center flex-shrink-0" style={{ paddingLeft: '3rem', paddingRight: '3rem' }}>
             <span
-              className="font-heading font-light whitespace-nowrap text-white text-[1.5rem] md:text-[clamp(4rem,7vw,5.5rem)]"
+              className="font-heading font-light whitespace-nowrap text-white text-[1.75rem] md:text-[clamp(3rem,5vw,4rem)]"
               style={{ letterSpacing: '-0.02em' }}
             >
               {phrase}
