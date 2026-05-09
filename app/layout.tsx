@@ -57,6 +57,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             __html: `try{var t=localStorage.getItem('fi-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}`,
           }}
         />
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4821949064173943"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         <ThemeProvider>
           <LocaleProvider locale={locale}>
             {children}
