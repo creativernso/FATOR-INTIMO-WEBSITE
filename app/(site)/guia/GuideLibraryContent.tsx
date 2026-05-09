@@ -111,7 +111,7 @@ export default function GuideLibraryContent({ guides }: Props) {
               ))}
             </div>
 
-            <div className="border-t border-white/5 mt-14" />
+            <div className="border-t border-white/20 mt-14" />
           </div>
         </section>
       )}
