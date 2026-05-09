@@ -1,6 +1,6 @@
 'use client';
 
-const WELCOME = 'Bem-vindo ao Fator Íntimo — um espaço para entender o amor, as relações modernas e a psicologia por trás das conexões humanas.';
+const WELCOME = 'Bem-vindo ao Fator Íntimo. Um espaço para entender o amor, as relações modernas e a psicologia por trás das conexões humanas.';
 
 interface Props {
   phrases: string[];
@@ -11,12 +11,12 @@ export default function EmotionalMarquee({ phrases }: Props) {
   const doubled = [...allPhrases, ...allPhrases];
 
   return (
-    <div className="relative w-full overflow-hidden" style={{ backgroundColor: '#fe0050', paddingTop: '2.25rem', paddingBottom: '2.25rem' }}>
+    <div className="relative overflow-hidden mx-4 md:mx-0 rounded-2xl md:rounded-none" style={{ backgroundColor: '#fe0050', paddingTop: '2.25rem', paddingBottom: '2.25rem' }}>
       <div className="marquee-track">
         {doubled.map((phrase, i) => (
           <span key={i} className="inline-flex items-center flex-shrink-0" style={{ paddingLeft: '3rem', paddingRight: '3rem' }}>
             <span
-              className="font-heading font-light whitespace-nowrap text-white text-[1rem] md:text-[clamp(3rem,5.6vw,4.4rem)]"
+              className="font-heading font-light whitespace-nowrap text-white text-[1.5rem] md:text-[clamp(4rem,7vw,5.5rem)]"
               style={{ letterSpacing: '-0.02em' }}
             >
               {phrase}

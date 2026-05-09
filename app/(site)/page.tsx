@@ -20,12 +20,12 @@ function TikTokIcon({ size = 18 }: { size?: number }) {
 export const dynamic = 'force-dynamic';
 
 const topics = [
-  { icon: '◈', title: 'Teoria do Apego', desc: 'Por que você se prende a certas pessoas e afasta outras — os padrões que vêm da infância.' },
-  { icon: '◉', title: 'Psicologia da Atração', desc: 'O que realmente cria atração além da aparência física — os gatilhos invisíveis.' },
+  { icon: '◈', title: 'Teoria do Apego', desc: 'Por que você se prende a certas pessoas e afasta outras. Os padrões que vêm da infância.' },
+  { icon: '◉', title: 'Psicologia da Atração', desc: 'O que realmente cria atração além da aparência física. Os gatilhos invisíveis.' },
   { icon: '◎', title: 'Comunicação Emocional', desc: 'Como expressar o que você sente sem parecer carente ou distante.' },
   { icon: '◈', title: 'Abandono e Rejeição', desc: 'Entender o medo profundo que sabota relacionamentos antes mesmo de começarem.' },
   { icon: '◉', title: 'Narcisismo e Limites', desc: 'Reconhecer padrões tóxicos e construir fronteiras emocionais saudáveis.' },
-  { icon: '◎', title: 'Amor-Próprio Real', desc: 'Não como mantra — mas como prática diária que transforma como você se relaciona.' },
+  { icon: '◎', title: 'Amor-Próprio Real', desc: 'Não como mantra. Uma prática diária que transforma como você se relaciona.' },
 ];
 
 const principles = [
@@ -325,7 +325,7 @@ export default async function Home() {
                 Os temas que <span style={{ color: '#fe0050' }}>moldam relações</span>
               </h2>
               <p className="text-text-secondary max-w-md mx-auto text-sm leading-relaxed">
-                Cada tema é um ângulo diferente para entender o mesmo núcleo — você em relação.
+                Cada tema é um ângulo diferente para entender o mesmo núcleo: você em relação.
               </p>
             </div>
           </AnimateOnScroll>
