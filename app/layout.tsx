@@ -40,6 +40,9 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  other: {
+    'google-adsense-account': 'ca-pub-4821949064173943',
+  },
 };
 
 const LANG_ATTR: Record<string, string> = { pt: 'pt-BR', en: 'en', fr: 'fr' };
