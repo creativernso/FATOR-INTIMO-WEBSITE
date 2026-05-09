@@ -16,8 +16,8 @@ export default function EmotionalMarquee({ phrases }: Props) {
         {doubled.map((phrase, i) => (
           <span key={i} className="inline-flex items-center flex-shrink-0" style={{ paddingLeft: '3rem', paddingRight: '3rem' }}>
             <span
-              className="font-heading font-light whitespace-nowrap text-white"
-              style={{ fontSize: 'clamp(3rem, 5.6vw, 4.4rem)', letterSpacing: '-0.02em' }}
+              className="font-heading font-light whitespace-nowrap text-white text-[1rem] md:text-[clamp(3rem,5.6vw,4.4rem)]"
+              style={{ letterSpacing: '-0.02em' }}
             >
               {phrase}
             </span>
