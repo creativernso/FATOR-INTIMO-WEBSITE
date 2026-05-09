@@ -40,9 +40,6 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  other: {
-    'google-adsense-account': 'ca-pub-4821949064173943',
-  },
 };
 
 const LANG_ATTR: Record<string, string> = { pt: 'pt-BR', en: 'en', fr: 'fr' };
@@ -59,12 +56,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           dangerouslySetInnerHTML={{
             __html: `try{var t=localStorage.getItem('fi-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}`,
           }}
-        />
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4821949064173943"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
         />
         <ThemeProvider>
           <LocaleProvider locale={locale}>
