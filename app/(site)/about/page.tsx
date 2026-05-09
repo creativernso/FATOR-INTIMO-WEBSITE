@@ -2,67 +2,39 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, Target, Eye, Heart, Zap } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
+import { getLocale, createT } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: 'Sobre',
   description: 'Fator Íntimo é uma plataforma de psicologia dos relacionamentos, inteligência emocional e comportamento humano.',
 };
 
-const pillars = [
-  {
-    icon: '🧠',
-    title: 'Psicologia Profunda',
-    desc: 'Conteúdo baseado em teoria do apego, neurociência emocional e psicologia do comportamento. Nada superficial.',
-  },
-  {
-    icon: '⚡',
-    title: 'Inteligência Emocional',
-    desc: 'Ferramentas reais para reconhecer padrões, regular emoções e tomar decisões melhores no amor.',
-  },
-  {
-    icon: '🔍',
-    title: 'Atração e Comportamento',
-    desc: 'Entenda os mecanismos invisíveis que governam atração, conexão e afastamento entre pessoas.',
-  },
-  {
-    icon: '🌱',
-    title: 'Transformação Real',
-    desc: 'Mudança de padrão real. Da raiz, não de comportamento superficial.',
-  },
-];
+export default async function AboutPage() {
+  const locale = await getLocale();
+  const t = createT(locale);
 
-const problems = [
-  'Pessoas inteligentes que tomam decisões péssimas no amor',
-  'Relacionamentos que iniciam com intensidade e terminam em confusão',
-  'A incapacidade de comunicar o que realmente se sente',
-  'O ciclo de atrair pessoas que não valorizam de volta',
-  'A solidão emocional mesmo estando em relacionamentos',
-];
+  const pillars = [
+    { icon: '🧠', title: t('about.pillar1_title'), desc: t('about.pillar1_desc') },
+    { icon: '⚡', title: t('about.pillar2_title'), desc: t('about.pillar2_desc') },
+    { icon: '🔍', title: t('about.pillar3_title'), desc: t('about.pillar3_desc') },
+    { icon: '🌱', title: t('about.pillar4_title'), desc: t('about.pillar4_desc') },
+  ];
 
-const values = [
-  {
-    icon: Target,
-    title: 'Profundidade',
-    desc: 'Nunca vamos simplificar o que é complexo por conveniência. A realidade emocional merece respeito intelectual.',
-  },
-  {
-    icon: Eye,
-    title: 'Clareza',
-    desc: 'Conceitos complexos explicados com precisão e acessibilidade. Sem jargão, sem sensacionalismo.',
-  },
-  {
-    icon: Heart,
-    title: 'Humanidade',
-    desc: 'Reconhecemos que errar em relacionamentos não é fraqueza. É humano. E é o ponto de partida para a consciência.',
-  },
-  {
-    icon: Zap,
-    title: 'Aplicabilidade',
-    desc: 'Conhecimento que não se traduz em mudança real não serve. Cada conteúdo tem propósito prático.',
-  },
-];
+  const problems = [
+    t('about.problem1'),
+    t('about.problem2'),
+    t('about.problem3'),
+    t('about.problem4'),
+    t('about.problem5'),
+  ];
 
-export default function AboutPage() {
+  const values = [
+    { icon: Target, title: t('about.value1_title'), desc: t('about.value1_desc') },
+    { icon: Eye,    title: t('about.value2_title'), desc: t('about.value2_desc') },
+    { icon: Heart,  title: t('about.value3_title'), desc: t('about.value3_desc') },
+    { icon: Zap,    title: t('about.value4_title'), desc: t('about.value4_desc') },
+  ];
+
   return (
     <>
       {/* ── HERO ── */}
@@ -71,13 +43,12 @@ export default function AboutPage() {
           style={{ background: 'radial-gradient(ellipse, #fe0050 0%, transparent 70%)', transform: 'translate(30%, -30%)' }} />
         <div className="max-w-4xl mx-auto text-center">
           <AnimateOnScroll>
-            <span className="text-xs text-accent tracking-widest uppercase mb-5 block">Sobre a Plataforma</span>
+            <span className="text-xs text-accent tracking-widest uppercase mb-5 block">{t('about.label')}</span>
             <h1 className="font-heading font-light text-text-primary mb-6" style={{ fontSize: 'clamp(2.5rem, 6vw, 5rem)', lineHeight: '1.05' }}>
-              O que é o <span style={{ color: '#fe0050' }}>Fator Íntimo?</span>
+              {t('about.heading1')} <span style={{ color: '#fe0050' }}>{t('about.heading2')}</span>
             </h1>
             <p className="text-text-secondary text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
-              Uma plataforma focada em psicologia dos relacionamentos, inteligência emocional, atração
-              e comportamento humano, para quem quer entender o amor com profundidade real.
+              {t('about.desc')}
             </p>
           </AnimateOnScroll>
         </div>
@@ -89,34 +60,20 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <AnimateOnScroll direction="left">
               <div>
-                <span className="text-xs text-accent tracking-widest uppercase mb-4 block">A Origem</span>
+                <span className="text-xs text-accent tracking-widest uppercase mb-4 block">{t('about.origin_label')}</span>
                 <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary leading-tight mb-6">
-                  Por que o Fator Íntimo
-                  <span style={{ color: '#fe0050' }}> existe</span>
+                  {t('about.origin_heading1')}
+                  <span style={{ color: '#fe0050' }}> {t('about.origin_heading2')}</span>
                 </h2>
-                <p className="text-text-secondary text-sm leading-relaxed mb-4">
-                  Existe um paradoxo moderno: nunca tivemos acesso a tanto conteúdo sobre relacionamentos
-                  e nunca estivemos tão perdidos neles. Dicas, técnicas e listas de "o que fazer" se
-                  multiplicam, mas a confusão emocional persiste.
-                </p>
-                <p className="text-text-secondary text-sm leading-relaxed mb-4">
-                  O Fator Íntimo nasceu da percepção de que o problema não é falta de informação.
-                  É falta de <strong className="text-text-primary">compreensão real</strong>. Compreensão dos
-                  mecanismos que governam atração, apego, afastamento e conexão, e de como esses mecanismos
-                  operam dentro de cada pessoa.
-                </p>
-                <p className="text-text-secondary text-sm leading-relaxed">
-                  A plataforma foi criada para preencher essa lacuna: não com mais conselhos genéricos,
-                  mas com psicologia aplicada, honesta e acessível, para quem leva a vida emocional a sério.
-                </p>
+                <p className="text-text-secondary text-sm leading-relaxed mb-4">{t('about.origin_p1')}</p>
+                <p className="text-text-secondary text-sm leading-relaxed mb-4">{t('about.origin_p2')}</p>
+                <p className="text-text-secondary text-sm leading-relaxed">{t('about.origin_p3')}</p>
               </div>
             </AnimateOnScroll>
 
             <AnimateOnScroll direction="right">
               <div className="space-y-3">
-                <p className="text-text-muted text-xs tracking-widest uppercase mb-4">
-                  O problema que vimos
-                </p>
+                <p className="text-text-muted text-xs tracking-widest uppercase mb-4">{t('about.problems_label')}</p>
                 {problems.map((p, i) => (
                   <div key={i} className="flex items-start gap-4 p-4 rounded-xl border border-white/5 bg-surface">
                     <span className="text-accent/40 font-heading text-xl font-light flex-shrink-0 leading-tight mt-0.5">
@@ -136,9 +93,9 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto">
           <AnimateOnScroll>
             <div className="text-center mb-16">
-              <span className="text-xs text-accent tracking-widest uppercase mb-4 block">Propósito</span>
+              <span className="text-xs text-accent tracking-widest uppercase mb-4 block">{t('about.purpose_label')}</span>
               <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary">
-                Missão e <span style={{ color: '#fe0050' }}>Visão</span>
+                {t('about.purpose_heading')} <span style={{ color: '#fe0050' }}>{t('about.purpose_heading2')}</span>
               </h2>
             </div>
           </AnimateOnScroll>
@@ -147,30 +104,18 @@ export default function AboutPage() {
             <AnimateOnScroll direction="left" delay={0}>
               <div className="relative p-8 rounded-2xl border border-white/5 bg-surface overflow-hidden h-full">
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
-                <span className="text-xs text-accent tracking-widest uppercase mb-4 block">Missão</span>
-                <h3 className="font-heading text-2xl font-medium text-text-primary mb-4">
-                  Ajudar pessoas a entenderem o amor com profundidade e construírem relações mais conscientes.
-                </h3>
-                <p className="text-text-secondary text-sm leading-relaxed">
-                  Acreditamos que consciência emocional não é luxo: é uma necessidade humana. Nossa missão
-                  é democratizar o acesso a psicologia real e aplicada, tornando-a acessível a qualquer
-                  pessoa disposta a olhar para dentro com honestidade.
-                </p>
+                <span className="text-xs text-accent tracking-widest uppercase mb-4 block">{t('about.mission_label')}</span>
+                <h3 className="font-heading text-2xl font-medium text-text-primary mb-4">{t('about.mission_heading')}</h3>
+                <p className="text-text-secondary text-sm leading-relaxed">{t('about.mission_desc')}</p>
               </div>
             </AnimateOnScroll>
 
             <AnimateOnScroll direction="right" delay={100}>
               <div className="relative p-8 rounded-2xl border border-white/5 bg-surface overflow-hidden h-full">
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-                <span className="text-xs text-text-muted tracking-widest uppercase mb-4 block">Visão</span>
-                <h3 className="font-heading text-2xl font-medium text-text-primary mb-4">
-                  Ser a referência em conteúdo de psicologia dos relacionamentos no Brasil.
-                </h3>
-                <p className="text-text-secondary text-sm leading-relaxed">
-                  Não como mais um canal de dicas. Mas como uma plataforma que genuinamente eleva o nível
-                  do que se discute sobre amor, atração e comportamento humano, rigorosa o suficiente para
-                  ser confiável, acessível o suficiente para transformar.
-                </p>
+                <span className="text-xs text-text-muted tracking-widest uppercase mb-4 block">{t('about.vision_label')}</span>
+                <h3 className="font-heading text-2xl font-medium text-text-primary mb-4">{t('about.vision_heading')}</h3>
+                <p className="text-text-secondary text-sm leading-relaxed">{t('about.vision_desc')}</p>
               </div>
             </AnimateOnScroll>
           </div>
@@ -182,9 +127,9 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto">
           <AnimateOnScroll>
             <div className="text-center mb-14">
-              <span className="text-xs text-accent tracking-widest uppercase mb-4 block">Pilares</span>
+              <span className="text-xs text-accent tracking-widest uppercase mb-4 block">{t('about.pillars_label')}</span>
               <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary">
-                Sobre o que <span style={{ color: '#fe0050' }}>falamos</span>
+                {t('about.pillars_heading1')} <span style={{ color: '#fe0050' }}>{t('about.pillars_heading2')}</span>
               </h2>
             </div>
           </AnimateOnScroll>
@@ -207,9 +152,9 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto">
           <AnimateOnScroll>
             <div className="text-center mb-14">
-              <span className="text-xs text-accent tracking-widest uppercase mb-4 block">Valores</span>
+              <span className="text-xs text-accent tracking-widest uppercase mb-4 block">{t('about.values_label')}</span>
               <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary">
-                O que nos <span style={{ color: '#fe0050' }}>guia</span>
+                {t('about.values_heading1')} <span style={{ color: '#fe0050' }}>{t('about.values_heading2')}</span>
               </h2>
             </div>
           </AnimateOnScroll>
@@ -235,16 +180,15 @@ export default function AboutPage() {
           <AnimateOnScroll>
             <div className="relative p-10 rounded-3xl border border-white/5 bg-surface text-center overflow-hidden">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
-              <span className="text-xs text-accent tracking-widest uppercase mb-5 block">Quem Criou</span>
+              <span className="text-xs text-accent tracking-widest uppercase mb-5 block">{t('about.founder_label')}</span>
               <blockquote className="font-heading text-2xl md:text-3xl font-light italic text-text-primary leading-relaxed mb-8">
-                &ldquo;Criei o Fator Íntimo porque acredito que entender nossas emoções é o ato mais corajoso
-               , e o mais transformador, que um ser humano pode fazer.&rdquo;
+                {t('about.founder_quote')}
               </blockquote>
               <div className="w-10 h-10 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-3">
                 <span className="font-heading text-accent text-lg">R</span>
               </div>
-              <p className="text-text-primary text-sm font-medium">Rafael Moreira</p>
-              <p className="text-text-muted text-xs mt-1">Fundador, Fator Íntimo</p>
+              <p className="text-text-primary text-sm font-medium">{t('about.founder_name')}</p>
+              <p className="text-text-muted text-xs mt-1">{t('about.founder_role')}</p>
             </div>
           </AnimateOnScroll>
         </div>
@@ -255,23 +199,17 @@ export default function AboutPage() {
         <div className="max-w-2xl mx-auto text-center">
           <AnimateOnScroll>
             <h2 className="font-heading text-3xl md:text-4xl font-light text-text-primary mb-4">
-              Pronto para começar?
+              {t('about.cta_heading')}
             </h2>
-            <p className="text-text-secondary text-sm mb-8 leading-relaxed">
-              Explore a biblioteca de guias gratuitos. Comece pelo que ressoa com o que você vive.
-            </p>
+            <p className="text-text-secondary text-sm mb-8 leading-relaxed">{t('about.cta_desc')}</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/guia"
-                className="group inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-white px-7 py-3.5 rounded-full font-medium text-sm transition-all"
-              >
-                Explorar Guias <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+              <Link href="/guia"
+                className="group inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-white px-7 py-3.5 rounded-full font-medium text-sm transition-all">
+                {t('about.cta_guides')} <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
               </Link>
-              <Link
-                href="/blog"
-                className="inline-flex items-center justify-center gap-2 border border-white/10 hover:border-white/20 text-text-secondary hover:text-text-primary px-7 py-3.5 rounded-full text-sm transition-all"
-              >
-                Ler Artigos
+              <Link href="/blog"
+                className="inline-flex items-center justify-center gap-2 border border-white/10 hover:border-white/20 text-text-secondary hover:text-text-primary px-7 py-3.5 rounded-full text-sm transition-all">
+                {t('about.cta_blog')}
               </Link>
             </div>
           </AnimateOnScroll>

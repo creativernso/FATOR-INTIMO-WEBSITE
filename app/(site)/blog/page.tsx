@@ -5,6 +5,7 @@ import { ArrowRight, Clock } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import BlogCard from '@/components/BlogCard';
 import { getPosts } from '@/lib/db';
+import { getLocale, createT } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: 'Artigos',
@@ -13,9 +14,10 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-const categories = ['Todos', 'Psicologia', 'Comunicação', 'Atração', 'Autoconhecimento'];
-
 export default async function BlogPage() {
+  const locale = await getLocale();
+  const t = createT(locale);
+
   const posts = await getPosts();
   const sorted = [...posts].sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
@@ -30,12 +32,12 @@ export default async function BlogPage() {
       <section className="pt-36 pb-16 px-6 text-center">
         <div className="max-w-3xl mx-auto">
           <AnimateOnScroll>
-            <span className="text-xs text-accent tracking-widest uppercase mb-4 block">Conteúdo</span>
+            <span className="text-xs text-accent tracking-widest uppercase mb-4 block">{t('blog.label')}</span>
             <h1 className="font-heading text-5xl md:text-6xl font-light text-text-primary mb-5">
-              <span style={{ color: '#fe0050' }}>Artigos</span>
+              <span style={{ color: '#fe0050' }}>{t('blog.heading')}</span>
             </h1>
             <p className="text-text-secondary text-base leading-relaxed max-w-xl mx-auto">
-              Ideias que expandem sua forma de ver relacionamentos. Escritas para quem leva o autoconhecimento a sério.
+              {t('blog.desc')}
             </p>
           </AnimateOnScroll>
         </div>
@@ -45,7 +47,7 @@ export default async function BlogPage() {
       <section className="py-10 px-6 pb-28">
         <div className="max-w-5xl mx-auto">
           {posts.length === 0 ? (
-            <p className="text-center text-text-muted py-20">Artigos em breve.</p>
+            <p className="text-center text-text-muted py-20">{t('blog.empty')}</p>
           ) : (
             <>
               {/* ── LATEST ARTICLE HERO ── */}
@@ -64,7 +66,7 @@ export default async function BlogPage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/50 to-transparent" />
                         <div className="absolute top-5 left-5 flex items-center gap-2">
                           <span className="text-xs text-white bg-accent px-3 py-1 rounded-full font-medium">
-                            Mais recente
+                            {t('blog.featured_label')}
                           </span>
                           <span className="text-xs text-accent border border-accent/30 rounded-full px-3 py-1 bg-background/60 backdrop-blur-sm">
                             {latest.category}
@@ -74,9 +76,9 @@ export default async function BlogPage() {
                       <div className="p-7 md:p-9">
                         <div className="flex items-center gap-2 text-text-muted text-xs mb-3">
                           <Clock size={12} />
-                          <span>{latest.readTime} min de leitura</span>
+                          <span>{latest.readTime} {t('blog.min_read')}</span>
                           <span className="mx-1 opacity-40">·</span>
-                          <span>{new Date(latest.publishedAt).toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                          <span>{new Date(latest.publishedAt).toLocaleDateString(locale === 'pt' ? 'pt-PT' : locale === 'fr' ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                         </div>
                         <h2 className="font-heading text-2xl md:text-3xl font-medium text-text-primary leading-tight mb-3 group-hover:text-accent transition-colors duration-200">
                           {latest.title}
@@ -85,7 +87,7 @@ export default async function BlogPage() {
                           {latest.excerpt}
                         </p>
                         <div className="flex items-center gap-2 text-accent text-sm font-medium">
-                          <span>Ler artigo</span>
+                          <span>{t('blog.read_article')}</span>
                           <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>
@@ -99,7 +101,7 @@ export default async function BlogPage() {
                 <>
                   <AnimateOnScroll>
                     <h2 className="font-heading text-2xl font-light text-text-primary mb-6">
-                      Artigos em destaque
+                      {t('blog.featured_label')}
                     </h2>
                   </AnimateOnScroll>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14">
@@ -118,7 +120,7 @@ export default async function BlogPage() {
                 <>
                   <AnimateOnScroll>
                     <h2 className="font-heading text-2xl font-light text-text-primary mb-6">
-                      Todos os artigos
+                      {t('blog.see_all')}
                     </h2>
                   </AnimateOnScroll>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12">

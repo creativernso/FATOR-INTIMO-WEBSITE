@@ -8,6 +8,7 @@ import EmotionalMarquee from '@/components/EmotionalMarquee';
 import TestimonialsSlider from '@/components/TestimonialsSlider';
 import { getPosts, getProducts, getTestimonials, getMarqueePhrases, getGuides, getCommunityPosts } from '@/lib/db';
 import { getLatestVideos } from '@/lib/youtube';
+import { getLocale, createT } from '@/lib/i18n';
 
 function TikTokIcon({ size = 18 }: { size?: number }) {
   return (
@@ -19,22 +20,25 @@ function TikTokIcon({ size = 18 }: { size?: number }) {
 
 export const dynamic = 'force-dynamic';
 
-const topics = [
-  { icon: '◈', title: 'Teoria do Apego', desc: 'Por que você se prende a certas pessoas e afasta outras. Os padrões que vêm da infância.' },
-  { icon: '◉', title: 'Psicologia da Atração', desc: 'O que realmente cria atração além da aparência física. Os gatilhos invisíveis.' },
-  { icon: '◎', title: 'Comunicação Emocional', desc: 'Como expressar o que você sente sem parecer carente ou distante.' },
-  { icon: '◈', title: 'Abandono e Rejeição', desc: 'Entender o medo profundo que sabota relacionamentos antes mesmo de começarem.' },
-  { icon: '◉', title: 'Narcisismo e Limites', desc: 'Reconhecer padrões tóxicos e construir fronteiras emocionais saudáveis.' },
-  { icon: '◎', title: 'Amor-Próprio Real', desc: 'Não como mantra. Uma prática diária que transforma como você se relaciona.' },
-];
-
-const principles = [
-  { number: '01', title: 'Psicologia Profunda', desc: 'Não são dicas superficiais. São os mecanismos reais que governam atração, apego e comportamento humano.' },
-  { number: '02', title: 'Inteligência Emocional', desc: 'Aprenda a ler emoções, as suas e as dos outros, com precisão e sem julgamento.' },
-  { number: '03', title: 'Transformação Real', desc: 'Mudança de padrão. Não de comportamento superficial. Entenda por que você faz o que faz.' },
-];
-
 export default async function Home() {
+  const locale = await getLocale();
+  const t = createT(locale);
+
+  const topics = [
+    { icon: '◈', title: t('home.topics.t1_title'), desc: t('home.topics.t1_desc') },
+    { icon: '◉', title: t('home.topics.t2_title'), desc: t('home.topics.t2_desc') },
+    { icon: '◎', title: t('home.topics.t3_title'), desc: t('home.topics.t3_desc') },
+    { icon: '◈', title: t('home.topics.t4_title'), desc: t('home.topics.t4_desc') },
+    { icon: '◉', title: t('home.topics.t5_title'), desc: t('home.topics.t5_desc') },
+    { icon: '◎', title: t('home.topics.t6_title'), desc: t('home.topics.t6_desc') },
+  ];
+
+  const principles = [
+    { number: '01', title: t('home.solution.p1_title'), desc: t('home.solution.p1_desc') },
+    { number: '02', title: t('home.solution.p2_title'), desc: t('home.solution.p2_desc') },
+    { number: '03', title: t('home.solution.p3_title'), desc: t('home.solution.p3_desc') },
+  ];
+
   const [allPostsRaw, allProducts, allTestimonials, marqueePhrases, allGuides, communityPosts, ytVideos] = await Promise.all([
     getPosts(),
     getProducts(),
@@ -75,9 +79,9 @@ export default async function Home() {
         <div className="relative z-10 max-w-6xl mx-auto w-full px-6 text-center sm:text-left">
           <AnimateOnScroll delay={0}>
             <h1 className="font-heading font-light text-text-primary mb-8" style={{ fontSize: 'clamp(2rem, 4.5vw, 3.5rem)', lineHeight: '1.1' }}>
-              Entenda o amor.
+              {t('home.hero.heading1')}
               <br />
-              <TypewriterText text="Domine suas relações." style={{ color: '#fe0050' }} startDelay={700} />
+              <TypewriterText text={t('home.hero.heading2')} style={{ color: '#fe0050' }} startDelay={700} />
             </h1>
           </AnimateOnScroll>
 
@@ -85,12 +89,12 @@ export default async function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center sm:justify-start">
               <Link href="/guia"
                 className="group inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-white px-8 py-4 rounded-full font-medium text-sm transition-all hover:shadow-xl hover:shadow-accent/25">
-                Explorar Guias Gratuitos
+                {t('home.hero.cta_guides')}
                 <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
               </Link>
               <Link href="/products"
                 className="inline-flex items-center justify-center gap-2 text-white hover:text-white border border-white/20 hover:border-white/40 px-8 py-4 rounded-full text-sm transition-all">
-                Ver Produtos
+                {t('home.hero.cta_products')}
               </Link>
             </div>
           </AnimateOnScroll>
@@ -106,9 +110,9 @@ export default async function Home() {
           <div className="max-w-5xl mx-auto">
             <AnimateOnScroll>
               <div className="text-center mb-14">
-                <span className="text-xs text-accent tracking-widest uppercase mb-3 block">Histórias Reais</span>
+                <span className="text-xs text-accent tracking-widest uppercase mb-3 block">{t('home.testimonials.label')}</span>
                 <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary">
-                  <span style={{ color: '#fe0050' }}>Transformações</span> que aconteceram
+                  <span style={{ color: '#fe0050' }}>{t('home.testimonials.heading1')}</span> {t('home.testimonials.heading2')}
                 </h2>
               </div>
             </AnimateOnScroll>
@@ -118,7 +122,7 @@ export default async function Home() {
             <AnimateOnScroll>
               <div className="text-center mt-10">
                 <Link href="/testimonials" className="text-sm text-text-secondary hover:text-accent transition-colors">
-                  Ver todas as histórias →
+                  {t('home.testimonials.see_all')}
                 </Link>
               </div>
             </AnimateOnScroll>
@@ -133,9 +137,9 @@ export default async function Home() {
             <AnimateOnScroll>
               <div className="flex items-end justify-between mb-12">
                 <div>
-                  <span className="text-xs text-accent tracking-widest uppercase mb-3 block">Conteúdo</span>
+                  <span className="text-xs text-accent tracking-widest uppercase mb-3 block">{t('home.youtube.label')}</span>
                   <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary">
-                    Último <span style={{ color: '#fe0050' }}>vídeo</span>
+                    {t('home.youtube.heading1')} <span style={{ color: '#fe0050' }}>{t('home.youtube.heading2')}</span>
                   </h2>
                 </div>
                 <a
@@ -144,7 +148,7 @@ export default async function Home() {
                   rel="noopener noreferrer"
                   className="hidden md:flex items-center gap-2 text-sm text-text-secondary hover:text-accent transition-colors"
                 >
-                  Ver canal <ArrowRight size={14} />
+                  {t('home.youtube.see_channel')} <ArrowRight size={14} />
                 </a>
               </div>
             </AnimateOnScroll>
@@ -172,7 +176,7 @@ export default async function Home() {
                     rel="noopener noreferrer"
                     className="text-xs text-text-muted hover:text-accent transition-colors flex items-center gap-1 flex-shrink-0"
                   >
-                    Ver canal <ArrowRight size={11} />
+                    {t('home.youtube.see_channel')} <ArrowRight size={11} />
                   </a>
                 </div>
               </div>
@@ -188,14 +192,14 @@ export default async function Home() {
             <AnimateOnScroll>
               <div className="flex items-end justify-between mb-12">
                 <div>
-                  <span className="text-xs text-accent tracking-widest uppercase mb-3 block">Biblioteca Gratuita</span>
+                  <span className="text-xs text-accent tracking-widest uppercase mb-3 block">{t('home.guides.label')}</span>
                   <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary">
-                    Guias de <span style={{ color: '#fe0050' }}>psicologia</span>
+                    {t('home.guides.heading1')} <span style={{ color: '#fe0050' }}>{t('home.guides.heading2')}</span>
                   </h2>
                 </div>
                 <Link href="/guia"
                   className="hidden md:flex items-center gap-2 text-sm text-text-secondary hover:text-accent transition-colors">
-                  Ver biblioteca <ArrowRight size={14} />
+                  {t('home.guides.see_library')} <ArrowRight size={14} />
                 </Link>
               </div>
             </AnimateOnScroll>
@@ -216,7 +220,7 @@ export default async function Home() {
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       <div className="absolute bottom-3 left-3 right-3">
-                        <span className="text-[9px] text-accent tracking-widest uppercase">Gratuito</span>
+                        <span className="text-[9px] text-accent tracking-widest uppercase">{t('home.guides.free_badge')}</span>
                         <h3 className="font-heading text-white text-xs font-medium leading-snug mt-1 line-clamp-3">
                           {guide.title}
                         </h3>
@@ -230,7 +234,7 @@ export default async function Home() {
             <AnimateOnScroll>
               <div className="text-center mt-8 md:hidden">
                 <Link href="/guia" className="text-sm text-text-secondary hover:text-accent transition-colors">
-                  Ver todos os guias →
+                  {t('home.guides.see_all')}
                 </Link>
               </div>
             </AnimateOnScroll>
@@ -244,20 +248,20 @@ export default async function Home() {
           <AnimateOnScroll>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
               <div>
-                <span className="text-xs text-accent tracking-widest uppercase mb-3 block">Comunidade</span>
+                <span className="text-xs text-accent tracking-widest uppercase mb-3 block">{t('home.community.label')}</span>
                 <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary">
-                  Um espaço para <span style={{ color: '#fe0050' }}>conexão real</span>
+                  {t('home.community.heading1')} <span style={{ color: '#fe0050' }}>{t('home.community.heading2')}</span>
                 </h2>
               </div>
               <div className="flex items-center gap-6 flex-shrink-0">
                 <div className="text-center">
                   <p className="font-heading text-3xl font-light text-text-primary">{communityStats.posts}+</p>
-                  <p className="text-xs text-text-muted mt-1">histórias</p>
+                  <p className="text-xs text-text-muted mt-1">{t('home.community.stories')}</p>
                 </div>
                 <div className="w-px h-10 bg-white/8" />
                 <div className="text-center">
                   <p className="font-heading text-3xl font-light text-text-primary">{communityStats.reactions}+</p>
-                  <p className="text-xs text-text-muted mt-1">conexões</p>
+                  <p className="text-xs text-text-muted mt-1">{t('home.community.connections')}</p>
                 </div>
               </div>
             </div>
@@ -296,18 +300,18 @@ export default async function Home() {
                   <Users size={18} className="text-accent" />
                 </div>
                 <div>
-                  <p className="text-text-primary font-medium text-sm">Comunidade Íntima</p>
-                  <p className="text-text-muted text-xs mt-0.5">Um espaço seguro para compartilhar, aprender e crescer juntos</p>
+                  <p className="text-text-primary font-medium text-sm">{t('home.community.title')}</p>
+                  <p className="text-text-muted text-xs mt-0.5">{t('home.community.tagline')}</p>
                 </div>
               </div>
               <div className="flex gap-3 flex-shrink-0">
                 <Link href="/comunidade"
                   className="inline-flex items-center gap-2 border border-white/10 hover:border-white/20 text-text-secondary hover:text-text-primary px-5 py-2.5 rounded-full text-sm transition-all">
-                  Explorar
+                  {t('home.community.explore')}
                 </Link>
                 <Link href="/comunidade/nova-publicacao"
                   className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-5 py-2.5 rounded-full text-sm font-medium transition-all">
-                  Participar <ArrowRight size={14} />
+                  {t('home.community.join')} <ArrowRight size={14} />
                 </Link>
               </div>
             </div>
@@ -315,17 +319,17 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── O QUE VOCÊ VAI ENTENDER ── */}
+      {/* ── TOPICS ── */}
       <section className="py-28 px-6 border-t border-white/5">
         <div className="max-w-5xl mx-auto">
           <AnimateOnScroll>
             <div className="text-center mb-16">
-              <span className="text-xs text-accent tracking-widest uppercase mb-4 block">O Que Você Vai Entender</span>
+              <span className="text-xs text-accent tracking-widest uppercase mb-4 block">{t('home.topics.label')}</span>
               <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary mb-4">
-                Os temas que <span style={{ color: '#fe0050' }}>moldam relações</span>
+                {t('home.topics.heading1')} <span style={{ color: '#fe0050' }}>{t('home.topics.heading2')}</span>
               </h2>
               <p className="text-text-secondary max-w-md mx-auto text-sm leading-relaxed">
-                Cada tema é um ângulo diferente para entender o mesmo núcleo: você em relação.
+                {t('home.topics.subtext')}
               </p>
             </div>
           </AnimateOnScroll>
@@ -352,19 +356,18 @@ export default async function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <AnimateOnScroll direction="left">
               <div>
-                <span className="text-xs text-accent tracking-widest uppercase mb-4 block">A Abordagem</span>
+                <span className="text-xs text-accent tracking-widest uppercase mb-4 block">{t('home.solution.label')}</span>
                 <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary leading-tight mb-6">
-                  Fator Íntimo é
+                  {t('home.solution.heading1')}
                   <br />
-                  <span style={{ color: '#fe0050' }}>psicologia que funciona</span>
+                  <span style={{ color: '#fe0050' }}>{t('home.solution.heading2')}</span>
                 </h2>
                 <p className="text-text-secondary text-sm leading-relaxed mb-8">
-                  Não é autoajuda genérica. É um sistema de compreensão profunda do comportamento humano
-                  em relacionamentos, baseado em psicologia real, neurociência e anos de observação.
+                  {t('home.solution.desc')}
                 </p>
                 <Link href="/about"
                   className="inline-flex items-center gap-2 text-sm text-accent hover:text-accent/80 transition-colors">
-                  Conheça a abordagem <ArrowRight size={14} />
+                  {t('home.solution.link')} <ArrowRight size={14} />
                 </Link>
               </div>
             </AnimateOnScroll>
@@ -393,14 +396,14 @@ export default async function Home() {
             <AnimateOnScroll>
               <div className="flex items-end justify-between mb-12">
                 <div>
-                  <span className="text-xs text-accent tracking-widest uppercase mb-3 block">Artigos</span>
+                  <span className="text-xs text-accent tracking-widest uppercase mb-3 block">{t('home.blog.label')}</span>
                   <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary">
-                    Leituras <span style={{ color: '#fe0050' }}>recentes</span>
+                    {t('home.blog.heading1')} <span style={{ color: '#fe0050' }}>{t('home.blog.heading2')}</span>
                   </h2>
                 </div>
                 <Link href="/blog"
                   className="hidden md:flex items-center gap-2 text-sm text-text-secondary hover:text-accent transition-colors">
-                  Ver todos <ArrowRight size={14} />
+                  {t('home.blog.see_all')} <ArrowRight size={14} />
                 </Link>
               </div>
             </AnimateOnScroll>
@@ -416,13 +419,13 @@ export default async function Home() {
             <AnimateOnScroll>
               <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/blog" className="text-sm text-text-secondary hover:text-accent transition-colors">
-                  Ver todos os artigos →
+                  {t('home.blog.see_all_mobile')}
                 </Link>
                 <div className="hidden sm:block w-px h-4 bg-white/10" />
                 <a href="https://www.youtube.com/@fatorintimo" target="_blank" rel="noopener noreferrer"
                   className="group inline-flex items-center gap-2.5 bg-[#FF0000]/10 hover:bg-[#FF0000]/20 border border-[#FF0000]/20 hover:border-[#FF0000]/40 text-[#FF0000] px-6 py-2.5 rounded-full text-sm font-medium transition-all">
                   <Youtube size={16} className="group-hover:scale-110 transition-transform" />
-                  Ver mais conteúdos no YouTube
+                  {t('home.blog.youtube_cta')}
                 </a>
               </div>
             </AnimateOnScroll>
@@ -436,12 +439,12 @@ export default async function Home() {
           <div className="max-w-5xl mx-auto">
             <AnimateOnScroll>
               <div className="text-center mb-14">
-                <span className="text-xs text-accent tracking-widest uppercase mb-3 block">Produtos</span>
+                <span className="text-xs text-accent tracking-widest uppercase mb-3 block">{t('home.products.label')}</span>
                 <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary mb-4">
-                  Ferramentas de <span style={{ color: '#fe0050' }}>transformação</span>
+                  {t('home.products.heading1')} <span style={{ color: '#fe0050' }}>{t('home.products.heading2')}</span>
                 </h2>
                 <p className="text-text-secondary text-sm max-w-lg mx-auto leading-relaxed">
-                  Materiais profundos para quem quer resultados reais, não conteúdo raso.
+                  {t('home.products.desc')}
                 </p>
               </div>
             </AnimateOnScroll>
@@ -458,7 +461,7 @@ export default async function Home() {
               <div className="text-center mt-10">
                 <Link href="/products"
                   className="inline-flex items-center gap-2 text-sm border border-white/10 hover:border-white/20 px-6 py-3 rounded-full text-text-secondary hover:text-text-primary transition-all">
-                  Ver todos os produtos <ArrowRight size={14} />
+                  {t('home.products.see_all')} <ArrowRight size={14} />
                 </Link>
               </div>
             </AnimateOnScroll>
@@ -471,7 +474,7 @@ export default async function Home() {
         <div className="max-w-5xl mx-auto">
           <AnimateOnScroll>
             <div className="text-center mb-8">
-              <span className="text-xs text-text-muted tracking-widest uppercase">Siga nas redes</span>
+              <span className="text-xs text-text-muted tracking-widest uppercase">{t('home.social.label')}</span>
             </div>
           </AnimateOnScroll>
           <AnimateOnScroll>
@@ -493,7 +496,7 @@ export default async function Home() {
               ))}
               <Link href="/social"
                 className="flex items-center gap-2 border border-white/8 bg-surface rounded-xl px-5 py-3 text-text-secondary hover:text-accent hover:border-accent/20 transition-all text-sm">
-                Ver tudo <ArrowRight size={13} />
+                {t('home.social.see_all')} <ArrowRight size={13} />
               </Link>
             </div>
           </AnimateOnScroll>
@@ -509,18 +512,18 @@ export default async function Home() {
               <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full opacity-10"
                 style={{ background: 'radial-gradient(ellipse, #fe0050 0%, transparent 70%)' }} />
 
-              <span className="text-xs text-accent tracking-widest uppercase mb-5 block">Comece Agora</span>
+              <span className="text-xs text-accent tracking-widest uppercase mb-5 block">{t('home.cta.label')}</span>
               <h2 className="font-heading text-3xl md:text-4xl font-light text-text-primary mb-4">
-                O primeiro passo é sempre
+                {t('home.cta.heading1')}
                 <br />
-                <span style={{ color: '#fe0050' }}>o mais importante</span>
+                <span style={{ color: '#fe0050' }}>{t('home.cta.heading2')}</span>
               </h2>
               <p className="text-text-secondary text-sm leading-relaxed mb-8 max-w-md mx-auto">
-                Explore a biblioteca de guias psicológicos gratuitos criados para quem quer entender, de verdade, os padrões invisíveis que moldam as relações.
+                {t('home.cta.desc')}
               </p>
               <Link href="/guia"
                 className="group inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-9 py-4 rounded-full font-medium text-sm transition-all hover:shadow-xl hover:shadow-accent/25">
-                Explorar Guias Gratuitos
+                {t('home.cta.button')}
                 <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </div>

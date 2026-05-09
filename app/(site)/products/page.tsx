@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import { getProducts } from '@/lib/db';
+import { getLocale, createT } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: 'Produtos',
@@ -13,6 +14,9 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function ProductsPage() {
+  const locale = await getLocale();
+  const t = createT(locale);
+
   const products = await getProducts();
 
   return (
@@ -26,14 +30,14 @@ export default async function ProductsPage() {
         <div className="relative max-w-2xl mx-auto">
           <AnimateOnScroll>
             <span className="text-xs text-accent tracking-[0.3em] uppercase mb-5 block">
-              Produtos
+              {t('products.label')}
             </span>
             <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-light text-text-primary mb-6 leading-[1.05]">
-              Ferramentas de{' '}
-              <span style={{ color: '#fe0050' }}>transformação</span>
+              {t('products.heading1')}{' '}
+              <span style={{ color: '#fe0050' }}>{t('products.heading2')}</span>
             </h1>
             <p className="text-text-muted text-sm tracking-wide max-w-md mx-auto leading-relaxed">
-              Materiais profundos para quem quer resultados reais, não conteúdo raso.
+              {t('products.desc')}
             </p>
           </AnimateOnScroll>
         </div>
@@ -44,7 +48,7 @@ export default async function ProductsPage() {
         <div className="max-w-5xl mx-auto">
           {products.length === 0 ? (
             <div className="text-center py-32">
-              <p className="text-text-muted text-sm tracking-wide">Produtos em breve.</p>
+              <p className="text-text-muted text-sm tracking-wide">{t('products.empty')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-6">
@@ -95,7 +99,7 @@ export default async function ProductsPage() {
                             href={`/products/${product.slug}`}
                             className="flex items-center gap-1.5 bg-accent hover:bg-accent-hover text-white text-xs font-medium px-3.5 py-2 rounded-full transition-all whitespace-nowrap"
                           >
-                            Ver produto <ArrowRight size={11} />
+                            {t('products.see_product')} <ArrowRight size={11} />
                           </Link>
                         </div>
                       </div>
@@ -117,10 +121,14 @@ export default async function ProductsPage() {
                 🛡️
               </div>
               <h2 className="font-heading text-2xl font-medium text-text-primary mb-2">
-                Garantia incondicional de 7 dias
+                {locale === 'en' ? '7-day unconditional guarantee' : locale === 'fr' ? 'Garantie inconditionnelle de 7 jours' : 'Garantia incondicional de 7 dias'}
               </h2>
               <p className="text-text-secondary text-sm leading-relaxed max-w-md mx-auto">
-                Se por qualquer motivo o produto não transformar sua perspectiva, devolvemos 100% do valor. Sem perguntas, sem burocracia.
+                {locale === 'en'
+                  ? 'If for any reason the product doesn\'t transform your perspective, we refund 100% of the value. No questions, no hassle.'
+                  : locale === 'fr'
+                  ? 'Si pour une raison quelconque le produit ne transforme pas votre perspective, nous remboursons 100% du montant. Sans questions, sans bureaucratie.'
+                  : 'Se por qualquer motivo o produto não transformar sua perspectiva, devolvemos 100% do valor. Sem perguntas, sem burocracia.'}
               </p>
             </div>
           </AnimateOnScroll>
