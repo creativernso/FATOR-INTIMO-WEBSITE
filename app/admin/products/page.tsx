@@ -21,6 +21,10 @@ const emptyForm = {
   benefits: '',
   whatYouLearn: '',
   forWho: '',
+  videoUrl: '',
+  countdownEnabled: false,
+  countdownEndsAt: '',
+  countdownText: '',
 };
 
 const categories = ['Atração', 'Intimidade', 'Autoconhecimento', 'Comunicação', 'Relacionamentos'];
@@ -63,6 +67,10 @@ export default function AdminProducts() {
       benefits: (product.benefits || []).join('\n'),
       whatYouLearn: (product.whatYouLearn || []).join('\n'),
       forWho: (product.forWho || []).join('\n'),
+      videoUrl: product.videoUrl || '',
+      countdownEnabled: product.countdownEnabled || false,
+      countdownEndsAt: product.countdownEndsAt || '',
+      countdownText: product.countdownText || '',
     });
     setEditingId(product.id);
     setShowForm(true);
@@ -302,6 +310,36 @@ export default function AdminProducts() {
               <div>
                 <label className="text-text-muted text-xs mb-1.5 block">Benefícios (um por linha)</label>
                 <textarea className="admin-textarea" rows={3} value={form.benefits} onChange={(e) => setForm({ ...form, benefits: e.target.value })} placeholder="Entenda como a atração funciona...&#10;Pare de..." />
+              </div>
+
+              {/* Video */}
+              <div className="border-t border-white/5 pt-5">
+                <p className="text-text-primary text-xs font-medium mb-3 tracking-wide uppercase opacity-60">Vídeo de vendas</p>
+                <label className="text-text-muted text-xs mb-1.5 block">URL do vídeo (YouTube, Vimeo ou MP4)</label>
+                <input className="admin-input" value={form.videoUrl} onChange={(e) => setForm({ ...form, videoUrl: e.target.value })} placeholder="https://youtube.com/watch?v=... ou https://vimeo.com/..." />
+              </div>
+
+              {/* Countdown */}
+              <div className="border-t border-white/5 pt-5">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-text-primary text-xs font-medium tracking-wide uppercase opacity-60">Countdown de urgência</p>
+                  <button type="button" onClick={() => setForm({ ...form, countdownEnabled: !form.countdownEnabled })}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all ${form.countdownEnabled ? 'border-accent/40 bg-accent/10 text-accent' : 'border-white/10 text-text-muted'}`}>
+                    {form.countdownEnabled ? '✓ Ativo' : 'Inativo'}
+                  </button>
+                </div>
+                {form.countdownEnabled && (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-text-muted text-xs mb-1.5 block">Expira em</label>
+                      <input type="datetime-local" className="admin-input" value={form.countdownEndsAt} onChange={(e) => setForm({ ...form, countdownEndsAt: new Date(e.target.value).toISOString() })} />
+                    </div>
+                    <div>
+                      <label className="text-text-muted text-xs mb-1.5 block">Texto do countdown</label>
+                      <input className="admin-input" value={form.countdownText} onChange={(e) => setForm({ ...form, countdownText: e.target.value })} placeholder="Oferta válida por tempo limitado" />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getLeads, upsertLead, getGuideConfig, createNotification } from '@/lib/db';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { guideDeliveryHtml, guideDeliveryText } from '@/lib/email-template';
+import { alertNewLead } from '@/lib/admin-notifications';
 import { v4 as uuid } from 'uuid';
 
 export async function GET() {
@@ -26,6 +27,7 @@ export async function POST(req: NextRequest) {
     `${newLead.name || 'Alguém'} baixou o guia gratuito.`,
     { name: newLead.name, email: newLead.email ?? '', source: newLead.source }
   );
+  alertNewLead(newLead.name, newLead.email, newLead.source);
 
   // Auto-send guide delivery email if email provided
   if (resend && newLead.email) {

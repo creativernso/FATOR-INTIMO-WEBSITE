@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth } from '@/lib/firebase-admin';
 import { getCommunityPosts, upsertCommunityPost, getCommunityUser, upsertCommunityUser, createNotification } from '@/lib/db';
+import { alertNewCommunityPost } from '@/lib/admin-notifications';
 import { CommunityPost } from '@/lib/types';
 import { v4 as uuid } from 'uuid';
 
@@ -61,6 +62,7 @@ export async function POST(req: NextRequest) {
     `${post.anonymous ? 'Anônimo' : user.name} publicou "${post.title}".`,
     { title: post.title, category: post.category }
   );
+  alertNewCommunityPost(post.title, post.anonymous ? 'Anônimo' : user.name);
 
   return NextResponse.json(post, { status: 201 });
 }

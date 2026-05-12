@@ -1,0 +1,254 @@
+import { TrendingUp, Users, FileText, Package, ShoppingBag, BookOpen, Heart, MessageSquare, Download, Star } from 'lucide-react';
+import Link from 'next/link';
+import { getPosts, getLeads, getTestimonials, getGuides, getCommunityPosts } from '@/lib/db';
+import { getOrders } from '@/lib/orders';
+
+export const dynamic = 'force-dynamic';
+
+function groupByDay(items: { createdAt?: string; publishedAt?: string; date?: string }[], days = 30) {
+  const now = Date.now();
+  const buckets: Record<string, number> = {};
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(now - i * 86400000);
+    buckets[d.toISOString().split('T')[0]] = 0;
+  }
+  for (const item of items) {
+    const raw = item.createdAt || item.publishedAt || item.date || '';
+    const day = raw.split('T')[0];
+    if (day in buckets) buckets[day]++;
+  }
+  return Object.entries(buckets).map(([date, count]) => ({ date, count }));
+}
+
+function calcGrowth(items: { createdAt?: string; publishedAt?: string; date?: string }[]) {
+  const now = Date.now();
+  const thisMonth = items.filter((i) => {
+    const d = new Date(i.createdAt || i.publishedAt || i.date || '').getTime();
+    return now - d < 30 * 86400000;
+  }).length;
+  const lastMonth = items.filter((i) => {
+    const d = new Date(i.createdAt || i.publishedAt || i.date || '').getTime();
+    return now - d >= 30 * 86400000 && now - d < 60 * 86400000;
+  }).length;
+  if (lastMonth === 0) return thisMonth > 0 ? 100 : 0;
+  return Math.round(((thisMonth - lastMonth) / lastMonth) * 100);
+}
+
+export default async function AnalyticsPage() {
+  const [posts, leads, testimonials, guides, allCommunityPosts, orders] = await Promise.all([
+    getPosts(),
+    getLeads(),
+    getTestimonials(),
+    getGuides(),
+    getCommunityPosts(),
+    getOrders(),
+  ]);
+
+  const totalRevenue = orders.reduce((s, o) => s + o.amountTotal, 0) / 100;
+  const totalGuideDownloads = guides.reduce((s, g) => s + (g.downloadCount ?? 0), 0);
+  const approvedCommunityPosts = allCommunityPosts.filter((p) => p.status === 'approved');
+  const avgRating = testimonials.filter((t) => t.rating).reduce((a, t) => a + (t.rating ?? 0), 0) / (testimonials.filter((t) => t.rating).length || 1);
+
+  const emailLeads = leads.filter((l) => l.email).length;
+  const leadsThisMonth = leads.filter((l) => Date.now() - new Date(l.createdAt).getTime() < 30 * 86400000).length;
+  const leadsGrowth = calcGrowth(leads);
+  const ordersGrowth = calcGrowth(orders.map((o) => ({ createdAt: o.createdAt })));
+  const postsGrowth = calcGrowth(posts.map((p) => ({ publishedAt: p.publishedAt })));
+
+  const topPosts = [...posts].sort((a, b) => b.readTime - a.readTime).slice(0, 5);
+  const topGuides = [...guides].sort((a, b) => (b.downloadCount ?? 0) - (a.downloadCount ?? 0)).slice(0, 5);
+
+  const leadsByday = groupByDay(leads, 14);
+  const maxLeads = Math.max(...leadsByday.map((d) => d.count), 1);
+
+  const stats = [
+    { label: 'Receita Total', value: `R$ ${totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, icon: TrendingUp, accent: '#fe0050', growth: ordersGrowth, href: '/admin/orders' },
+    { label: 'Leads Totais', value: leads.length, icon: Users, accent: '#10b981', growth: leadsGrowth, href: '/admin/leads' },
+    { label: 'Email Leads', value: emailLeads, icon: MessageSquare, accent: '#3b82f6', growth: null, href: '/admin/leads' },
+    { label: 'Pedidos', value: orders.length, icon: ShoppingBag, accent: '#a855f7', growth: ordersGrowth, href: '/admin/orders' },
+    { label: 'Artigos', value: posts.length, icon: FileText, accent: '#f59e0b', growth: postsGrowth, href: '/admin/blog' },
+    { label: 'Downloads Guias', value: totalGuideDownloads, icon: Download, accent: '#06b6d4', growth: null, href: '/admin/guide' },
+    { label: 'Posts Comunidade', value: approvedCommunityPosts.length, icon: Heart, accent: '#ec4899', growth: null, href: '/admin/comunidade' },
+    { label: 'Avaliação Média', value: `⭐ ${avgRating.toFixed(1)}`, icon: Star, accent: '#f59e0b', growth: null, href: '/admin/testimonials' },
+  ];
+
+  return (
+    <div className="space-y-8 lg:space-y-10">
+
+      {/* Header */}
+      <div>
+        <p className="text-text-muted tracking-widest uppercase mb-1.5" style={{ fontSize: 'clamp(0.62rem, 0.72vw, 0.7rem)' }}>
+          Métricas
+        </p>
+        <h2 className="font-body text-text-primary font-medium" style={{ fontSize: 'clamp(1.4rem, 2.2vw, 2rem)' }}>
+          Analytics
+        </h2>
+        <p className="text-text-muted mt-1" style={{ fontSize: 'clamp(0.8rem, 0.95vw, 0.95rem)' }}>
+          Visão consolidada do desempenho da plataforma.
+        </p>
+      </div>
+
+      {/* KPI Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {stats.map((stat) => (
+          <Link
+            key={stat.label}
+            href={stat.href}
+            className="relative rounded-2xl border border-white/6 bg-surface p-5 hover:border-white/12 hover:scale-[1.01] transition-all duration-300 group overflow-hidden"
+          >
+            <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full opacity-15 blur-xl" style={{ background: stat.accent }} />
+            <div className="relative">
+              <div className="flex items-start justify-between mb-3">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${stat.accent}18`, border: `1px solid ${stat.accent}28` }}>
+                  <stat.icon size={14} style={{ color: stat.accent }} />
+                </div>
+                {stat.growth !== null && (
+                  <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${stat.growth >= 0 ? 'bg-green-400/10 text-green-400' : 'bg-red-400/10 text-red-400'}`}>
+                    {stat.growth >= 0 ? '+' : ''}{stat.growth}%
+                  </span>
+                )}
+              </div>
+              <p className="font-body font-semibold text-text-primary" style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2.2rem)', color: stat.accent }}>
+                {stat.value}
+              </p>
+              <p className="text-text-muted mt-1" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.78rem)' }}>
+                {stat.label}
+              </p>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Lead growth chart (last 14 days) */}
+      <div className="rounded-2xl border border-white/5 bg-surface p-6 lg:p-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>
+              Novos leads — últimos 14 dias
+            </h3>
+            <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>
+              {leadsThisMonth} leads nos últimos 30 dias
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="font-body font-semibold text-green-400" style={{ fontSize: 'clamp(1.2rem, 1.8vw, 1.6rem)' }}>
+              {leadsThisMonth}
+            </p>
+            <p className="text-text-muted" style={{ fontSize: 'clamp(0.65rem, 0.75vw, 0.72rem)' }}>este mês</p>
+          </div>
+        </div>
+
+        {/* Bar chart */}
+        <div className="flex items-end gap-1 h-24">
+          {leadsByday.map(({ date, count }) => (
+            <div key={date} className="flex-1 flex flex-col items-center gap-1 group">
+              <div
+                className="w-full rounded-t transition-all duration-500 group-hover:opacity-100"
+                style={{
+                  height: `${Math.max(4, (count / maxLeads) * 88)}px`,
+                  background: count > 0 ? 'rgba(254,0,80,0.5)' : 'rgba(255,255,255,0.05)',
+                  borderTop: count > 0 ? '1px solid rgba(254,0,80,0.4)' : 'none',
+                }}
+                title={`${date}: ${count} leads`}
+              />
+              <span className="text-text-muted" style={{ fontSize: '8px', writingMode: 'vertical-rl', transform: 'rotate(180deg)', opacity: 0.5 }}>
+                {date.slice(5)}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Two-column tables */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        {/* Top articles */}
+        <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
+            <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
+              Artigos publicados
+            </h3>
+            <Link href="/admin/blog" className="text-text-muted hover:text-accent transition-colors" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
+              Ver todos →
+            </Link>
+          </div>
+          <div className="divide-y divide-white/4">
+            {topPosts.length === 0 ? (
+              <p className="px-5 py-8 text-text-muted text-center" style={{ fontSize: '0.8rem' }}>Nenhum artigo ainda.</p>
+            ) : topPosts.map((post, i) => (
+              <div key={post.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-white/2 transition-colors">
+                <span className="text-text-muted font-heading" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)', minWidth: '18px' }}>{i + 1}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-text-secondary font-medium truncate" style={{ fontSize: 'clamp(0.8rem, 0.9vw, 0.875rem)' }}>{post.title}</p>
+                  <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>{post.category} · {post.readTime}min</p>
+                </div>
+                {post.featured && (
+                  <span className="text-accent border border-accent/20 bg-accent/5 px-2 py-0.5 rounded-full flex-shrink-0" style={{ fontSize: '10px' }}>Destaque</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Top guides by downloads */}
+        <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
+            <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
+              Guias mais baixados
+            </h3>
+            <Link href="/admin/guide" className="text-text-muted hover:text-accent transition-colors" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
+              Ver todos →
+            </Link>
+          </div>
+          <div className="divide-y divide-white/4">
+            {topGuides.length === 0 ? (
+              <p className="px-5 py-8 text-text-muted text-center" style={{ fontSize: '0.8rem' }}>Nenhum guia ainda.</p>
+            ) : topGuides.map((guide, i) => (
+              <div key={guide.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-white/2 transition-colors">
+                <span className="text-text-muted font-heading" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)', minWidth: '18px' }}>{i + 1}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-text-secondary font-medium truncate" style={{ fontSize: 'clamp(0.8rem, 0.9vw, 0.875rem)' }}>{guide.title}</p>
+                  <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>{guide.category || 'Geral'}</p>
+                </div>
+                <div className="flex items-center gap-1 text-blue-400 flex-shrink-0" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
+                  <Download size={11} /> {guide.downloadCount ?? 0}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[
+          {
+            label: 'Conversão de leads',
+            value: leads.length > 0 ? `${((orders.length / leads.length) * 100).toFixed(1)}%` : '—',
+            sub: `${orders.length} vendas de ${leads.length} leads`,
+            color: '#a855f7',
+          },
+          {
+            label: 'Leads com email',
+            value: leads.length > 0 ? `${Math.round((emailLeads / leads.length) * 100)}%` : '—',
+            sub: `${emailLeads} de ${leads.length} têm email`,
+            color: '#3b82f6',
+          },
+          {
+            label: 'Depoimentos aprovados',
+            value: testimonials.filter((t) => t.status === 'approved' || !t.status).length,
+            sub: `${testimonials.filter((t) => t.status === 'pending').length} aguardando aprovação`,
+            color: '#10b981',
+          },
+        ].map((card) => (
+          <div key={card.label} className="rounded-2xl border border-white/5 bg-surface p-5">
+            <p className="text-text-muted mb-2" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>{card.label}</p>
+            <p className="font-body font-semibold" style={{ fontSize: 'clamp(1.6rem, 2.5vw, 2.2rem)', color: card.color }}>{card.value}</p>
+            <p className="text-text-muted mt-1" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>{card.sub}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

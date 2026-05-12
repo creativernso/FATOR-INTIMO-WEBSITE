@@ -6,6 +6,8 @@ import { getProducts, getTestimonials } from '@/lib/db';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import BuyButton from './BuyButton';
 import FAQAccordion from './FAQAccordion';
+import CountdownTimer from './CountdownTimer';
+import SalesVideo from './SalesVideo';
 
 export const dynamic = 'force-dynamic';
 
@@ -69,6 +71,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               </div>
 
               <p className="text-text-secondary text-base leading-relaxed">{product.description}</p>
+
+              {/* Countdown timer */}
+              {product.countdownEnabled && product.countdownEndsAt && (
+                <CountdownTimer endsAt={product.countdownEndsAt} text={product.countdownText} />
+              )}
 
               {/* Price box */}
               <div className="rounded-2xl border border-white/8 bg-surface p-6 space-y-4">
@@ -149,6 +156,18 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           </AnimateOnScroll>
         </div>
       </section>
+
+      {/* ── SALES VIDEO ── */}
+      {product.videoUrl && (
+        <section className="py-10 px-6 border-t border-white/5">
+          <div className="max-w-3xl mx-auto">
+            <AnimateOnScroll>
+              <p className="text-xs text-accent tracking-widest uppercase mb-5 text-center">Apresentação</p>
+              <SalesVideo url={product.videoUrl} />
+            </AnimateOnScroll>
+          </div>
+        </section>
+      )}
 
       {/* ── FOR WHO ── */}
       {product.forWho && product.forWho.length > 0 && (

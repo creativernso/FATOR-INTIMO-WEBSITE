@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Bell, ShoppingBag, BookOpen, Users, MessageSquare, FileText, AlertTriangle, Heart, Check, X, LucideIcon } from 'lucide-react';
+import { collection, query, orderBy, limit, onSnapshot, writeBatch, doc } from 'firebase/firestore';
+import { getFirestoreClient } from '@/lib/firebase';
 import { AdminNotification } from '@/lib/types';
 
 const TYPE_CONFIG: Record<AdminNotification['type'], { icon: LucideIcon; color: string; bg: string }> = {
@@ -25,25 +27,24 @@ function timeAgo(iso: string) {
 export default function NotificationBell() {
   const [notifications, setNotifications] = useState<AdminNotification[]>([]);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   const unread = notifications.filter((n) => !n.read).length;
 
-  const fetchNotifications = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/admin/notifications');
-      if (res.ok) setNotifications(await res.json());
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Real-time Firestore listener
   useEffect(() => {
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
+    const db = getFirestoreClient();
+    const q = query(
+      collection(db, 'adminNotifications'),
+      orderBy('createdAt', 'desc'),
+      limit(40),
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      setNotifications(
+        snap.docs.map((d) => ({ id: d.id, ...d.data() } as AdminNotification)),
+      );
+    });
+    return unsub;
   }, []);
 
   useEffect(() => {
@@ -55,33 +56,34 @@ export default function NotificationBell() {
   }, []);
 
   const markAllRead = async () => {
-    await fetch('/api/admin/notifications', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ids: undefined }),
+    const db = getFirestoreClient();
+    const batch = writeBatch(db);
+    notifications.filter((n) => !n.read).forEach((n) => {
+      batch.update(doc(db, 'adminNotifications', n.id), { read: true });
     });
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    await batch.commit();
   };
 
   const markOneRead = async (id: string) => {
-    await fetch('/api/admin/notifications', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ids: [id] }),
-    });
-    setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
+    const db = getFirestoreClient();
+    const batch = writeBatch(db);
+    batch.update(doc(db, 'adminNotifications', id), { read: true });
+    await batch.commit();
   };
 
   return (
     <div className="relative" ref={ref}>
       <button
-        onClick={() => { setOpen((v) => !v); if (!open) fetchNotifications(); }}
+        onClick={() => setOpen((v) => !v)}
         className="relative w-9 h-9 flex items-center justify-center rounded-xl text-text-muted hover:text-text-primary hover:bg-white/5 transition-all"
+        aria-label="Notificações"
       >
         <Bell size={16} />
         {unread > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent rounded-full text-white flex items-center justify-center font-bold leading-none"
-            style={{ fontSize: '9px' }}>
+          <span
+            className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent rounded-full text-white flex items-center justify-center font-bold leading-none animate-pulse"
+            style={{ fontSize: '9px' }}
+          >
             {unread > 9 ? '9+' : unread}
           </span>
         )}
@@ -90,20 +92,23 @@ export default function NotificationBell() {
       {open && (
         <div
           className="absolute right-0 top-11 w-80 bg-surface border border-white/8 rounded-2xl shadow-2xl z-50 overflow-hidden"
-          style={{ boxShadow: '0 16px 48px rgba(0,0,0,0.5)' }}
+          style={{ boxShadow: '0 16px 48px rgba(0,0,0,0.6)' }}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/5">
             <div className="flex items-center gap-2">
               <span className="text-text-primary text-sm font-medium">Notificações</span>
               {unread > 0 && (
-                <span className="bg-accent/15 text-accent text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                <span className="bg-accent/15 text-accent text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
                   {unread} nova{unread > 1 ? 's' : ''}
                 </span>
               )}
             </div>
             {unread > 0 && (
-              <button onClick={markAllRead} className="flex items-center gap-1 text-[11px] text-text-muted hover:text-accent transition-colors">
+              <button
+                onClick={markAllRead}
+                className="flex items-center gap-1 text-[11px] text-text-muted hover:text-accent transition-colors"
+              >
                 <Check size={10} /> Marcar todas
               </button>
             )}
@@ -111,9 +116,7 @@ export default function NotificationBell() {
 
           {/* List */}
           <div className="max-h-[420px] overflow-y-auto">
-            {loading && notifications.length === 0 ? (
-              <div className="py-10 text-center text-text-muted text-xs">Carregando...</div>
-            ) : notifications.length === 0 ? (
+            {notifications.length === 0 ? (
               <div className="py-10 text-center">
                 <Bell size={24} className="text-white/10 mx-auto mb-2" />
                 <p className="text-text-muted text-xs">Nenhuma notificação ainda.</p>
@@ -127,7 +130,7 @@ export default function NotificationBell() {
                     key={n.id}
                     onClick={() => !n.read && markOneRead(n.id)}
                     className={`flex items-start gap-3 px-4 py-3.5 border-b border-white/4 last:border-0 transition-colors ${
-                      n.read ? 'opacity-50' : 'cursor-pointer hover:bg-white/3'
+                      n.read ? 'opacity-40' : 'cursor-pointer hover:bg-white/3'
                     }`}
                   >
                     <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${cfg.bg}`}>
@@ -141,7 +144,7 @@ export default function NotificationBell() {
                       <p className="text-text-muted text-xs mt-0.5 leading-relaxed line-clamp-2">{n.body}</p>
                     </div>
                     {!n.read && (
-                      <div className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0 mt-1.5" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0 mt-1.5 animate-pulse" />
                     )}
                   </div>
                 );
@@ -151,7 +154,10 @@ export default function NotificationBell() {
 
           {notifications.length > 0 && (
             <div className="px-4 py-3 border-t border-white/5 text-center">
-              <button onClick={() => setOpen(false)} className="text-text-muted text-xs hover:text-accent transition-colors flex items-center gap-1 mx-auto">
+              <button
+                onClick={() => setOpen(false)}
+                className="text-text-muted text-xs hover:text-accent transition-colors flex items-center gap-1 mx-auto"
+              >
                 <X size={10} /> Fechar
               </button>
             </div>

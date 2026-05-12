@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getTestimonials, upsertTestimonial } from '@/lib/db';
+import { getTestimonials, upsertTestimonial, createNotification } from '@/lib/db';
+import { alertNewTestimonial } from '@/lib/admin-notifications';
 import { v4 as uuid } from 'uuid';
 
 export async function GET() {
@@ -18,5 +19,7 @@ export async function POST(req: NextRequest) {
     productPurchased: body.productPurchased || '',
   };
   await upsertTestimonial(newItem);
+  await createNotification('testimonial', 'Novo depoimento recebido', `${newItem.name} enviou um depoimento.`);
+  alertNewTestimonial(newItem.name);
   return NextResponse.json(newItem, { status: 201 });
 }

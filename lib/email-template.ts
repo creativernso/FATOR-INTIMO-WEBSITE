@@ -496,3 +496,61 @@ Explore também:
 — Fator Íntimo
 fatorintimo.com`;
 }
+
+// ── New article broadcast ─────────────────────────────────────────────────────
+
+interface NewArticleData {
+  name?: string;
+  articleTitle: string;
+  articleExcerpt: string;
+  articleUrl: string;
+  coverImage?: string;
+}
+
+export function newArticleHtml({ name, articleTitle, articleExcerpt, articleUrl, coverImage }: NewArticleData): string {
+  const greeting = name ? `Olá, ${name.split(' ')[0]}.` : 'Olá.';
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0a0705;font-family:Georgia,serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0705;padding:48px 16px;">
+    <tr><td align="center">
+      <table width="100%" style="max-width:560px;background:#1a1410;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;">
+        <tr><td style="height:1px;background:linear-gradient(to right,transparent,#fe0050,transparent);"></td></tr>
+        <tr><td align="center" style="padding:36px 40px 0;">
+          <p style="margin:0;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#fe0050;">FATOR ÍNTIMO</p>
+        </td></tr>
+        ${coverImage ? `
+        <tr><td style="padding:24px 40px 0;">
+          <img src="${coverImage}" alt="${articleTitle}" style="width:100%;border-radius:10px;display:block;" />
+        </td></tr>` : ''}
+        <tr><td style="padding:28px 40px 8px;">
+          <p style="margin:0 0 8px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#888;">Novo artigo</p>
+          <h1 style="margin:0;font-size:26px;font-weight:300;color:#f5f0eb;line-height:1.3;">${articleTitle}</h1>
+        </td></tr>
+        <tr><td style="padding:8px 40px 28px;">
+          <p style="margin:0;font-size:14px;color:#a09080;line-height:1.7;font-style:italic;">${articleExcerpt}</p>
+        </td></tr>
+        <tr><td align="center" style="padding:0 40px 36px;">
+          <a href="${articleUrl}" style="display:inline-block;background:#fe0050;color:#fff;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:13px;font-weight:600;letter-spacing:0.5px;">Ler artigo completo</a>
+        </td></tr>
+        <tr><td style="padding:20px 40px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+          <p style="margin:0 0 8px;font-size:12px;color:#605040;">${greeting} Você recebeu este email por fazer parte da lista Fator Íntimo.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+export function newArticleText({ articleTitle, articleExcerpt, articleUrl }: NewArticleData): string {
+  return `Novo artigo — ${articleTitle}
+
+${articleExcerpt}
+
+Leia agora: ${articleUrl}
+
+— Fator Íntimo
+fatorintimo.com`;
+}

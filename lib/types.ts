@@ -34,6 +34,12 @@ export interface Product {
   forWho?: string[];
   faq?: ProductFAQ[];
   downloadUrl?: string;
+  // Sales video
+  videoUrl?: string;
+  // Urgency countdown
+  countdownEnabled?: boolean;
+  countdownEndsAt?: string;   // ISO date string
+  countdownText?: string;
 }
 
 export interface Testimonial {

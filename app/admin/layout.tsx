@@ -18,13 +18,17 @@ import {
   MessagesSquare,
   Heart,
   Sparkles,
+  BarChart2,
+  MessageCircle,
 } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton';
 import ThemeToggle from '@/components/ThemeToggle';
 import NotificationBell from '@/components/admin/NotificationBell';
+import AdminBadgesProvider, { useAdminBadges } from '@/components/admin/AdminBadgesProvider';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+  { href: '/admin/analytics', label: 'Analytics', icon: BarChart2 },
   { href: '/admin/blog', label: 'Blog', icon: FileText },
   { href: '/admin/products', label: 'Produtos', icon: Package },
   { href: '/admin/testimonials', label: 'Depoimentos', icon: MessageSquare },
@@ -35,11 +39,21 @@ const navItems = [
   { href: '/admin/comments', label: 'Comentários', icon: MessagesSquare },
   { href: '/admin/comunidade', label: 'Comunidade', icon: Heart },
   { href: '/admin/marquee', label: 'Marquee', icon: Sparkles },
+  { href: '/admin/chat', label: 'Live Chat', icon: MessageCircle },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const badges = useAdminBadges();
+
   if (pathname === '/admin/login') return <>{children}</>;
+
+  const badgeMap: Record<string, number> = {
+    '/admin/testimonials': badges.testimonials,
+    '/admin/comunidade': badges.comunidade,
+    '/admin/comments': badges.comments,
+    '/admin/leads': badges.leads,
+  };
 
   const currentPage = navItems.find((item) =>
     item.exact ? pathname === item.href : pathname.startsWith(item.href),
@@ -90,7 +104,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-accent rounded-full" />
                 )}
                 <item.icon size={16} className="flex-shrink-0" />
-                <span className="hidden lg:block font-medium">{item.label}</span>
+                <span className="hidden lg:block font-medium flex-1">{item.label}</span>
+                {(badgeMap[item.href] ?? 0) > 0 && (
+                  <span className="hidden lg:flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-accent text-white rounded-full font-bold animate-pulse" style={{ fontSize: '9px' }}>
+                    {(badgeMap[item.href] ?? 0) > 9 ? '9+' : badgeMap[item.href]}
+                  </span>
+                )}
+                {(badgeMap[item.href] ?? 0) > 0 && (
+                  <span className="lg:hidden absolute top-1.5 right-1.5 w-2 h-2 bg-accent rounded-full animate-pulse" />
+                )}
               </Link>
             );
           })}
@@ -162,5 +184,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </main>
       </div>
     </div>
+  );
+}
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AdminBadgesProvider>
+      <AdminLayoutInner>{children}</AdminLayoutInner>
+    </AdminBadgesProvider>
   );
 }

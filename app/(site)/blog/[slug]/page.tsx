@@ -77,8 +77,8 @@ export default async function BlogPost({ params }: Props) {
             </p>
             <div className="flex flex-wrap items-center gap-5 text-text-muted text-xs border-t border-b border-white/5 py-4">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs">R</div>
-                <span>Rafael Moreira</span>
+                <div className="w-6 h-6 rounded-full bg-accent/15 border border-accent/25 flex items-center justify-center text-[10px] font-bold text-accent">FÍ</div>
+                <span className="font-medium text-text-secondary">Fator Íntimo</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Calendar size={12} />
