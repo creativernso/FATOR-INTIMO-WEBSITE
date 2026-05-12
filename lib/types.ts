@@ -184,6 +184,36 @@ export interface CommunityReport {
   status: 'pending' | 'reviewed' | 'resolved';
 }
 
+// ─── Email Marketing ─────────────────────────────────────────────────────────
+
+export interface EmailCampaign {
+  id: string;
+  subject: string;
+  body: string;
+  templateId?: string;
+  segment: 'all' | 'email' | 'guide_downloaded' | 'no_purchase';
+  status: 'draft' | 'sending' | 'sent' | 'scheduled' | 'failed';
+  sentCount: number;
+  failedCount: number;
+  totalRecipients: number;
+  scheduledAt?: string;
+  sentAt?: string;
+  createdAt: string;
+}
+
+export interface EmailAutomation {
+  id: string;
+  name: string;
+  trigger: 'signup' | 'guide_download' | 'purchase' | 'inactive_30d' | 'inactive_60d';
+  delayDays: number;
+  subject: string;
+  body: string;
+  active: boolean;
+  totalSent: number;
+  lastRunAt?: string;
+  createdAt: string;
+}
+
 // ─── Marquee ──────────────────────────────────────────────────────────────────
 
 export interface MarqueePhrase {

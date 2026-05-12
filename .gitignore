@@ -36,6 +36,7 @@ Hero secrion.png
 background.png
 *.json
 !messages/*.json
+!vercel.json
 FAV.png
 LOGO.png
 WE-3E.png

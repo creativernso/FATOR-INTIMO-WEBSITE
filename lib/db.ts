@@ -1,6 +1,6 @@
 import { getAdminDb } from './firebase-admin';
 import type { Query } from 'firebase-admin/firestore';
-import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification, MarqueePhrase } from './types';
+import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification, MarqueePhrase, EmailCampaign, EmailAutomation } from './types';
 
 const db = () => getAdminDb();
 
@@ -295,4 +295,34 @@ function defaultGuideConfig(): GuideConfig {
     successMessage: 'O guia foi enviado para o seu e-mail. Enquanto isso, explore nossos artigos.',
     updatedAt: new Date().toISOString(),
   };
+}
+
+// ─── Email Campaigns ──────────────────────────────────────────────────────────
+
+export async function getEmailCampaigns(): Promise<EmailCampaign[]> {
+  const snap = await db().collection('emailCampaigns').orderBy('createdAt', 'desc').get();
+  return snap.docs.map((d) => d.data() as EmailCampaign);
+}
+
+export async function upsertEmailCampaign(campaign: EmailCampaign): Promise<void> {
+  await db().collection('emailCampaigns').doc(campaign.id).set(campaign);
+}
+
+export async function deleteEmailCampaign(id: string): Promise<void> {
+  await db().collection('emailCampaigns').doc(id).delete();
+}
+
+// ─── Email Automations ────────────────────────────────────────────────────────
+
+export async function getEmailAutomations(): Promise<EmailAutomation[]> {
+  const snap = await db().collection('emailAutomations').orderBy('createdAt', 'asc').get();
+  return snap.docs.map((d) => d.data() as EmailAutomation);
+}
+
+export async function upsertEmailAutomation(automation: EmailAutomation): Promise<void> {
+  await db().collection('emailAutomations').doc(automation.id).set(automation);
+}
+
+export async function deleteEmailAutomation(id: string): Promise<void> {
+  await db().collection('emailAutomations').doc(id).delete();
 }
