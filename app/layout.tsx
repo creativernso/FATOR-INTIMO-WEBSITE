@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { LocaleProvider } from '@/components/LocaleProvider';
@@ -51,15 +50,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang={LANG_ATTR[locale]} suppressHydrationWarning>
       <head>
         <meta name="google-adsense-account" content="ca-pub-4821949064173943" />
-      </head>
-      <body className="bg-background text-text-primary antialiased">
-        <Script
-          id="theme-init"
-          strategy="beforeInteractive"
+        <script
           dangerouslySetInnerHTML={{
             __html: `try{var t=localStorage.getItem('fi-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}`,
           }}
         />
+      </head>
+      <body className="bg-background text-text-primary antialiased">
         <ThemeProvider>
           <LocaleProvider locale={locale}>
             {children}
