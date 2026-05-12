@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight, PenLine, Users } from 'lucide-react';
+import { PenLine, ArrowRight, TrendingUp, BookOpen, Users, MessageSquare } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
-import PostCard from '@/components/community/PostCard';
 import CategoryBadge from '@/components/community/CategoryBadge';
+import FeedClient from '@/components/community/FeedClient';
 import { getCommunityPosts } from '@/lib/db';
 import { COMMUNITY_CATEGORIES } from '@/lib/community';
-import CommunityHeroButtons from './CommunityHeroButtons';
 
 export const metadata: Metadata = {
   title: 'Comunidade Íntima',
@@ -15,207 +14,233 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-export default async function CommunidadePage() {
+export default async function ComunidadePage() {
   const allPosts = await getCommunityPosts({ status: 'approved' });
-  const featured = allPosts.filter((p) => p.featured || p.pinned).slice(0, 2);
-  const recent = allPosts.filter((p) => !p.pinned).slice(0, 9);
-  const totalMembers = 'alguns'; // placeholder until user count is real
+
+  const trending = [...allPosts]
+    .sort((a, b) => b.reactionCount + b.commentCount - (a.reactionCount + a.commentCount))
+    .slice(0, 5);
 
   return (
     <>
-      {/* ── Hero ────────────────────────────────────────────── */}
-      <section className="relative pt-36 pb-20 px-6 overflow-hidden">
+      {/* ── Compact Hero ───────────────────────────────────────── */}
+      <section className="relative pt-32 pb-10 px-6 overflow-hidden">
         <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at top, rgba(254,0,80,0.07) 0%, transparent 60%)' }}
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[420px] pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at top, rgba(254,0,80,0.06) 0%, transparent 60%)' }}
         />
-        <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: 'radial-gradient(circle at 20% 80%, rgba(254,0,80,0.03) 0%, transparent 40%), radial-gradient(circle at 80% 20%, rgba(255,200,120,0.02) 0%, transparent 40%)',
-        }} />
-
-        <div className="relative max-w-4xl mx-auto text-center">
+        <div className="relative max-w-6xl mx-auto">
           <AnimateOnScroll>
-            <span className="text-xs text-accent tracking-[0.3em] uppercase mb-5 block">
-              Comunidade Íntima
-            </span>
-
-            <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl font-light text-text-primary mb-6 leading-[1.0]">
-              Um espaço para<br />
-              <span style={{ color: '#fe0050' }}>conversas reais</span>
-            </h1>
-
-            <p className="text-text-secondary text-base sm:text-lg leading-relaxed max-w-2xl mx-auto mb-10">
-              Aqui não há julgamentos. Apenas pessoas reais compartilhando o que vivem, sentem e aprendem sobre relacionamentos, emoções e autoconhecimento.
-            </p>
-
-            <CommunityHeroButtons />
-
-            <div className="flex items-center justify-center gap-6 mt-10 text-text-muted text-sm">
-              <div className="flex items-center gap-1.5">
-                <Users size={13} />
-                <span>Comunidade em crescimento</span>
-              </div>
-              <span className="w-px h-3 bg-white/15" />
-              <span>{allPosts.length} discussões ativas</span>
-              <span className="w-px h-3 bg-white/15" />
-              <span>Moderação humana</span>
-            </div>
-          </AnimateOnScroll>
-        </div>
-      </section>
-
-      {/* ── Onboarding / What is this ──────────────────── */}
-      <section className="px-6 pb-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[
-              {
-                icon: '◎',
-                title: 'Um espaço sem julgamentos',
-                body: 'Aqui você pode falar sobre o que realmente sente, sem filtros. Tudo passa por moderação humana para garantir um ambiente respeitoso.',
-              },
-              {
-                icon: '✦',
-                title: 'Anônimo quando quiser',
-                body: 'Não precisa se expor para participar. Publique de forma anônima sempre que quiser compartilhar algo mais íntimo ou vulnerável.',
-              },
-              {
-                icon: '♡',
-                title: 'Curado por Rafael Moreira',
-                body: 'Cada categoria foi desenhada para reunir as conversas que mais importam. Rafael acompanha e participa da comunidade diretamente.',
-              },
-            ].map((card) => (
-              <AnimateOnScroll key={card.title}>
-                <div className="rounded-2xl border border-white/5 bg-surface p-6 h-full">
-                  <span className="text-2xl block mb-3 opacity-60">{card.icon}</span>
-                  <h3 className="text-text-primary font-medium text-sm mb-2">{card.title}</h3>
-                  <p className="text-text-muted text-sm leading-relaxed">{card.body}</p>
-                </div>
-              </AnimateOnScroll>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="px-6 pb-32">
-        <div className="max-w-6xl mx-auto">
-
-          {/* ── Categories ─────────────────────────────────── */}
-          <AnimateOnScroll>
-            <div className="mb-16">
-              <p className="text-xs text-accent tracking-[0.3em] uppercase mb-6">Espaços de conversa</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                {COMMUNITY_CATEGORIES.map((cat, i) => (
-                  <AnimateOnScroll key={cat.slug} delay={i * 40}>
-                    <Link
-                      href={`/comunidade/categoria/${cat.slug}`}
-                      className="group relative rounded-xl border border-white/5 bg-surface hover:border-accent/20 hover:bg-accent/4 p-4 text-center transition-all duration-300 block"
-                    >
-                      <span className="block text-2xl mb-2 opacity-70 group-hover:opacity-100 transition-opacity">
-                        {cat.icon}
-                      </span>
-                      <p className="text-text-primary text-xs font-medium leading-snug group-hover:text-accent transition-colors">
-                        {cat.label}
-                      </p>
-                    </Link>
-                  </AnimateOnScroll>
-                ))}
-              </div>
-            </div>
-          </AnimateOnScroll>
-
-          {/* ── Featured ───────────────────────────────────── */}
-          {featured.length > 0 && (
-            <div className="mb-14">
-              <AnimateOnScroll>
-                <p className="text-xs text-accent tracking-[0.3em] uppercase mb-6 flex items-center gap-2">
-                  <span className="text-sm">✦</span> Conversas em destaque
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+              <div>
+                <span className="text-[11px] text-accent tracking-[0.35em] uppercase mb-3 block">
+                  Comunidade Íntima
+                </span>
+                <h1 className="font-heading text-4xl sm:text-5xl font-light text-text-primary leading-[1.05]">
+                  Um espaço para<br />
+                  <span style={{ color: '#fe0050' }}>conversas reais</span>
+                </h1>
+                <p className="text-text-secondary text-sm leading-relaxed mt-3 max-w-md">
+                  Sem julgamentos. Pessoas reais compartilhando o que vivem, sentem e aprendem.
                 </p>
-              </AnimateOnScroll>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {featured.map((post, i) => (
-                  <AnimateOnScroll key={post.id} delay={i * 80}>
-                    <PostCard post={post} featured />
-                  </AnimateOnScroll>
-                ))}
               </div>
-              {recent.length > 0 && <div className="border-t border-white/5 mt-12 mb-12" />}
-            </div>
-          )}
 
-          {/* ── Recent posts ───────────────────────────────── */}
-          {recent.length > 0 && (
-            <div>
-              <AnimateOnScroll>
-                <div className="flex items-center justify-between mb-6">
-                  <p className="text-xs text-text-muted tracking-[0.3em] uppercase">Discussões recentes</p>
-                  <Link href="/comunidade/nova-publicacao" className="text-xs text-accent hover:underline flex items-center gap-1">
-                    <PenLine size={11} /> Nova discussão
-                  </Link>
-                </div>
-              </AnimateOnScroll>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {recent.map((post, i) => (
-                  <AnimateOnScroll key={post.id} delay={i * 50}>
-                    <PostCard post={post} />
-                  </AnimateOnScroll>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ── Empty state ────────────────────────────────── */}
-          {allPosts.length === 0 && (
-            <AnimateOnScroll>
-              <div className="text-center py-24">
-                <p className="text-5xl mb-6 opacity-40">◎</p>
-                <h2 className="font-heading text-2xl font-light text-text-primary mb-3">O espaço está pronto.</h2>
-                <p className="text-text-muted text-sm mb-8 max-w-sm mx-auto">
-                  Seja o primeiro a trazer uma conversa real para a Comunidade Íntima.
-                </p>
+              <div className="flex flex-col gap-2.5 flex-shrink-0">
                 <Link
                   href="/comunidade/nova-publicacao"
-                  className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-6 py-3 rounded-full text-sm font-medium transition-all"
+                  className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-5 py-2.5 rounded-full text-sm font-medium transition-all whitespace-nowrap"
                 >
-                  <PenLine size={14} /> Iniciar uma conversa
+                  <PenLine size={14} /> Nova publicação
+                </Link>
+                <Link
+                  href="/comunidade/nova-publicacao?anonymous=true"
+                  className="inline-flex items-center justify-center gap-1.5 border border-white/10 hover:border-white/20 text-text-muted hover:text-text-secondary px-5 py-2.5 rounded-full text-xs transition-all whitespace-nowrap"
+                >
+                  Publicar anonimamente
                 </Link>
               </div>
-            </AnimateOnScroll>
-          )}
+            </div>
 
-          {/* ── CTA Section ────────────────────────────────── */}
-          <AnimateOnScroll>
-            <div className="mt-20 relative rounded-2xl border border-white/5 bg-surface p-10 text-center overflow-hidden">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
-              <div
-                className="absolute inset-0 pointer-events-none"
-                style={{ background: 'radial-gradient(ellipse at bottom, rgba(254,0,80,0.04) 0%, transparent 60%)' }}
-              />
-              <div className="relative">
-                <p className="text-xs text-accent tracking-widest uppercase mb-4">Rafael Moreira</p>
-                <h2 className="font-heading text-3xl font-light text-text-primary mb-4">
-                  Sua história pode ser<br />o espelho de alguém.
-                </h2>
-                <p className="text-text-secondary text-sm mb-8 leading-relaxed max-w-lg mx-auto">
-                  A Comunidade Íntima existe para que o que você viveu, sentiu e aprendeu não fique só dentro de você. Partilhe com cuidado.
-                </p>
-                <div className="flex flex-wrap gap-3 justify-center">
-                  <Link
-                    href="/comunidade/nova-publicacao"
-                    className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-7 py-3.5 rounded-full font-medium text-sm transition-all"
-                  >
-                    <PenLine size={14} /> Compartilhar algo
-                  </Link>
-                  <Link
-                    href="/guia"
-                    className="inline-flex items-center gap-2 border border-white/10 hover:border-white/20 text-text-secondary hover:text-text-primary px-7 py-3.5 rounded-full text-sm transition-all"
-                  >
-                    Guias gratuitos <ArrowRight size={13} />
-                  </Link>
-                </div>
+            {/* Stats strip */}
+            <div className="flex items-center gap-5 mt-8 text-text-muted text-xs">
+              <div className="flex items-center gap-1.5">
+                <MessageSquare size={12} />
+                <span>{allPosts.length} discussões ativas</span>
               </div>
+              <span className="w-px h-3 bg-white/10" />
+              <div className="flex items-center gap-1.5">
+                <Users size={12} />
+                <span>Comunidade em crescimento</span>
+              </div>
+              <span className="w-px h-3 bg-white/10 hidden sm:block" />
+              <span className="hidden sm:block">Moderação humana</span>
             </div>
           </AnimateOnScroll>
+        </div>
+      </section>
+
+      {/* ── Three-column layout ────────────────────────────────── */}
+      <section className="px-4 sm:px-6 pb-32">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex gap-6 items-start">
+
+            {/* ── Left sidebar ───────────────────────────────── */}
+            <aside className="hidden lg:flex flex-col gap-4 w-52 flex-shrink-0 sticky top-24">
+
+              {/* New post CTA */}
+              <Link
+                href="/comunidade/nova-publicacao"
+                className="flex items-center gap-2 bg-accent/10 hover:bg-accent/15 border border-accent/20 text-accent px-4 py-3 rounded-xl text-sm font-medium transition-all"
+              >
+                <PenLine size={14} /> Nova publicação
+              </Link>
+
+              {/* Categories */}
+              <div className="rounded-xl border border-white/5 bg-surface overflow-hidden">
+                <div className="px-4 py-3 border-b border-white/5">
+                  <p className="text-[10px] text-text-muted tracking-[0.25em] uppercase font-medium">Categorias</p>
+                </div>
+                <div className="p-2">
+                  {COMMUNITY_CATEGORIES.map((cat) => (
+                    <Link
+                      key={cat.slug}
+                      href={`/comunidade/categoria/${cat.slug}`}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/4 text-text-muted hover:text-text-primary text-xs transition-all group"
+                    >
+                      <span className="opacity-60 group-hover:opacity-90 text-sm">{cat.icon}</span>
+                      <span className="leading-snug">{cat.label}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Anon note */}
+              <div className="rounded-xl border border-white/5 bg-surface p-4">
+                <p className="text-[10px] text-accent tracking-widest uppercase mb-2 font-medium">Anônimo</p>
+                <p className="text-text-muted text-xs leading-relaxed">
+                  Você pode publicar anonimamente a qualquer momento. Sem exposição.
+                </p>
+                <Link
+                  href="/comunidade/nova-publicacao?anonymous=true"
+                  className="mt-3 text-[11px] text-accent hover:underline flex items-center gap-1"
+                >
+                  Publicar anonimamente <ArrowRight size={10} />
+                </Link>
+              </div>
+            </aside>
+
+            {/* ── Main feed ──────────────────────────────────── */}
+            <main className="flex-1 min-w-0">
+
+              {/* Mobile: category pills */}
+              <div className="lg:hidden flex gap-2 overflow-x-auto pb-3 mb-5 scrollbar-hide -mx-1 px-1">
+                {COMMUNITY_CATEGORIES.slice(0, 6).map((cat) => (
+                  <Link
+                    key={cat.slug}
+                    href={`/comunidade/categoria/${cat.slug}`}
+                    className="flex items-center gap-1.5 bg-white/4 border border-white/8 hover:border-accent/20 text-text-muted hover:text-text-primary px-3 py-1.5 rounded-full text-[11px] whitespace-nowrap transition-all flex-shrink-0"
+                  >
+                    <span className="text-sm">{cat.icon}</span>
+                    {cat.label}
+                  </Link>
+                ))}
+                <Link
+                  href="/comunidade/nova-publicacao"
+                  className="flex items-center gap-1 bg-accent/15 border border-accent/25 text-accent px-3 py-1.5 rounded-full text-[11px] whitespace-nowrap flex-shrink-0 font-medium"
+                >
+                  <PenLine size={10} /> Publicar
+                </Link>
+              </div>
+
+              {/* Feed */}
+              {allPosts.length === 0 ? (
+                <AnimateOnScroll>
+                  <div className="text-center py-32 border border-white/5 rounded-2xl bg-surface">
+                    <p className="text-5xl mb-5 opacity-20">◎</p>
+                    <h2 className="font-heading text-2xl font-light text-text-primary mb-3">O espaço está pronto.</h2>
+                    <p className="text-text-muted text-sm mb-8 max-w-sm mx-auto leading-relaxed">
+                      Seja o primeiro a trazer uma conversa real para a Comunidade Íntima.
+                    </p>
+                    <Link
+                      href="/comunidade/nova-publicacao"
+                      className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-6 py-3 rounded-full text-sm font-medium transition-all"
+                    >
+                      <PenLine size={14} /> Iniciar uma conversa
+                    </Link>
+                  </div>
+                </AnimateOnScroll>
+              ) : (
+                <FeedClient posts={allPosts} />
+              )}
+            </main>
+
+            {/* ── Right sidebar ──────────────────────────────── */}
+            <aside className="hidden xl:flex flex-col gap-4 w-60 flex-shrink-0 sticky top-24">
+
+              {/* Trending */}
+              {trending.length > 0 && (
+                <div className="rounded-xl border border-white/5 bg-surface overflow-hidden">
+                  <div className="px-4 py-3 border-b border-white/5 flex items-center gap-2">
+                    <TrendingUp size={11} className="text-accent" />
+                    <p className="text-[10px] text-text-muted tracking-[0.25em] uppercase font-medium">Em alta agora</p>
+                  </div>
+                  <div className="p-3 flex flex-col gap-1">
+                    {trending.map((post, i) => (
+                      <Link
+                        key={post.id}
+                        href={`/comunidade/${post.id}`}
+                        className="flex items-start gap-2.5 px-2 py-2.5 rounded-lg hover:bg-white/4 transition-all group"
+                      >
+                        <span className="text-[10px] text-text-muted font-heading mt-0.5 w-4 flex-shrink-0 text-center">
+                          {i + 1}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="text-xs text-text-secondary group-hover:text-text-primary transition-colors line-clamp-2 leading-snug">
+                            {post.title}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <CategoryBadge slug={post.category} />
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Rafael card */}
+              <div className="rounded-xl border border-accent/10 bg-surface p-4 relative overflow-hidden">
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ background: 'radial-gradient(ellipse at top right, rgba(254,0,80,0.06) 0%, transparent 60%)' }}
+                />
+                <div className="relative">
+                  <p className="text-[10px] text-accent tracking-widest uppercase mb-3 font-medium">Rafael Moreira</p>
+                  <p className="text-text-secondary text-xs leading-relaxed italic mb-3">
+                    "A sua história pode ser o espelho de alguém que ainda não encontrou palavras para o que sente."
+                  </p>
+                  <p className="text-text-muted text-[11px]">Acompanha a comunidade diretamente.</p>
+                </div>
+              </div>
+
+              {/* Guides CTA */}
+              <div className="rounded-xl border border-white/5 bg-surface p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <BookOpen size={12} className="text-text-muted" />
+                  <p className="text-[10px] text-text-muted tracking-[0.25em] uppercase font-medium">Guias gratuitos</p>
+                </div>
+                <p className="text-text-muted text-xs leading-relaxed mb-3">
+                  Aprofunde o que você lê na comunidade com guias de psicologia emocional.
+                </p>
+                <Link
+                  href="/guia"
+                  className="flex items-center gap-1.5 text-[11px] text-accent hover:underline"
+                >
+                  Explorar guias <ArrowRight size={10} />
+                </Link>
+              </div>
+            </aside>
+          </div>
         </div>
       </section>
     </>
