@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { saveOrder } from '@/lib/orders';
-import { getProducts, createNotification } from '@/lib/db';
-import { purchaseConfirmationHtml, purchaseConfirmationText } from '@/lib/email-template';
+import { getProducts, createNotification, getEmailAutomations } from '@/lib/db';
+import { purchaseConfirmationHtml, purchaseConfirmationText, campaignHtml, campaignText } from '@/lib/email-template';
+import { alertNewOrder } from '@/lib/admin-notifications';
 import { v4 as uuid } from 'uuid';
 
 export async function POST(req: NextRequest) {
@@ -56,8 +57,27 @@ export async function POST(req: NextRequest) {
         `${name || email} comprou "${product?.title ?? 'produto'}" por ${amount}.`,
         { name, email, productTitle: product?.title ?? '', amount }
       );
+      alertNewOrder(product?.title ?? 'produto', session.amount_total ?? 0, email);
     } catch (err) {
       console.error('[webhook] failed to save order:', err);
+    }
+
+    // Trigger purchase automations immediately
+    if (email && resend) {
+      try {
+        const automations = await getEmailAutomations();
+        const purchaseAutos = automations.filter((a) => a.active && a.trigger === 'purchase');
+        for (const auto of purchaseAutos) {
+          await resend.emails.send({
+            from: FROM_EMAIL,
+            to: email,
+            subject: auto.subject,
+            html: campaignHtml({ subject: auto.subject, body: auto.body, recipientName: name }),
+            text: campaignText({ subject: auto.subject, body: auto.body, recipientName: name }),
+          });
+          await new Promise((r) => setTimeout(r, 100));
+        }
+      } catch {}
     }
 
     // Send confirmation email

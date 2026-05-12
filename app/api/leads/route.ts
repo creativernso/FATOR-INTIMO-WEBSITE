@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLeads, upsertLead, getGuideConfig, createNotification } from '@/lib/db';
+import { getLeads, upsertLead, getGuideConfig, createNotification, getEmailAutomations } from '@/lib/db';
 import { resend, FROM_EMAIL } from '@/lib/resend';
-import { guideDeliveryHtml, guideDeliveryText } from '@/lib/email-template';
+import { guideDeliveryHtml, guideDeliveryText, campaignHtml, campaignText } from '@/lib/email-template';
 import { alertNewLead } from '@/lib/admin-notifications';
 import { v4 as uuid } from 'uuid';
 
@@ -28,6 +28,23 @@ export async function POST(req: NextRequest) {
     { name: newLead.name, email: newLead.email ?? '', source: newLead.source }
   );
   alertNewLead(newLead.name, newLead.email, newLead.source);
+
+  // Trigger immediate (delayDays=0) signup automations
+  if (resend && newLead.email) {
+    try {
+      const automations = await getEmailAutomations();
+      const immediateAutos = automations.filter((a) => a.active && a.trigger === 'signup' && a.delayDays === 0);
+      for (const auto of immediateAutos) {
+        await resend.emails.send({
+          from: FROM_EMAIL,
+          to: newLead.email!,
+          subject: auto.subject,
+          html: campaignHtml({ subject: auto.subject, body: auto.body, recipientName: newLead.name }),
+          text: campaignText({ subject: auto.subject, body: auto.body, recipientName: newLead.name }),
+        });
+      }
+    } catch {}
+  }
 
   // Auto-send guide delivery email if email provided
   if (resend && newLead.email) {

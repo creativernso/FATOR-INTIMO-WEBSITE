@@ -1,7 +1,9 @@
-import { TrendingUp, Users, FileText, Package, ShoppingBag, BookOpen, Heart, MessageSquare, Download, Star } from 'lucide-react';
+import { TrendingUp, Users, FileText, Package, ShoppingBag, BookOpen, Heart, MessageSquare, Download, Star, Eye } from 'lucide-react';
 import Link from 'next/link';
-import { getPosts, getLeads, getTestimonials, getGuides, getCommunityPosts } from '@/lib/db';
+import { Suspense } from 'react';
+import { getPosts, getLeads, getTestimonials, getGuides, getCommunityPosts, getPageViewTotals } from '@/lib/db';
 import { getOrders } from '@/lib/orders';
+import { AnalyticsFilterBar } from './AnalyticsFilterBar';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,6 +22,18 @@ function groupByDay(items: { createdAt?: string; publishedAt?: string; date?: st
   return Object.entries(buckets).map(([date, count]) => ({ date, count }));
 }
 
+function filterByDays<T extends { createdAt?: string; publishedAt?: string; date?: string }>(
+  items: T[],
+  days: number | null,
+): T[] {
+  if (!days) return items;
+  const cutoff = Date.now() - days * 86400000;
+  return items.filter((i) => {
+    const ts = new Date(i.createdAt || i.publishedAt || i.date || '').getTime();
+    return ts >= cutoff;
+  });
+}
+
 function calcGrowth(items: { createdAt?: string; publishedAt?: string; date?: string }[]) {
   const now = Date.now();
   const thisMonth = items.filter((i) => {
@@ -34,17 +48,30 @@ function calcGrowth(items: { createdAt?: string; publishedAt?: string; date?: st
   return Math.round(((thisMonth - lastMonth) / lastMonth) * 100);
 }
 
-export default async function AnalyticsPage() {
-  const [posts, leads, testimonials, guides, allCommunityPosts, orders] = await Promise.all([
+type Props = { searchParams: Promise<{ days?: string }> };
+
+export default async function AnalyticsPage({ searchParams }: Props) {
+  const sp = await searchParams;
+  const daysParam = sp.days || '30';
+  const days = daysParam === 'all' ? null : parseInt(daysParam, 10);
+
+  const [posts, leads, testimonials, guides, allCommunityPosts, orders, pageViewDocs] = await Promise.all([
     getPosts(),
     getLeads(),
     getTestimonials(),
     getGuides(),
     getCommunityPosts(),
     getOrders(),
+    getPageViewTotals(days ?? 365),
   ]);
 
-  const totalRevenue = orders.reduce((s, o) => s + o.amountTotal, 0) / 100;
+  const totalPageViews = pageViewDocs.reduce((s, d) => s + d.total, 0);
+
+  // Apply date filter where relevant
+  const filteredLeads = filterByDays(leads, days);
+  const filteredOrders = filterByDays(orders.map((o) => ({ ...o, createdAt: o.createdAt })), days);
+
+  const totalRevenue = filteredOrders.reduce((s, o) => s + o.amountTotal, 0) / 100;
   const totalGuideDownloads = guides.reduce((s, g) => s + (g.downloadCount ?? 0), 0);
   const approvedCommunityPosts = allCommunityPosts.filter((p) => p.status === 'approved');
   const avgRating = testimonials.filter((t) => t.rating).reduce((a, t) => a + (t.rating ?? 0), 0) / (testimonials.filter((t) => t.rating).length || 1);
@@ -58,14 +85,16 @@ export default async function AnalyticsPage() {
   const topPosts = [...posts].sort((a, b) => b.readTime - a.readTime).slice(0, 5);
   const topGuides = [...guides].sort((a, b) => (b.downloadCount ?? 0) - (a.downloadCount ?? 0)).slice(0, 5);
 
-  const leadsByday = groupByDay(leads, 14);
-  const maxLeads = Math.max(...leadsByday.map((d) => d.count), 1);
+  const chartDays = days && days <= 30 ? days : 14;
+  const leadsByDay = groupByDay(filteredLeads, chartDays);
+  const maxLeads = Math.max(...leadsByDay.map((d) => d.count), 1);
 
   const stats = [
+    { label: 'Page Views', value: totalPageViews.toLocaleString('pt-BR'), icon: Eye, accent: '#06b6d4', growth: null, href: '/admin/analytics' },
     { label: 'Receita Total', value: `R$ ${totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, icon: TrendingUp, accent: '#fe0050', growth: ordersGrowth, href: '/admin/orders' },
-    { label: 'Leads Totais', value: leads.length, icon: Users, accent: '#10b981', growth: leadsGrowth, href: '/admin/leads' },
+    { label: 'Leads Totais', value: filteredLeads.length, icon: Users, accent: '#10b981', growth: leadsGrowth, href: '/admin/leads' },
     { label: 'Email Leads', value: emailLeads, icon: MessageSquare, accent: '#3b82f6', growth: null, href: '/admin/leads' },
-    { label: 'Pedidos', value: orders.length, icon: ShoppingBag, accent: '#a855f7', growth: ordersGrowth, href: '/admin/orders' },
+    { label: 'Pedidos', value: filteredOrders.length, icon: ShoppingBag, accent: '#a855f7', growth: ordersGrowth, href: '/admin/orders' },
     { label: 'Artigos', value: posts.length, icon: FileText, accent: '#f59e0b', growth: postsGrowth, href: '/admin/blog' },
     { label: 'Downloads Guias', value: totalGuideDownloads, icon: Download, accent: '#06b6d4', growth: null, href: '/admin/guide' },
     { label: 'Posts Comunidade', value: approvedCommunityPosts.length, icon: Heart, accent: '#ec4899', growth: null, href: '/admin/comunidade' },
@@ -76,20 +105,25 @@ export default async function AnalyticsPage() {
     <div className="space-y-8 lg:space-y-10">
 
       {/* Header */}
-      <div>
-        <p className="text-text-muted tracking-widest uppercase mb-1.5" style={{ fontSize: 'clamp(0.62rem, 0.72vw, 0.7rem)' }}>
-          Métricas
-        </p>
-        <h2 className="font-body text-text-primary font-medium" style={{ fontSize: 'clamp(1.4rem, 2.2vw, 2rem)' }}>
-          Analytics
-        </h2>
-        <p className="text-text-muted mt-1" style={{ fontSize: 'clamp(0.8rem, 0.95vw, 0.95rem)' }}>
-          Visão consolidada do desempenho da plataforma.
-        </p>
+      <div className="flex items-start justify-between flex-wrap gap-4">
+        <div>
+          <p className="text-text-muted tracking-widest uppercase mb-1.5" style={{ fontSize: 'clamp(0.62rem, 0.72vw, 0.7rem)' }}>
+            Métricas
+          </p>
+          <h2 className="font-body text-text-primary font-medium" style={{ fontSize: 'clamp(1.4rem, 2.2vw, 2rem)' }}>
+            Analytics
+          </h2>
+          <p className="text-text-muted mt-1" style={{ fontSize: 'clamp(0.8rem, 0.95vw, 0.95rem)' }}>
+            Visão consolidada do desempenho da plataforma.
+          </p>
+        </div>
+        <Suspense fallback={null}>
+          <AnalyticsFilterBar current={daysParam} />
+        </Suspense>
       </div>
 
       {/* KPI Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {stats.map((stat) => (
           <Link
             key={stat.label}
@@ -119,12 +153,12 @@ export default async function AnalyticsPage() {
         ))}
       </div>
 
-      {/* Lead growth chart (last 14 days) */}
+      {/* Lead growth chart */}
       <div className="rounded-2xl border border-white/5 bg-surface p-6 lg:p-8">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>
-              Novos leads — últimos 14 dias
+              Novos leads — últimos {chartDays} dias
             </h3>
             <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>
               {leadsThisMonth} leads nos últimos 30 dias
@@ -138,9 +172,8 @@ export default async function AnalyticsPage() {
           </div>
         </div>
 
-        {/* Bar chart */}
         <div className="flex items-end gap-1 h-24">
-          {leadsByday.map(({ date, count }) => (
+          {leadsByDay.map(({ date, count }) => (
             <div key={date} className="flex-1 flex flex-col items-center gap-1 group">
               <div
                 className="w-full rounded-t transition-all duration-500 group-hover:opacity-100"
@@ -159,10 +192,53 @@ export default async function AnalyticsPage() {
         </div>
       </div>
 
+      {/* Page views chart */}
+      {pageViewDocs.length > 0 && (
+        <div className="rounded-2xl border border-white/5 bg-surface p-6 lg:p-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>
+                Page Views
+              </h3>
+              <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>
+                {totalPageViews.toLocaleString('pt-BR')} visualizações no período
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="font-body font-semibold text-cyan-400" style={{ fontSize: 'clamp(1.2rem, 1.8vw, 1.6rem)' }}>
+                {totalPageViews.toLocaleString('pt-BR')}
+              </p>
+              <p className="text-text-muted" style={{ fontSize: 'clamp(0.65rem, 0.75vw, 0.72rem)' }}>total</p>
+            </div>
+          </div>
+          <div className="flex items-end gap-1 h-20">
+            {(() => {
+              const sorted = [...pageViewDocs].sort((a, b) => a.date.localeCompare(b.date)).slice(-30);
+              const maxPv = Math.max(...sorted.map((d) => d.total), 1);
+              return sorted.map(({ date, total }) => (
+                <div key={date} className="flex-1 flex flex-col items-center gap-1 group">
+                  <div
+                    className="w-full rounded-t transition-all duration-500"
+                    style={{
+                      height: `${Math.max(3, (total / maxPv) * 76)}px`,
+                      background: total > 0 ? 'rgba(6,182,212,0.5)' : 'rgba(255,255,255,0.05)',
+                      borderTop: total > 0 ? '1px solid rgba(6,182,212,0.4)' : 'none',
+                    }}
+                    title={`${date}: ${total} views`}
+                  />
+                  <span className="text-text-muted" style={{ fontSize: '7px', writingMode: 'vertical-rl', transform: 'rotate(180deg)', opacity: 0.4 }}>
+                    {date.slice(5)}
+                  </span>
+                </div>
+              ));
+            })()}
+          </div>
+        </div>
+      )}
+
       {/* Two-column tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-        {/* Top articles */}
         <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
             <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
@@ -190,7 +266,6 @@ export default async function AnalyticsPage() {
           </div>
         </div>
 
-        {/* Top guides by downloads */}
         <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
             <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>

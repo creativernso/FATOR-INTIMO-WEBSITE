@@ -243,3 +243,12 @@ export interface GuideConfig {
   guideFilePath?: string; // Firebase Storage path e.g. guide/ebook.pdf
   updatedAt: string;
 }
+
+// ─── Chat ─────────────────────────────────────────────────────────────────────
+
+export interface ChatSettings {
+  welcomeMessage: string;
+  offlineMessage: string;
+  quickReplies: string[];
+  updatedAt?: string;
+}

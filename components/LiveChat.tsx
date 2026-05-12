@@ -10,6 +10,9 @@ import {
   onSnapshot,
   serverTimestamp,
   Timestamp,
+  doc,
+  setDoc,
+  getDoc,
 } from 'firebase/firestore';
 import { getFirestoreClient } from '@/lib/firebase';
 
@@ -19,6 +22,13 @@ interface ChatMessage {
   from: 'visitor' | 'admin';
   createdAt: string;
 }
+
+interface ChatSettings {
+  welcomeMessage: string;
+  quickReplies: string[];
+}
+
+const DEFAULT_WELCOME = 'Olá! Recebemos sua mensagem e entraremos em contato em breve. 💬';
 
 function getVisitorId(): string {
   if (typeof window === 'undefined') return '';
@@ -38,12 +48,51 @@ export default function LiveChat() {
   const [visitorId, setVisitorId] = useState('');
   const [unread, setUnread] = useState(0);
   const [sending, setSending] = useState(false);
+  const [settings, setSettings] = useState<ChatSettings>({ welcomeMessage: DEFAULT_WELCOME, quickReplies: [] });
   const bottomRef = useRef<HTMLDivElement>(null);
   const seenRef = useRef<Set<string>>(new Set());
+  const presenceRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     setVisitorId(getVisitorId());
   }, []);
+
+  // Load chat settings from Firestore
+  useEffect(() => {
+    const db = getFirestoreClient();
+    getDoc(doc(db, 'chatSettings', 'default')).then((snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        setSettings({
+          welcomeMessage: data.welcomeMessage || DEFAULT_WELCOME,
+          quickReplies: Array.isArray(data.quickReplies) ? data.quickReplies : [],
+        });
+      }
+    }).catch(() => {});
+  }, []);
+
+  // Presence tracking
+  useEffect(() => {
+    if (!visitorId) return;
+    const db = getFirestoreClient();
+    const sessionRef = doc(db, 'chatSessions', visitorId);
+
+    const updatePresence = (online: boolean) => {
+      setDoc(sessionRef, { online, lastSeen: serverTimestamp() }, { merge: true }).catch(() => {});
+    };
+
+    updatePresence(true);
+    presenceRef.current = setInterval(() => updatePresence(true), 30000);
+
+    const handleUnload = () => updatePresence(false);
+    window.addEventListener('beforeunload', handleUnload);
+
+    return () => {
+      if (presenceRef.current) clearInterval(presenceRef.current);
+      window.removeEventListener('beforeunload', handleUnload);
+      updatePresence(false);
+    };
+  }, [visitorId]);
 
   useEffect(() => {
     if (!visitorId) return;
@@ -65,11 +114,8 @@ export default function LiveChat() {
       });
       setMessages(msgs);
 
-      // Count new admin messages when chat is closed/minimized
       if (!open || minimized) {
-        const newAdminMsgs = msgs.filter(
-          (m) => m.from === 'admin' && !seenRef.current.has(m.id),
-        );
+        const newAdminMsgs = msgs.filter((m) => m.from === 'admin' && !seenRef.current.has(m.id));
         if (newAdminMsgs.length > 0) setUnread((u) => u + newAdminMsgs.length);
       }
     });
@@ -84,24 +130,24 @@ export default function LiveChat() {
     }
   }, [open, minimized, messages]);
 
-  const sendMessage = async () => {
-    const text = input.trim();
-    if (!text || !visitorId || sending) return;
+  const sendMessage = async (text?: string) => {
+    const msgText = (text || input).trim();
+    if (!msgText || !visitorId || sending) return;
     setSending(true);
     setInput('');
     try {
       const db = getFirestoreClient();
       await addDoc(collection(db, 'chatSessions', visitorId, 'messages'), {
-        text,
+        text: msgText,
         from: 'visitor',
         createdAt: serverTimestamp(),
         visitorId,
       });
-      // Auto-response on first message
+      // Auto-response on first message using configured welcome message
       if (messages.filter((m) => m.from === 'visitor').length === 0) {
         setTimeout(async () => {
           await addDoc(collection(db, 'chatSessions', visitorId, 'messages'), {
-            text: 'Olá! Recebemos sua mensagem e entraremos em contato em breve. 💬',
+            text: settings.welcomeMessage,
             from: 'admin',
             createdAt: serverTimestamp(),
             visitorId,
@@ -171,6 +217,21 @@ export default function LiveChat() {
             <div ref={bottomRef} />
           </div>
 
+          {/* Quick replies */}
+          {settings.quickReplies.length > 0 && messages.length === 0 && (
+            <div className="px-4 pb-2 flex flex-wrap gap-1.5">
+              {settings.quickReplies.map((reply, i) => (
+                <button
+                  key={i}
+                  onClick={() => sendMessage(reply)}
+                  className="text-[11px] px-2.5 py-1 rounded-full border border-accent/20 text-accent hover:bg-accent/10 transition-colors"
+                >
+                  {reply}
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* Input */}
           <div className="border-t border-white/8 p-3 flex items-center gap-2">
             <input
@@ -181,7 +242,7 @@ export default function LiveChat() {
               className="flex-1 bg-white/5 border border-white/8 rounded-xl px-3 py-2 text-xs text-text-primary placeholder:text-text-muted outline-none focus:border-accent/30 transition-colors"
             />
             <button
-              onClick={sendMessage}
+              onClick={() => sendMessage()}
               disabled={!input.trim() || sending}
               className="w-8 h-8 rounded-xl bg-accent hover:bg-accent-hover disabled:opacity-40 flex items-center justify-center transition-all flex-shrink-0"
             >

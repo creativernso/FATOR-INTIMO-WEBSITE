@@ -1,6 +1,7 @@
 import { getAdminDb } from './firebase-admin';
 import type { Query } from 'firebase-admin/firestore';
-import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification, MarqueePhrase, EmailCampaign, EmailAutomation } from './types';
+import { FieldValue } from 'firebase-admin/firestore';
+import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification, MarqueePhrase, EmailCampaign, EmailAutomation, ChatSettings } from './types';
 
 const db = () => getAdminDb();
 
@@ -325,4 +326,40 @@ export async function upsertEmailAutomation(automation: EmailAutomation): Promis
 
 export async function deleteEmailAutomation(id: string): Promise<void> {
   await db().collection('emailAutomations').doc(id).delete();
+}
+
+// ─── Chat Settings ────────────────────────────────────────────────────────────
+
+const DEFAULT_CHAT_SETTINGS: ChatSettings = {
+  welcomeMessage: 'Olá! Recebemos sua mensagem e entraremos em contato em breve. 💬',
+  offlineMessage: 'Deixe sua mensagem e responderemos em breve.',
+  quickReplies: [],
+};
+
+export async function getChatSettings(): Promise<ChatSettings> {
+  const snap = await db().collection('chatSettings').doc('default').get();
+  if (!snap.exists) return DEFAULT_CHAT_SETTINGS;
+  return { ...DEFAULT_CHAT_SETTINGS, ...(snap.data() as ChatSettings) };
+}
+
+export async function saveChatSettings(settings: ChatSettings): Promise<void> {
+  await db().collection('chatSettings').doc('default').set({ ...settings, updatedAt: new Date().toISOString() });
+}
+
+// ─── Page Views ───────────────────────────────────────────────────────────────
+
+export async function incrementPageView(path: string): Promise<void> {
+  const today = new Date().toISOString().split('T')[0];
+  const ref = db().collection('pageviews').doc(today);
+  const safePath = path.replace(/[^a-zA-Z0-9/_-]/g, '').slice(0, 80) || '/';
+  const key = `paths.${safePath.replace(/\//g, '__')}`;
+  await ref.set(
+    { date: today, total: FieldValue.increment(1), [key]: FieldValue.increment(1), updatedAt: new Date().toISOString() },
+    { merge: true }
+  );
+}
+
+export async function getPageViewTotals(days = 30): Promise<{ date: string; total: number }[]> {
+  const snap = await db().collection('pageviews').orderBy('date', 'desc').limit(days).get();
+  return snap.docs.map((d) => ({ date: d.data().date as string, total: (d.data().total as number) || 0 }));
 }
