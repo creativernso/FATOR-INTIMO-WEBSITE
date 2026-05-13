@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
@@ -42,9 +43,30 @@ const navItems = [
   { href: '/admin/chat', label: 'Live Chat', icon: MessageCircle },
 ];
 
+type BadgeSection = 'testimonials' | 'comunidade' | 'comments' | 'leads' | 'chat';
+
+const PATH_TO_SECTION: Record<string, BadgeSection> = {
+  '/admin/testimonials': 'testimonials',
+  '/admin/comunidade':   'comunidade',
+  '/admin/comments':     'comments',
+  '/admin/leads':        'leads',
+  '/admin/chat':         'chat',
+};
+
 function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const badges = useAdminBadges();
+  const { badges, dismiss } = useAdminBadges();
+
+  // When the admin navigates to a section with a badge, mark it as seen so
+  // the badge disappears. It will only reappear if new items come in later.
+  useEffect(() => {
+    for (const [path, section] of Object.entries(PATH_TO_SECTION)) {
+      if (pathname === path || pathname.startsWith(`${path}/`)) {
+        dismiss(section);
+        return;
+      }
+    }
+  }, [pathname, dismiss]);
 
   if (pathname === '/admin/login') return <>{children}</>;
 
@@ -53,6 +75,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     '/admin/comunidade': badges.comunidade,
     '/admin/comments': badges.comments,
     '/admin/leads': badges.leads,
+    '/admin/chat': badges.chat,
   };
 
   const currentPage = navItems.find((item) =>
