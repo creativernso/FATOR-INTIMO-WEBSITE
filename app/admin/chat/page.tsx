@@ -1,38 +1,22 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { MessageCircle, Send, User, Clock, Settings, Plus, Trash2, Check } from 'lucide-react';
-import {
-  collection,
-  query,
-  orderBy,
-  onSnapshot,
-  addDoc,
-  serverTimestamp,
-  Timestamp,
-  collectionGroup,
-  doc,
-} from 'firebase/firestore';
-import { getFirestoreClient } from '@/lib/firebase';
 
 interface ChatMessage {
   id: string;
   text: string;
   from: 'visitor' | 'admin';
   createdAt: string;
-  visitorId: string;
 }
 
 interface Session {
   visitorId: string;
   lastMessage: string;
   lastAt: string;
-  unread: number;
-}
-
-interface Presence {
   online: boolean;
   lastSeen: string;
+  unreadFromVisitor: number;
 }
 
 interface ChatSettings {
@@ -48,6 +32,7 @@ const DEFAULT_SETTINGS: ChatSettings = {
 };
 
 function timeAgo(iso: string) {
+  if (!iso) return '';
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
   if (diff < 60) return 'agora';
   if (diff < 3600) return `${Math.floor(diff / 60)}min`;
@@ -55,17 +40,11 @@ function timeAgo(iso: string) {
   return new Date(iso).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' });
 }
 
-function isOnline(presence: Presence | undefined): boolean {
-  if (!presence?.online) return false;
-  return Date.now() - new Date(presence.lastSeen).getTime() < 3 * 60 * 1000;
-}
-
 type Tab = 'chat' | 'settings';
 
 export default function AdminChatPage() {
   const [tab, setTab] = useState<Tab>('chat');
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [presenceMap, setPresenceMap] = useState<Record<string, Presence>>({});
   const [activeSession, setActiveSession] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -75,75 +54,50 @@ export default function AdminChatPage() {
   const [settingsSaved, setSettingsSaved] = useState(false);
   const [newReply, setNewReply] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
+  const lastMsgsSigRef = useRef<string>('');
 
-  // Load sessions from messages collectionGroup
-  useEffect(() => {
-    const db = getFirestoreClient();
-    const q = query(collectionGroup(db, 'messages'), orderBy('createdAt', 'desc'));
-    const unsub = onSnapshot(q, (snap) => {
-      const byVisitor: Record<string, Session> = {};
-      snap.docs.forEach((d) => {
-        const data = d.data();
-        const visitorId = data.visitorId as string;
-        if (!visitorId) return;
-        const ts = data.createdAt as Timestamp | null;
-        const createdAt = ts ? ts.toDate().toISOString() : new Date().toISOString();
-        if (!byVisitor[visitorId] || createdAt > byVisitor[visitorId].lastAt) {
-          byVisitor[visitorId] = {
-            visitorId,
-            lastMessage: data.text as string,
-            lastAt: createdAt,
-            unread: data.from === 'visitor' && !byVisitor[visitorId] ? 1 : (byVisitor[visitorId]?.unread ?? 0),
-          };
-        }
-      });
-      setSessions(Object.values(byVisitor).sort((a, b) => b.lastAt.localeCompare(a.lastAt)));
-    });
-    return unsub;
+  // Fetch sessions list
+  const fetchSessions = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/chat/sessions');
+      if (!res.ok) return;
+      const data = await res.json();
+      setSessions(data.sessions || []);
+    } catch {}
   }, []);
 
-  // Load presence from chatSessions collection docs
   useEffect(() => {
-    const db = getFirestoreClient();
-    const unsub = onSnapshot(collection(db, 'chatSessions'), (snap) => {
-      const map: Record<string, Presence> = {};
-      snap.docs.forEach((d) => {
-        const data = d.data();
-        const ts = data.lastSeen as Timestamp | null;
-        map[d.id] = {
-          online: !!data.online,
-          lastSeen: ts ? ts.toDate().toISOString() : '',
-        };
-      });
-      setPresenceMap(map);
-    });
-    return unsub;
-  }, []);
+    fetchSessions();
+    const id = setInterval(fetchSessions, 3000);
+    return () => clearInterval(id);
+  }, [fetchSessions]);
 
-  // Load messages for active session
-  useEffect(() => {
+  // Fetch messages of active session
+  const fetchMessages = useCallback(async () => {
     if (!activeSession) return;
-    const db = getFirestoreClient();
-    const q = query(
-      collection(db, 'chatSessions', activeSession, 'messages'),
-      orderBy('createdAt', 'asc'),
-    );
-    const unsub = onSnapshot(q, (snap) => {
-      setMessages(snap.docs.map((d) => {
-        const data = d.data();
-        const ts = data.createdAt as Timestamp | null;
-        return {
-          id: d.id,
-          text: data.text as string,
-          from: data.from as 'visitor' | 'admin',
-          createdAt: ts ? ts.toDate().toISOString() : new Date().toISOString(),
-          visitorId: data.visitorId as string,
-        };
-      }));
+    try {
+      const res = await fetch(`/api/chat/messages?visitorId=${encodeURIComponent(activeSession)}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const msgs: ChatMessage[] = data.messages || [];
+      const sig = msgs.map((m) => m.id).join(',');
+      if (sig === lastMsgsSigRef.current) return;
+      lastMsgsSigRef.current = sig;
+      setMessages(msgs);
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-    });
-    return unsub;
+    } catch {}
   }, [activeSession]);
+
+  useEffect(() => {
+    if (!activeSession) {
+      setMessages([]);
+      lastMsgsSigRef.current = '';
+      return;
+    }
+    fetchMessages();
+    const id = setInterval(fetchMessages, 2000);
+    return () => clearInterval(id);
+  }, [activeSession, fetchMessages]);
 
   // Load chat settings
   useEffect(() => {
@@ -164,6 +118,9 @@ export default function AdminChatPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ visitorId: activeSession, text: msgText, from: 'admin' }),
       });
+      // Refresh both the messages and sessions list immediately
+      await fetchMessages();
+      fetchSessions();
     } finally {
       setSending(false);
     }
@@ -195,7 +152,8 @@ export default function AdminChatPage() {
     setSettings((s) => ({ ...s, quickReplies: s.quickReplies.filter((_, idx) => idx !== i) }));
   };
 
-  const onlineCount = sessions.filter((s) => isOnline(presenceMap[s.visitorId])).length;
+  const onlineCount = sessions.filter((s) => s.online).length;
+  const activeSessionData = sessions.find((s) => s.visitorId === activeSession);
 
   return (
     <div className="space-y-6">
@@ -233,10 +191,8 @@ export default function AdminChatPage() {
         </div>
       </div>
 
-      {/* Chat tab */}
       {tab === 'chat' && (
         <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden" style={{ height: '65vh', display: 'flex' }}>
-          {/* Session list */}
           <div className="w-64 lg:w-72 flex-shrink-0 border-r border-white/5 flex flex-col">
             <div className="px-4 py-3 border-b border-white/5">
               <p className="text-text-muted text-xs font-medium tracking-widest uppercase">Conversas</p>
@@ -247,40 +203,43 @@ export default function AdminChatPage() {
                   <MessageCircle size={28} className="text-white/10" />
                   <p className="text-text-muted text-xs">Nenhuma mensagem ainda.</p>
                 </div>
-              ) : sessions.map((s) => {
-                const online = isOnline(presenceMap[s.visitorId]);
-                return (
-                  <button
-                    key={s.visitorId}
-                    onClick={() => setActiveSession(s.visitorId)}
-                    className={`w-full flex items-start gap-3 px-4 py-3.5 border-b border-white/4 text-left transition-colors ${
-                      activeSession === s.visitorId ? 'bg-accent/8 border-l-2 border-l-accent' : 'hover:bg-white/3'
-                    }`}
-                  >
-                    <div className="relative w-8 h-8 flex-shrink-0">
-                      <div className="w-8 h-8 rounded-full bg-white/8 border border-white/10 flex items-center justify-center">
-                        <User size={13} className="text-text-muted" />
-                      </div>
-                      {online && (
-                        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-400 border-2 border-[#0f0a04]" />
-                      )}
+              ) : sessions.map((s) => (
+                <button
+                  key={s.visitorId}
+                  onClick={() => setActiveSession(s.visitorId)}
+                  className={`w-full flex items-start gap-3 px-4 py-3.5 border-b border-white/4 text-left transition-colors ${
+                    activeSession === s.visitorId ? 'bg-accent/8 border-l-2 border-l-accent' : 'hover:bg-white/3'
+                  }`}
+                >
+                  <div className="relative w-8 h-8 flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-white/8 border border-white/10 flex items-center justify-center">
+                      <User size={13} className="text-text-muted" />
                     </div>
-                    <div className="flex-1 min-w-0">
+                    {s.online && (
+                      <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-400 border-2 border-[#0f0a04]" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
                       <p className="text-text-secondary text-xs font-medium truncate">
                         {s.visitorId.slice(0, 16)}...
                       </p>
-                      <p className="text-text-muted mt-0.5 truncate" style={{ fontSize: '11px' }}>{s.lastMessage}</p>
+                      {s.unreadFromVisitor > 0 && activeSession !== s.visitorId && (
+                        <span className="bg-accent text-white text-[9px] font-bold px-1.5 rounded-full">
+                          {s.unreadFromVisitor}
+                        </span>
+                      )}
                     </div>
-                    <span className="text-text-muted flex-shrink-0 mt-0.5" style={{ fontSize: '10px' }}>
-                      {timeAgo(s.lastAt)}
-                    </span>
-                  </button>
-                );
-              })}
+                    <p className="text-text-muted mt-0.5 truncate" style={{ fontSize: '11px' }}>{s.lastMessage}</p>
+                  </div>
+                  <span className="text-text-muted flex-shrink-0 mt-0.5" style={{ fontSize: '10px' }}>
+                    {timeAgo(s.lastAt)}
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Message area */}
           <div className="flex-1 flex flex-col min-w-0">
             {!activeSession ? (
               <div className="flex flex-col items-center justify-center h-full gap-4 text-center p-8">
@@ -289,20 +248,19 @@ export default function AdminChatPage() {
               </div>
             ) : (
               <>
-                {/* Header */}
                 <div className="flex items-center gap-3 px-5 py-3.5 border-b border-white/5">
                   <div className="relative">
                     <div className="w-8 h-8 rounded-full bg-white/8 border border-white/10 flex items-center justify-center">
                       <User size={13} className="text-text-muted" />
                     </div>
-                    {isOnline(presenceMap[activeSession]) && (
+                    {activeSessionData?.online && (
                       <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-400 border-2 border-[#0f0a04]" />
                     )}
                   </div>
                   <div>
                     <p className="text-text-primary text-sm font-medium flex items-center gap-2">
                       Visitante
-                      {isOnline(presenceMap[activeSession]) && (
+                      {activeSessionData?.online && (
                         <span className="text-green-400 text-xs font-normal">● Online agora</span>
                       )}
                     </p>
@@ -310,9 +268,13 @@ export default function AdminChatPage() {
                   </div>
                 </div>
 
-                {/* Messages */}
                 <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-3">
-                  {messages.map((msg) => (
+                  {messages.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-full gap-2 text-text-muted">
+                      <MessageCircle size={20} className="text-white/15" />
+                      <p className="text-xs">Carregando mensagens...</p>
+                    </div>
+                  ) : messages.map((msg) => (
                     <div key={msg.id} className={`flex ${msg.from === 'admin' ? 'justify-end' : 'justify-start'}`}>
                       <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
                         msg.from === 'admin'
@@ -329,7 +291,6 @@ export default function AdminChatPage() {
                   <div ref={bottomRef} />
                 </div>
 
-                {/* Quick replies */}
                 {settings.quickReplies.length > 0 && (
                   <div className="px-4 pb-2 flex flex-wrap gap-1.5 border-t border-white/5 pt-2">
                     {settings.quickReplies.map((reply, i) => (
@@ -344,7 +305,6 @@ export default function AdminChatPage() {
                   </div>
                 )}
 
-                {/* Reply box */}
                 <div className="border-t border-white/5 p-4 flex items-center gap-3">
                   <input
                     value={input}
@@ -367,7 +327,6 @@ export default function AdminChatPage() {
         </div>
       )}
 
-      {/* Settings tab */}
       {tab === 'settings' && (
         <div className="space-y-6 max-w-2xl">
           <div className="rounded-2xl border border-white/5 bg-surface p-6 space-y-5">
