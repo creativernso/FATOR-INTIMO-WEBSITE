@@ -1,4 +1,4 @@
-import { TrendingUp, Users, FileText, Package, ShoppingBag, BookOpen, Heart, MessageSquare, Download, Star, Eye } from 'lucide-react';
+import { TrendingUp, Users, FileText, Package, ShoppingBag, BookOpen, Heart, MessageSquare, Download, Star, Eye, ExternalLink, Activity } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { getPosts, getLeads, getTestimonials, getGuides, getCommunityPosts, getPageViewTotals } from '@/lib/db';
@@ -84,6 +84,12 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
   const topPosts = [...posts].sort((a, b) => b.readTime - a.readTime).slice(0, 5);
   const topGuides = [...guides].sort((a, b) => (b.downloadCount ?? 0) - (a.downloadCount ?? 0)).slice(0, 5);
+
+  const fbPixelId = process.env.NEXT_PUBLIC_FB_PIXEL_ID || '';
+  const pixelConfigured = !!fbPixelId;
+  const eventsManagerUrl = pixelConfigured
+    ? `https://business.facebook.com/events_manager2/list/pixel/${fbPixelId}/overview`
+    : 'https://business.facebook.com/events_manager2/';
 
   const chartDays = days && days <= 30 ? days : 14;
   const leadsByDay = groupByDay(filteredLeads, chartDays);
@@ -235,6 +241,54 @@ export default async function AnalyticsPage({ searchParams }: Props) {
           </div>
         </div>
       )}
+
+      {/* Meta Pixel status card */}
+      <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
+        <div className="px-6 py-5 border-b border-white/5 flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#1877f218', border: '1px solid #1877f238' }}>
+              <Activity size={15} style={{ color: '#1877f2' }} />
+            </div>
+            <div>
+              <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>Meta Pixel · Facebook Ads</h3>
+              <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
+                {pixelConfigured ? `Pixel ativo: ${fbPixelId}` : 'Pixel não configurado'}
+              </p>
+            </div>
+          </div>
+          <a
+            href={eventsManagerUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[#1877f2]/10 text-[#1877f2] border border-[#1877f2]/20 hover:bg-[#1877f2]/15 transition-colors"
+          >
+            Abrir Events Manager <ExternalLink size={11} />
+          </a>
+        </div>
+        <div className="px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { label: 'PageView', desc: 'Disparado em todas as páginas' },
+            { label: 'ViewContent', desc: 'Páginas de produto' },
+            { label: 'Lead', desc: 'Cadastro guia gratuito' },
+            { label: 'Purchase', desc: 'Checkout concluído' },
+          ].map((ev) => (
+            <div key={ev.label} className="rounded-xl border border-white/6 bg-white/2 px-4 py-3">
+              <div className="flex items-center gap-2 mb-1">
+                <span className={`w-1.5 h-1.5 rounded-full ${pixelConfigured ? 'bg-green-400 animate-pulse' : 'bg-text-muted/40'}`} />
+                <p className="text-text-primary text-xs font-medium">{ev.label}</p>
+              </div>
+              <p className="text-text-muted" style={{ fontSize: '11px' }}>{ev.desc}</p>
+            </div>
+          ))}
+        </div>
+        {!pixelConfigured && (
+          <div className="px-6 py-4 bg-yellow-400/5 border-t border-yellow-400/10">
+            <p className="text-yellow-400/90 text-xs">
+              Defina <code className="bg-black/30 px-1.5 py-0.5 rounded">NEXT_PUBLIC_FB_PIXEL_ID</code> nas variáveis de ambiente do Vercel para ativar.
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Two-column tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">

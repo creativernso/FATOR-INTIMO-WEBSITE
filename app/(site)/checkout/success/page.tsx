@@ -4,6 +4,7 @@ import { CheckCircle, Mail, Instagram, Youtube, ArrowRight } from 'lucide-react'
 import { stripe } from '@/lib/stripe';
 import { getProducts } from '@/lib/db';
 import DownloadButton from './DownloadButton';
+import PurchaseEvent from './PurchaseEvent';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,8 +33,18 @@ export default async function SuccessPage({
   const email = session.customer_details?.email ?? '';
   const name = session.customer_details?.name ?? '';
 
+  const purchaseAmount = (session.amount_total ?? 0) / 100;
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-28">
+      {isPaid && purchaseAmount > 0 && (
+        <PurchaseEvent
+          sessionId={session_id}
+          productId={productId}
+          productName={product?.title}
+          value={purchaseAmount}
+        />
+      )}
       <div className="w-full max-w-lg">
 
         {/* Success card */}

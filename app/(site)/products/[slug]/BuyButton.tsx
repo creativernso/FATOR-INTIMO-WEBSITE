@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ShoppingBag, Loader2 } from 'lucide-react';
+import { trackInitiateCheckout } from '@/lib/fbq';
 
 export default function BuyButton({ productId, label = 'Comprar agora' }: { productId: string; label?: string }) {
   const [loading, setLoading] = useState(false);
@@ -10,6 +11,7 @@ export default function BuyButton({ productId, label = 'Comprar agora' }: { prod
   const handleBuy = async () => {
     setLoading(true);
     setError('');
+    trackInitiateCheckout({ content_ids: [productId], currency: 'BRL' });
     try {
       const res = await fetch('/api/checkout/create-session', {
         method: 'POST',

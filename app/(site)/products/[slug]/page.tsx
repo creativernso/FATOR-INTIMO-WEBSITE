@@ -8,6 +8,7 @@ import BuyButton from './BuyButton';
 import FAQAccordion from './FAQAccordion';
 import CountdownTimer from './CountdownTimer';
 import SalesVideo from './SalesVideo';
+import ProductEvents from './ProductEvents';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +28,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="min-h-screen">
+      <ProductEvents productId={product.id} productTitle={product.title} value={product.price} />
       {/* Back */}
       <div className="pt-28 pb-0 px-6 max-w-6xl mx-auto">
         <Link href="/products" className="inline-flex items-center gap-2 text-text-muted hover:text-text-primary text-sm transition-colors">
