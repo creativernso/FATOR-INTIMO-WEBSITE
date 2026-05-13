@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getComments, upsertComment, createNotification } from '@/lib/db';
+import { alertNewComment } from '@/lib/admin-notifications';
 import { v4 as uuid } from 'uuid';
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
@@ -38,6 +39,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
     `${name.trim()} comentou no artigo "${slug}".`,
     { name: name.trim(), slug }
   );
+  alertNewComment(slug, name.trim());
 
   return NextResponse.json({ ok: true });
 }

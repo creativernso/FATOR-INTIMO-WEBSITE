@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth } from '@/lib/firebase-admin';
 import { getCommunityComments, upsertCommunityComment, getCommunityUser, getCommunityPost, incrementCommunityPostStat } from '@/lib/db';
+import { alertNewCommunityComment } from '@/lib/admin-notifications';
 import { CommunityComment } from '@/lib/types';
 import { v4 as uuid } from 'uuid';
 
@@ -49,6 +50,7 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   await upsertCommunityComment(comment);
   await incrementCommunityPostStat(postId, 'commentCount', 1);
+  alertNewCommunityComment(post.title, comment.authorName);
 
   return NextResponse.json(comment, { status: 201 });
 }

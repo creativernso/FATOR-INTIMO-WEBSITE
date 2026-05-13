@@ -120,3 +120,47 @@ export function alertNewComment(postTitle: string, author: string) {
     meta: { Artigo: postTitle, Autor: author },
   });
 }
+
+export function alertNewCommunityComment(postTitle: string, author: string) {
+  return sendAdminAlert({
+    subject: 'Novo comentário na comunidade',
+    title: 'Novo comentário na comunidade',
+    body: `${author} comentou em "${postTitle}".`,
+    ctaLabel: 'Ver discussão',
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/comunidade`,
+    meta: { Publicação: postTitle, Autor: author },
+  });
+}
+
+export function alertCommunityReport(reason: string, reporter: string, target: string) {
+  return sendAdminAlert({
+    subject: '⚠️ Nova denúncia na comunidade',
+    title: 'Conteúdo denunciado pela comunidade',
+    body: `Motivo: "${reason}". Conteúdo aguarda moderação.`,
+    ctaLabel: 'Moderar agora',
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/comunidade`,
+    meta: { Denunciante: reporter, Alvo: target, Motivo: reason },
+  });
+}
+
+// ── Chat alerts with throttling ───────────────────────────────────────────────
+// We don't want one email per visitor message during a fast back-and-forth.
+// Instead, send at most one alert per visitor every CHAT_ALERT_COOLDOWN ms.
+const CHAT_ALERT_COOLDOWN = 10 * 60 * 1000; // 10 minutes
+const lastChatAlertAt = new Map<string, number>();
+
+export function alertNewChatMessage(visitorId: string, firstLineOfMessage: string) {
+  const now = Date.now();
+  const last = lastChatAlertAt.get(visitorId) ?? 0;
+  if (now - last < CHAT_ALERT_COOLDOWN) return Promise.resolve();
+  lastChatAlertAt.set(visitorId, now);
+
+  return sendAdminAlert({
+    subject: 'Nova mensagem no Live Chat',
+    title: 'Visitante iniciou uma conversa',
+    body: `"${firstLineOfMessage.slice(0, 140)}"`,
+    ctaLabel: 'Responder agora',
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/chat`,
+    meta: { Visitante: visitorId.slice(0, 24), Mensagem: firstLineOfMessage.slice(0, 100) },
+  });
+}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAdminDb } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getChatSettings } from '@/lib/db';
+import { alertNewChatMessage } from '@/lib/admin-notifications';
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,6 +35,11 @@ export async function POST(req: NextRequest) {
       createdAt: FieldValue.serverTimestamp(),
       visitorId,
     });
+
+    // Email the admin (throttled to 1 alert per visitor per 10 min)
+    if (sender === 'visitor') {
+      alertNewChatMessage(visitorId, cleanText);
+    }
 
     // If this is the first visitor message, fire auto-welcome
     if (sender === 'visitor') {

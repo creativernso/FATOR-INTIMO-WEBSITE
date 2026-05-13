@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth } from '@/lib/firebase-admin';
 import { upsertCommunityReport, createNotification } from '@/lib/db';
+import { alertCommunityReport } from '@/lib/admin-notifications';
 import { CommunityReport } from '@/lib/types';
 import { v4 as uuid } from 'uuid';
 
@@ -36,5 +37,6 @@ export async function POST(req: NextRequest) {
     `Conteúdo denunciado: "${reason.trim().slice(0, 80)}"`,
     { targetType, targetId }
   );
+  alertCommunityReport(reason.trim(), reporterId || 'anônimo', targetId);
   return NextResponse.json({ ok: true }, { status: 201 });
 }
