@@ -1,9 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Bell, ShoppingBag, BookOpen, Users, MessageSquare, FileText, AlertTriangle, Heart, Check, X, LucideIcon } from 'lucide-react';
-import { collection, query, orderBy, limit, onSnapshot, writeBatch, doc } from 'firebase/firestore';
-import { getFirestoreClient } from '@/lib/firebase';
 import { AdminNotification } from '@/lib/types';
 
 const TYPE_CONFIG: Record<AdminNotification['type'], { icon: LucideIcon; color: string; bg: string }> = {
@@ -31,21 +29,20 @@ export default function NotificationBell() {
 
   const unread = notifications.filter((n) => !n.read).length;
 
-  // Real-time Firestore listener
-  useEffect(() => {
-    const db = getFirestoreClient();
-    const q = query(
-      collection(db, 'adminNotifications'),
-      orderBy('createdAt', 'desc'),
-      limit(40),
-    );
-    const unsub = onSnapshot(q, (snap) => {
-      setNotifications(
-        snap.docs.map((d) => ({ id: d.id, ...d.data() } as AdminNotification)),
-      );
-    });
-    return unsub;
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/notifications', { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (Array.isArray(data)) setNotifications(data);
+    } catch {}
   }, []);
+
+  useEffect(() => {
+    fetchNotifications();
+    const id = setInterval(fetchNotifications, 8000);
+    return () => clearInterval(id);
+  }, [fetchNotifications]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -56,19 +53,32 @@ export default function NotificationBell() {
   }, []);
 
   const markAllRead = async () => {
-    const db = getFirestoreClient();
-    const batch = writeBatch(db);
-    notifications.filter((n) => !n.read).forEach((n) => {
-      batch.update(doc(db, 'adminNotifications', n.id), { read: true });
-    });
-    await batch.commit();
+    const unreadIds = notifications.filter((n) => !n.read).map((n) => n.id);
+    if (unreadIds.length === 0) return;
+    // Optimistic update
+    setNotifications((ns) => ns.map((n) => ({ ...n, read: true })));
+    try {
+      await fetch('/api/admin/notifications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: unreadIds }),
+      });
+    } catch {
+      fetchNotifications();
+    }
   };
 
   const markOneRead = async (id: string) => {
-    const db = getFirestoreClient();
-    const batch = writeBatch(db);
-    batch.update(doc(db, 'adminNotifications', id), { read: true });
-    await batch.commit();
+    setNotifications((ns) => ns.map((n) => (n.id === id ? { ...n, read: true } : n)));
+    try {
+      await fetch('/api/admin/notifications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: [id] }),
+      });
+    } catch {
+      fetchNotifications();
+    }
   };
 
   return (
@@ -94,7 +104,6 @@ export default function NotificationBell() {
           className="absolute right-0 top-11 w-80 bg-surface border border-white/8 rounded-2xl shadow-2xl z-50 overflow-hidden"
           style={{ boxShadow: '0 16px 48px rgba(0,0,0,0.6)' }}
         >
-          {/* Header */}
           <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/5">
             <div className="flex items-center gap-2">
               <span className="text-text-primary text-sm font-medium">Notificações</span>
@@ -114,7 +123,6 @@ export default function NotificationBell() {
             )}
           </div>
 
-          {/* List */}
           <div className="max-h-[420px] overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="py-10 text-center">
