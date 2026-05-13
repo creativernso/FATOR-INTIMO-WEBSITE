@@ -1,20 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { MessageCircle, X, Send, Minimize2 } from 'lucide-react';
-import {
-  collection,
-  addDoc,
-  query,
-  orderBy,
-  onSnapshot,
-  serverTimestamp,
-  Timestamp,
-  doc,
-  setDoc,
-  getDoc,
-} from 'firebase/firestore';
-import { getFirestoreClient } from '@/lib/firebase';
 
 interface ChatMessage {
   id: string;
@@ -51,76 +38,65 @@ export default function LiveChat() {
   const [settings, setSettings] = useState<ChatSettings>({ welcomeMessage: DEFAULT_WELCOME, quickReplies: [] });
   const bottomRef = useRef<HTMLDivElement>(null);
   const seenRef = useRef<Set<string>>(new Set());
-  const presenceRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lastIdsRef = useRef<string>('');
 
   useEffect(() => {
     setVisitorId(getVisitorId());
   }, []);
 
-  // Load chat settings from Firestore
+  // Load chat settings (via Firestore client doc — fall back silently if denied)
   useEffect(() => {
-    const db = getFirestoreClient();
-    getDoc(doc(db, 'chatSettings', 'default')).then((snap) => {
-      if (snap.exists()) {
-        const data = snap.data();
-        setSettings({
-          welcomeMessage: data.welcomeMessage || DEFAULT_WELCOME,
-          quickReplies: Array.isArray(data.quickReplies) ? data.quickReplies : [],
-        });
-      }
+    fetch('/api/chat/settings-public').then((r) => r.json()).then((data) => {
+      if (data?.welcomeMessage) setSettings({ welcomeMessage: data.welcomeMessage, quickReplies: data.quickReplies || [] });
     }).catch(() => {});
   }, []);
 
-  // Presence tracking
-  useEffect(() => {
+  // Poll messages every 2 seconds while chat exists
+  const fetchMessages = useCallback(async () => {
     if (!visitorId) return;
-    const db = getFirestoreClient();
-    const sessionRef = doc(db, 'chatSessions', visitorId);
-
-    const updatePresence = (online: boolean) => {
-      setDoc(sessionRef, { online, lastSeen: serverTimestamp() }, { merge: true }).catch(() => {});
-    };
-
-    updatePresence(true);
-    presenceRef.current = setInterval(() => updatePresence(true), 30000);
-
-    const handleUnload = () => updatePresence(false);
-    window.addEventListener('beforeunload', handleUnload);
-
-    return () => {
-      if (presenceRef.current) clearInterval(presenceRef.current);
-      window.removeEventListener('beforeunload', handleUnload);
-      updatePresence(false);
-    };
-  }, [visitorId]);
-
-  useEffect(() => {
-    if (!visitorId) return;
-    const db = getFirestoreClient();
-    const q = query(
-      collection(db, 'chatSessions', visitorId, 'messages'),
-      orderBy('createdAt', 'asc'),
-    );
-    const unsub = onSnapshot(q, (snap) => {
-      const msgs: ChatMessage[] = snap.docs.map((d) => {
-        const data = d.data();
-        const ts = data.createdAt as Timestamp | null;
-        return {
-          id: d.id,
-          text: data.text as string,
-          from: data.from as 'visitor' | 'admin',
-          createdAt: ts ? ts.toDate().toISOString() : new Date().toISOString(),
-        };
-      });
+    try {
+      const res = await fetch(`/api/chat/messages?visitorId=${encodeURIComponent(visitorId)}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const msgs: ChatMessage[] = data.messages || [];
+      const sig = msgs.map((m) => m.id).join(',');
+      if (sig === lastIdsRef.current) return;
+      lastIdsRef.current = sig;
       setMessages(msgs);
-
       if (!open || minimized) {
         const newAdminMsgs = msgs.filter((m) => m.from === 'admin' && !seenRef.current.has(m.id));
         if (newAdminMsgs.length > 0) setUnread((u) => u + newAdminMsgs.length);
       }
-    });
-    return unsub;
+    } catch {}
   }, [visitorId, open, minimized]);
+
+  useEffect(() => {
+    if (!visitorId) return;
+    fetchMessages();
+    const id = setInterval(fetchMessages, 2500);
+    return () => clearInterval(id);
+  }, [visitorId, fetchMessages]);
+
+  // Presence heartbeat
+  useEffect(() => {
+    if (!visitorId) return;
+    const ping = (online: boolean) =>
+      fetch('/api/chat/presence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visitorId, online }),
+        keepalive: true,
+      }).catch(() => {});
+    ping(true);
+    const id = setInterval(() => ping(true), 30000);
+    const handleUnload = () => ping(false);
+    window.addEventListener('beforeunload', handleUnload);
+    return () => {
+      clearInterval(id);
+      window.removeEventListener('beforeunload', handleUnload);
+      ping(false);
+    };
+  }, [visitorId]);
 
   useEffect(() => {
     if (open && !minimized) {
@@ -136,24 +112,18 @@ export default function LiveChat() {
     setSending(true);
     setInput('');
     try {
-      const db = getFirestoreClient();
-      await addDoc(collection(db, 'chatSessions', visitorId, 'messages'), {
-        text: msgText,
-        from: 'visitor',
-        createdAt: serverTimestamp(),
-        visitorId,
+      const res = await fetch('/api/chat/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visitorId, text: msgText, from: 'visitor' }),
       });
-      // Auto-response on first message using configured welcome message
-      if (messages.filter((m) => m.from === 'visitor').length === 0) {
-        setTimeout(async () => {
-          await addDoc(collection(db, 'chatSessions', visitorId, 'messages'), {
-            text: settings.welcomeMessage,
-            from: 'admin',
-            createdAt: serverTimestamp(),
-            visitorId,
-          });
-        }, 1500);
+      if (!res.ok) {
+        console.error('[chat] send failed:', await res.text());
       }
+      // Refresh messages immediately
+      await fetchMessages();
+    } catch (err) {
+      console.error('[chat] send error:', err);
     } finally {
       setSending(false);
     }
@@ -168,7 +138,6 @@ export default function LiveChat() {
           className="w-80 sm:w-96 rounded-2xl border border-white/10 overflow-hidden shadow-2xl"
           style={{ background: '#130e09', boxShadow: '0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(254,0,80,0.08)' }}
         >
-          {/* Header */}
           <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/8"
             style={{ background: 'linear-gradient(to right, rgba(254,0,80,0.08), transparent)' }}>
             <div className="flex items-center gap-2.5">
@@ -191,7 +160,6 @@ export default function LiveChat() {
             </div>
           </div>
 
-          {/* Messages */}
           <div className="flex flex-col gap-2 p-4 h-64 overflow-y-auto">
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
@@ -217,7 +185,6 @@ export default function LiveChat() {
             <div ref={bottomRef} />
           </div>
 
-          {/* Quick replies */}
           {settings.quickReplies.length > 0 && messages.length === 0 && (
             <div className="px-4 pb-2 flex flex-wrap gap-1.5">
               {settings.quickReplies.map((reply, i) => (
@@ -232,7 +199,6 @@ export default function LiveChat() {
             </div>
           )}
 
-          {/* Input */}
           <div className="border-t border-white/8 p-3 flex items-center gap-2">
             <input
               value={input}
@@ -252,7 +218,6 @@ export default function LiveChat() {
         </div>
       )}
 
-      {/* Minimized banner */}
       {open && minimized && (
         <button
           onClick={() => setMinimized(false)}
@@ -267,7 +232,6 @@ export default function LiveChat() {
         </button>
       )}
 
-      {/* Floating button */}
       {!open && (
         <button
           onClick={() => { setOpen(true); setMinimized(false); setUnread(0); }}

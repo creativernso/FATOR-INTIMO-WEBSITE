@@ -332,7 +332,24 @@ export default function AdminProducts() {
                   <div className="space-y-3">
                     <div>
                       <label className="text-text-muted text-xs mb-1.5 block">Expira em</label>
-                      <input type="datetime-local" className="admin-input" value={form.countdownEndsAt} onChange={(e) => setForm({ ...form, countdownEndsAt: new Date(e.target.value).toISOString() })} />
+                      <input
+                        type="datetime-local"
+                        className="admin-input"
+                        value={(() => {
+                          if (!form.countdownEndsAt) return '';
+                          const d = new Date(form.countdownEndsAt);
+                          if (isNaN(d.getTime())) return '';
+                          // Format as local YYYY-MM-DDTHH:MM (what datetime-local expects)
+                          const pad = (n: number) => String(n).padStart(2, '0');
+                          return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                        })()}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (!v) { setForm({ ...form, countdownEndsAt: '' }); return; }
+                          const d = new Date(v);
+                          if (!isNaN(d.getTime())) setForm({ ...form, countdownEndsAt: d.toISOString() });
+                        }}
+                      />
                     </div>
                     <div>
                       <label className="text-text-muted text-xs mb-1.5 block">Texto do countdown</label>

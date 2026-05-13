@@ -159,12 +159,10 @@ export default function AdminChatPage() {
     setSending(true);
     setInput('');
     try {
-      const db = getFirestoreClient();
-      await addDoc(collection(db, 'chatSessions', activeSession, 'messages'), {
-        text: msgText,
-        from: 'admin',
-        createdAt: serverTimestamp(),
-        visitorId: activeSession,
+      await fetch('/api/chat/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visitorId: activeSession, text: msgText, from: 'admin' }),
       });
     } finally {
       setSending(false);
