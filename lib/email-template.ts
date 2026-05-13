@@ -554,3 +554,234 @@ Leia agora: ${articleUrl}
 — Fator Íntimo
 fatorintimo.com`;
 }
+
+// ── New product broadcast ─────────────────────────────────────────────────────
+
+interface NewProductData {
+  name?: string;
+  productTitle: string;
+  productHook?: string;
+  productPrice: number;
+  originalPrice?: number;
+  productUrl: string;
+  coverImage?: string;
+}
+
+export function newProductHtml({ name, productTitle, productHook, productPrice, originalPrice, productUrl, coverImage }: NewProductData): string {
+  const greeting = name ? `Olá, ${name.split(' ')[0]}.` : 'Olá.';
+  const discount = originalPrice && originalPrice > productPrice
+    ? `<span style="text-decoration:line-through;color:#666;font-size:13px;margin-right:8px;">R$ ${originalPrice}</span>`
+    : '';
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0a0705;font-family:Georgia,serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0705;padding:48px 16px;">
+    <tr><td align="center">
+      <table width="100%" style="max-width:560px;background:#1a1410;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;">
+        <tr><td style="height:1px;background:linear-gradient(to right,transparent,#fe0050,transparent);"></td></tr>
+        <tr><td align="center" style="padding:36px 40px 0;">
+          <p style="margin:0;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#fe0050;">FATOR ÍNTIMO</p>
+        </td></tr>
+        ${coverImage ? `
+        <tr><td style="padding:24px 40px 0;">
+          <img src="${coverImage}" alt="${productTitle}" style="width:100%;border-radius:10px;display:block;" />
+        </td></tr>` : ''}
+        <tr><td style="padding:28px 40px 8px;">
+          <p style="margin:0 0 8px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#888;">Novo material disponível</p>
+          <h1 style="margin:0;font-size:26px;font-weight:300;color:#f5f0eb;line-height:1.3;">${productTitle}</h1>
+          ${productHook ? `<p style="margin:8px 0 0;font-size:14px;color:#a09080;font-style:italic;">"${productHook}"</p>` : ''}
+        </td></tr>
+        <tr><td style="padding:20px 40px 0;">
+          <p style="margin:0;font-size:18px;color:#f5f0eb;">${discount}<strong>R$ ${productPrice}</strong></p>
+        </td></tr>
+        <tr><td align="center" style="padding:28px 40px 36px;">
+          <a href="${productUrl}" style="display:inline-block;background:#fe0050;color:#fff;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:13px;font-weight:600;letter-spacing:0.5px;">Ver detalhes →</a>
+        </td></tr>
+        <tr><td style="padding:20px 40px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+          <p style="margin:0;font-size:12px;color:#605040;">${greeting} Você recebeu este email por fazer parte da lista Fator Íntimo.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+export function newProductText({ productTitle, productHook, productPrice, productUrl }: NewProductData): string {
+  return `Novo material — ${productTitle}
+${productHook ? `\n"${productHook}"\n` : ''}
+Preço: R$ ${productPrice}
+
+Ver detalhes: ${productUrl}
+
+— Fator Íntimo
+fatorintimo.com`;
+}
+
+// ── New guide broadcast ──────────────────────────────────────────────────────
+
+interface NewGuideData {
+  name?: string;
+  guideTitle: string;
+  guideDescription: string;
+  guideUrl: string;
+  coverImage?: string;
+}
+
+export function newGuideHtml({ name, guideTitle, guideDescription, guideUrl, coverImage }: NewGuideData): string {
+  const greeting = name ? `Olá, ${name.split(' ')[0]}.` : 'Olá.';
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0a0705;font-family:Georgia,serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0705;padding:48px 16px;">
+    <tr><td align="center">
+      <table width="100%" style="max-width:560px;background:#1a1410;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;">
+        <tr><td style="height:1px;background:linear-gradient(to right,transparent,#fe0050,transparent);"></td></tr>
+        <tr><td align="center" style="padding:36px 40px 0;">
+          <p style="margin:0;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#fe0050;">FATOR ÍNTIMO</p>
+        </td></tr>
+        ${coverImage ? `
+        <tr><td style="padding:24px 40px 0;">
+          <img src="${coverImage}" alt="${guideTitle}" style="width:100%;border-radius:10px;display:block;" />
+        </td></tr>` : ''}
+        <tr><td style="padding:28px 40px 8px;">
+          <p style="margin:0 0 8px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#888;">Novo guia gratuito</p>
+          <h1 style="margin:0;font-size:26px;font-weight:300;color:#f5f0eb;line-height:1.3;">${guideTitle}</h1>
+        </td></tr>
+        <tr><td style="padding:8px 40px 24px;">
+          <p style="margin:0;font-size:14px;color:#a09080;line-height:1.7;">${guideDescription}</p>
+        </td></tr>
+        <tr><td align="center" style="padding:0 40px 36px;">
+          <a href="${guideUrl}" style="display:inline-block;background:#fe0050;color:#fff;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:13px;font-weight:600;letter-spacing:0.5px;">Baixar grátis →</a>
+        </td></tr>
+        <tr><td style="padding:20px 40px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+          <p style="margin:0;font-size:12px;color:#605040;">${greeting} Você recebeu este email por fazer parte da lista Fator Íntimo.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+export function newGuideText({ guideTitle, guideDescription, guideUrl }: NewGuideData): string {
+  return `Novo guia gratuito — ${guideTitle}
+
+${guideDescription}
+
+Baixar: ${guideUrl}
+
+— Fator Íntimo
+fatorintimo.com`;
+}
+
+// ── Community: post approved ─────────────────────────────────────────────────
+
+interface CommunityPostApprovedData {
+  authorName: string;
+  postTitle: string;
+  postUrl: string;
+}
+
+export function communityPostApprovedHtml({ authorName, postTitle, postUrl }: CommunityPostApprovedData): string {
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0a0705;font-family:Georgia,serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0705;padding:48px 16px;">
+    <tr><td align="center">
+      <table width="100%" style="max-width:520px;background:#1a1410;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;">
+        <tr><td style="height:1px;background:linear-gradient(to right,transparent,#fe0050,transparent);"></td></tr>
+        <tr><td align="center" style="padding:36px 40px 0;">
+          <p style="margin:0;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#fe0050;">COMUNIDADE ÍNTIMA</p>
+        </td></tr>
+        <tr><td style="padding:28px 40px 8px;">
+          <h1 style="margin:0;font-size:24px;font-weight:300;color:#f5f0eb;line-height:1.3;">Sua publicação foi aprovada! 🎉</h1>
+        </td></tr>
+        <tr><td style="padding:12px 40px 24px;">
+          <p style="margin:0 0 14px;font-size:14px;color:#a09080;line-height:1.7;">Olá, <strong style="color:#f5f0eb;">${authorName.split(' ')[0]}</strong>,</p>
+          <p style="margin:0;font-size:14px;color:#a09080;line-height:1.7;">Sua publicação <strong style="color:#f5f0eb;">"${postTitle}"</strong> acaba de ser publicada na Comunidade Íntima. Outros membros já podem ler, comentar e reagir.</p>
+        </td></tr>
+        <tr><td align="center" style="padding:0 40px 36px;">
+          <a href="${postUrl}" style="display:inline-block;background:#fe0050;color:#fff;text-decoration:none;padding:13px 28px;border-radius:50px;font-size:13px;font-weight:600;">Ver minha publicação →</a>
+        </td></tr>
+        <tr><td style="padding:20px 40px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+          <p style="margin:0;font-size:11px;color:#605040;">Você recebeu este email porque participa da Comunidade Íntima.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+export function communityPostApprovedText({ authorName, postTitle, postUrl }: CommunityPostApprovedData): string {
+  return `Sua publicação foi aprovada!
+
+Olá, ${authorName.split(' ')[0]},
+
+Sua publicação "${postTitle}" acaba de ser publicada na Comunidade Íntima.
+
+Acessar: ${postUrl}
+
+— Fator Íntimo`;
+}
+
+// ── Community: someone commented on your post ────────────────────────────────
+
+interface CommunityNewCommentData {
+  authorName: string;
+  postTitle: string;
+  commenterName: string;
+  commentExcerpt: string;
+  postUrl: string;
+}
+
+export function communityNewCommentHtml({ authorName, postTitle, commenterName, commentExcerpt, postUrl }: CommunityNewCommentData): string {
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0a0705;font-family:Georgia,serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0705;padding:48px 16px;">
+    <tr><td align="center">
+      <table width="100%" style="max-width:520px;background:#1a1410;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;">
+        <tr><td style="height:1px;background:linear-gradient(to right,transparent,#fe0050,transparent);"></td></tr>
+        <tr><td align="center" style="padding:36px 40px 0;">
+          <p style="margin:0;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#fe0050;">COMUNIDADE ÍNTIMA</p>
+        </td></tr>
+        <tr><td style="padding:28px 40px 8px;">
+          <h1 style="margin:0;font-size:22px;font-weight:300;color:#f5f0eb;line-height:1.3;">${commenterName} comentou na sua publicação</h1>
+        </td></tr>
+        <tr><td style="padding:12px 40px 8px;">
+          <p style="margin:0 0 8px;font-size:13px;color:#888;">Em "${postTitle}":</p>
+          <div style="background:rgba(255,255,255,0.04);border-left:2px solid #fe0050;padding:14px 16px;border-radius:6px;">
+            <p style="margin:0;font-size:14px;color:#d0c0b0;line-height:1.7;font-style:italic;">"${commentExcerpt.slice(0, 240)}${commentExcerpt.length > 240 ? '...' : ''}"</p>
+          </div>
+        </td></tr>
+        <tr><td align="center" style="padding:24px 40px 36px;">
+          <a href="${postUrl}" style="display:inline-block;background:#fe0050;color:#fff;text-decoration:none;padding:13px 28px;border-radius:50px;font-size:13px;font-weight:600;">Responder →</a>
+        </td></tr>
+        <tr><td style="padding:20px 40px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+          <p style="margin:0;font-size:11px;color:#605040;">Olá ${authorName.split(' ')[0]}, você recebeu este email porque é o autor da publicação.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+export function communityNewCommentText({ authorName, postTitle, commenterName, commentExcerpt, postUrl }: CommunityNewCommentData): string {
+  return `${commenterName} comentou na sua publicação
+
+Olá ${authorName.split(' ')[0]},
+
+Em "${postTitle}":
+"${commentExcerpt.slice(0, 240)}"
+
+Responder: ${postUrl}
+
+— Fator Íntimo`;
+}

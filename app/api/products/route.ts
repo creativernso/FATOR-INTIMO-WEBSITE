@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getProducts, upsertProduct } from '@/lib/db';
+import { broadcastProduct } from '@/lib/broadcast';
 import { v4 as uuid } from 'uuid';
 
 export async function GET() {
@@ -31,5 +32,19 @@ export async function POST(req: NextRequest) {
     downloadUrl: body.downloadUrl || '',
   };
   await upsertProduct(newProduct);
+
+  // Broadcast to all email leads unless the admin opted out
+  if (body.broadcast !== false) {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+    broadcastProduct({
+      title: newProduct.title,
+      hook: newProduct.hook,
+      price: newProduct.price,
+      originalPrice: newProduct.originalPrice,
+      url: `${baseUrl}/products/${newProduct.slug}`,
+      coverImage: newProduct.coverImage,
+    }).catch((err) => console.error('[products] broadcast failed:', err));
+  }
+
   return NextResponse.json(newProduct, { status: 201 });
 }

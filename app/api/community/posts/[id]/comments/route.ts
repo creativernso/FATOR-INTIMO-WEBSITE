@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth } from '@/lib/firebase-admin';
 import { getCommunityComments, upsertCommunityComment, getCommunityUser, getCommunityPost, incrementCommunityPostStat } from '@/lib/db';
 import { alertNewCommunityComment } from '@/lib/admin-notifications';
+import { resend, FROM_EMAIL } from '@/lib/resend';
+import { communityNewCommentHtml, communityNewCommentText } from '@/lib/email-template';
 import { CommunityComment } from '@/lib/types';
 import { v4 as uuid } from 'uuid';
 
@@ -51,6 +53,38 @@ export async function POST(req: NextRequest, { params }: Params) {
   await upsertCommunityComment(comment);
   await incrementCommunityPostStat(postId, 'commentCount', 1);
   alertNewCommunityComment(post.title, comment.authorName);
+
+  // Notify the post author when someone else comments on their post
+  if (resend && post.authorUid !== decoded.uid) {
+    try {
+      const postAuthor = await getCommunityUser(post.authorUid);
+      if (postAuthor?.email) {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+        const postUrl = `${baseUrl}/comunidade/${postId}`;
+        await resend.emails.send({
+          from: FROM_EMAIL,
+          to: postAuthor.email,
+          subject: `${comment.authorName} comentou na sua publicação`,
+          html: communityNewCommentHtml({
+            authorName: postAuthor.name,
+            postTitle: post.title,
+            commenterName: comment.authorName,
+            commentExcerpt: comment.content,
+            postUrl,
+          }),
+          text: communityNewCommentText({
+            authorName: postAuthor.name,
+            postTitle: post.title,
+            commenterName: comment.authorName,
+            commentExcerpt: comment.content,
+            postUrl,
+          }),
+        });
+      }
+    } catch (err) {
+      console.error('[community/comments] author notification failed:', err);
+    }
+  }
 
   return NextResponse.json(comment, { status: 201 });
 }

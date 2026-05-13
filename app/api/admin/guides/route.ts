@@ -1,9 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getAdminAuth } from '@/lib/firebase-admin';
-import { getGuides, upsertGuide, deleteGuide } from '@/lib/db';
+import { getGuides, upsertGuide, deleteGuide, getGuideBySlug } from '@/lib/db';
+import { broadcastGuide } from '@/lib/broadcast';
 import { Guide } from '@/lib/types';
 import { v4 as uuid } from 'uuid';
+
+function triggerGuideBroadcast(guide: Guide, optIn: boolean) {
+  if (!optIn) return;
+  if (!guide.published) return;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+  broadcastGuide({
+    title: guide.title,
+    description: guide.description || guide.subtitle || '',
+    url: `${baseUrl}/guia/${guide.slug}`,
+    coverImage: guide.coverImage,
+  }).catch((err) => console.error('[guides] broadcast failed:', err));
+}
 
 async function verifyAdmin() {
   const cookieStore = await cookies();
@@ -54,6 +67,8 @@ export async function POST(req: NextRequest) {
   };
 
   await upsertGuide(guide);
+  // Broadcast on new published guide (unless admin opted out)
+  triggerGuideBroadcast(guide, body.broadcast !== false);
   return NextResponse.json(guide, { status: 201 });
 }
 
@@ -63,6 +78,10 @@ export async function PATCH(req: NextRequest) {
   const body = await req.json();
   if (!body.id) return NextResponse.json({ error: 'id obrigatório.' }, { status: 400 });
 
+  // Detect transition from draft to published — that's when we broadcast
+  const previous = body.slug ? await getGuideBySlug(body.slug) : null;
+  const wasPublished = !!previous?.published;
+
   const updated: Guide = {
     ...body,
     slug: body.slug?.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-') || body.slug,
@@ -70,6 +89,11 @@ export async function PATCH(req: NextRequest) {
   };
 
   await upsertGuide(updated);
+
+  if (!wasPublished && updated.published) {
+    triggerGuideBroadcast(updated, body.broadcast !== false);
+  }
+
   return NextResponse.json(updated);
 }
 
