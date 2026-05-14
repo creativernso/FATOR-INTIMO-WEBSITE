@@ -350,6 +350,11 @@ export default function AdminProducts() {
                           if (!isNaN(d.getTime())) setForm({ ...form, countdownEndsAt: d.toISOString() });
                         }}
                       />
+                      {form.countdownEndsAt && new Date(form.countdownEndsAt).getTime() < Date.now() && (
+                        <p className="text-yellow-400 text-xs mt-1.5 flex items-center gap-1">
+                          ⚠️ A data está no passado. O countdown não aparecerá na página do produto até você escolher uma data futura.
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="text-text-muted text-xs mb-1.5 block">Texto do countdown</label>

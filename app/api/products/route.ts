@@ -30,6 +30,10 @@ export async function POST(req: NextRequest) {
     forWho: Array.isArray(body.forWho) ? body.forWho : [],
     faq: Array.isArray(body.faq) ? body.faq : [],
     downloadUrl: body.downloadUrl || '',
+    videoUrl: body.videoUrl || undefined,
+    countdownEnabled: Boolean(body.countdownEnabled),
+    countdownEndsAt: body.countdownEndsAt || undefined,
+    countdownText: body.countdownText || undefined,
   };
   await upsertProduct(newProduct);
 
