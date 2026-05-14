@@ -3,7 +3,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
-import { getProducts } from '@/lib/db';
+import StarRating from '@/components/StarRating';
+import { getProducts, getTestimonials } from '@/lib/db';
 import { createT } from '@/lib/i18n';
 import { buildPageMetadata } from '@/lib/seo';
 
@@ -19,7 +20,22 @@ export const dynamic = 'force-dynamic';
 export default async function ProductsPage() {
   const t = createT('pt');
 
-  const products = await getProducts();
+  const [products, allTestimonials] = await Promise.all([
+    getProducts(),
+    getTestimonials(true),
+  ]);
+
+  // Aggregate rating per product (keyed by product title because that's how
+  // Testimonial.productPurchased references it today)
+  const ratingsByProduct = new Map<string, { avg: number; count: number }>();
+  for (const product of products) {
+    const rated = allTestimonials.filter(
+      (t) => t.productPurchased === product.title && typeof t.rating === 'number' && t.rating! > 0,
+    );
+    if (rated.length === 0) continue;
+    const avg = rated.reduce((s, t) => s + (t.rating ?? 0), 0) / rated.length;
+    ratingsByProduct.set(product.title, { avg, count: rated.length });
+  }
 
   return (
     <>
@@ -58,10 +74,11 @@ export default async function ProductsPage() {
                 const discount = product.originalPrice
                   ? Math.round((1 - product.price / product.originalPrice) * 100)
                   : null;
+                const rating = ratingsByProduct.get(product.title);
 
                 return (
                   <AnimateOnScroll key={product.id} delay={i * 60}>
-                    <div className="group rounded-2xl border border-white/5 bg-surface p-3 transition-all duration-500 hover:border-accent/20">
+                    <div className="group rounded-2xl border border-white/5 bg-surface p-3 transition-all duration-500 hover:border-accent/20 flex flex-col h-full">
                       {/* Cover — portrait, clickable */}
                       <Link href={`/products/${product.slug}`} className="block relative aspect-[3/4] rounded-lg overflow-hidden mb-4 bg-surface">
                         <Image
@@ -79,27 +96,35 @@ export default async function ProductsPage() {
                       </Link>
 
                       {/* Info below image */}
-                      <div className="px-1 pb-1">
-                        <p className="text-accent text-[0.62rem] tracking-[0.2em] uppercase mb-1.5 font-medium">
-                          {product.category}
-                        </p>
-                        <h2 className="font-heading text-base md:text-lg font-medium text-text-primary leading-snug mb-3 line-clamp-2">
+                      <div className="px-1 pb-1 flex flex-col flex-1">
+                        {/* Stars + count + category on the same top row */}
+                        <div className="flex items-center justify-between gap-2 mb-1.5 min-h-[18px]">
+                          <p className="text-accent text-[0.62rem] tracking-[0.2em] uppercase font-medium">
+                            {product.category}
+                          </p>
+                          {rating && (
+                            <StarRating rating={rating.avg} count={rating.count} size={11} className="flex-shrink-0" />
+                          )}
+                        </div>
+                        <h2 className="font-heading text-sm md:text-base font-medium text-text-primary leading-snug mb-3 line-clamp-2">
                           {product.title}
                         </h2>
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
+
+                        {/* Price + CTA stack vertically — never overflow */}
+                        <div className="mt-auto flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex items-baseline gap-2 flex-wrap">
                             {product.originalPrice && (
                               <span className="text-accent/70 text-xs line-through">
                                 R${product.originalPrice}
                               </span>
                             )}
-                            <span className="font-heading text-lg font-medium text-text-primary">
+                            <span className="font-heading text-lg font-medium text-text-primary leading-none">
                               R${product.price}<span className="text-sm">,00</span>
                             </span>
                           </div>
                           <Link
                             href={`/products/${product.slug}`}
-                            className="flex items-center gap-1.5 bg-accent hover:bg-accent-hover text-white text-xs font-medium px-3.5 py-2 rounded-full transition-all whitespace-nowrap"
+                            className="inline-flex items-center justify-center gap-1.5 bg-accent hover:bg-accent-hover text-white text-xs font-medium px-3.5 py-2 rounded-full transition-all whitespace-nowrap self-start sm:self-auto"
                           >
                             {t('products.see_product')} <ArrowRight size={11} />
                           </Link>

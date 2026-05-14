@@ -10,6 +10,7 @@ import FAQAccordion from './FAQAccordion';
 import CountdownTimer from './CountdownTimer';
 import SalesVideo from './SalesVideo';
 import ProductEvents from './ProductEvents';
+import StarRating from '@/components/StarRating';
 
 export const dynamic = 'force-dynamic';
 
@@ -175,11 +176,20 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <AnimateOnScroll delay={100}>
             <div className="flex flex-col gap-6">
               <div>
-                <span className="text-xs text-accent tracking-widest uppercase mb-3 block">{product.category}</span>
-                <h1 className="font-heading text-4xl md:text-5xl font-medium text-text-primary leading-tight mb-3">
+                <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
+                  <span className="text-xs text-accent tracking-widest uppercase">{product.category}</span>
+                  {aggregateRating && (
+                    <StarRating
+                      rating={Number(aggregateRating.ratingValue)}
+                      count={aggregateRating.reviewCount}
+                      size={15}
+                    />
+                  )}
+                </div>
+                <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl font-medium text-text-primary leading-tight mb-3">
                   {product.title}
                 </h1>
-                <p className="text-text-secondary text-lg leading-relaxed italic">
+                <p className="text-text-secondary text-base sm:text-lg leading-relaxed italic">
                   &ldquo;{product.hook}&rdquo;
                 </p>
               </div>
