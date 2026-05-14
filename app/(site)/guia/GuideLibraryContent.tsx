@@ -76,14 +76,14 @@ export default function GuideLibraryContent({ guides }: Props) {
                 <BookOpen size={13} />
                 <span>{guides.length} {t(guides.length === 1 ? 'library.guide_one' : 'library.guide_other')}</span>
               </div>
-              <span className="w-px h-3 bg-white/15 hidden sm:block" />
+              <span className="w-px h-3 bg-white/[0.08] hidden sm:block" />
               {totalDownloads > 0 && (
                 <>
                   <div className="flex items-center gap-1.5">
                     <Download size={13} />
                     <span>{totalDownloads.toLocaleString('pt-BR')} downloads</span>
                   </div>
-                  <span className="w-px h-3 bg-white/15 hidden sm:block" />
+                  <span className="w-px h-3 bg-white/[0.08] hidden sm:block" />
                 </>
               )}
               <span>{t('library.stats_free')}</span>
@@ -111,7 +111,7 @@ export default function GuideLibraryContent({ guides }: Props) {
               ))}
             </div>
 
-            <div className="border-t border-white/20 mt-14" />
+            <div className="border-t border-white/[0.06] mt-14" />
           </div>
         </section>
       )}
@@ -130,7 +130,7 @@ export default function GuideLibraryContent({ guides }: Props) {
                   className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
                     activeTag === tag
                       ? 'bg-accent text-white'
-                      : 'bg-white/4 border border-white/8 text-text-muted hover:border-white/16 hover:text-text-secondary'
+                      : 'bg-white/[0.03] border border-white/[0.06] text-text-muted hover:border-white/[0.1] hover:text-text-secondary'
                   }`}
                 >
                   {tag === 'todos' ? t('library.filter_all') : tag}
