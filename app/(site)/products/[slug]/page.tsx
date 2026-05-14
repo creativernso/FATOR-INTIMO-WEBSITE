@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -12,10 +13,77 @@ import ProductEvents from './ProductEvents';
 
 export const dynamic = 'force-dynamic';
 
+const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const product = (await getProducts()).find((p) => p.slug === slug);
+  if (!product) return { title: 'Produto não encontrado' };
+  const description = product.hook || product.description || 'Material exclusivo Fator Íntimo.';
+  const url = `${SITE_URL}/products/${product.slug}`;
+  return {
+    title: product.title,
+    description: description.slice(0, 160),
+    alternates: { canonical: url },
+    openGraph: {
+      title: product.title,
+      description: description.slice(0, 200),
+      url,
+      type: 'website',
+      siteName: 'Fator Íntimo',
+      images: product.coverImage ? [{ url: product.coverImage, width: 1200, height: 630, alt: product.title }] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: product.title,
+      description: description.slice(0, 200),
+      images: product.coverImage ? [product.coverImage] : undefined,
+    },
+  };
+}
+
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const product = (await getProducts()).find((p) => p.slug === slug);
   if (!product) notFound();
+
+  const productJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.title,
+    description: product.hook || product.description,
+    image: product.coverImage,
+    brand: { '@type': 'Brand', name: 'Fator Íntimo' },
+    category: product.category,
+    offers: {
+      '@type': 'Offer',
+      url: `${SITE_URL}/products/${product.slug}`,
+      priceCurrency: 'BRL',
+      price: product.price,
+      availability: 'https://schema.org/InStock',
+      seller: { '@type': 'Organization', name: 'Fator Íntimo' },
+    },
+  };
+
+  const faqJsonLd = (product.faq?.length ?? 0) > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: product.faq!.map((q) => ({
+      '@type': 'Question',
+      name: q.question,
+      acceptedAnswer: { '@type': 'Answer', text: q.answer },
+    })),
+  } : null;
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Início', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Produtos', item: `${SITE_URL}/products` },
+      { '@type': 'ListItem', position: 3, name: product.title, item: `${SITE_URL}/products/${product.slug}` },
+    ],
+  };
 
   const testimonials = (await getTestimonials()).filter(
     (t) => t.productPurchased === product.title
@@ -28,6 +96,20 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       <ProductEvents productId={product.id} productTitle={product.title} value={product.price} />
       {/* Back */}
       <div className="pt-28 pb-0 px-6 max-w-6xl mx-auto">
