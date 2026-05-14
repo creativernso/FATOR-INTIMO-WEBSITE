@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Star, ThumbsUp, ShieldCheck, MapPin, Loader2, CheckCircle, X, PenLine } from 'lucide-react';
 import StarRating from '@/components/StarRating';
 
@@ -31,8 +32,13 @@ interface Aggregate {
 type Sort = 'recent' | 'rating' | 'helpful';
 
 interface Props {
-  productSlug: string;
+  /** product slug (paid ebook) OR guide slug (free guide) — exactly one */
+  productSlug?: string;
+  guideSlug?: string;
+  /** display name of the thing being reviewed (used in headers & form) */
   productTitle: string;
+  /** label tweaks for guides */
+  variant?: 'product' | 'guide';
 }
 
 function timeAgo(iso?: string): string {
@@ -46,28 +52,52 @@ function timeAgo(iso?: string): string {
   return d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-export default function ReviewSection({ productSlug, productTitle }: Props) {
+export default function ReviewSection({ productSlug, guideSlug, productTitle, variant }: Props) {
+  const targetType: 'product' | 'guide' = variant ?? (guideSlug ? 'guide' : 'product');
+  const queryParam = productSlug
+    ? `productSlug=${encodeURIComponent(productSlug)}`
+    : `guideSlug=${encodeURIComponent(guideSlug ?? '')}`;
+  const searchParams = useSearchParams();
+
   const [reviews, setReviews] = useState<Review[]>([]);
   const [aggregate, setAggregate] = useState<Aggregate | null>(null);
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<Sort>('recent');
   const [pageSize, setPageSize] = useState(5);
   const [formOpen, setFormOpen] = useState(false);
+  const [prefillName, setPrefillName] = useState('');
+  const [prefillEmail, setPrefillEmail] = useState('');
   const [helpfulMap, setHelpfulMap] = useState<Set<string>>(new Set());
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/reviews?productSlug=${encodeURIComponent(productSlug)}`);
+      const res = await fetch(`/api/reviews?${queryParam}`);
       const data = await res.json();
       setReviews(data.reviews || []);
       setAggregate(data.aggregate);
     } finally {
       setLoading(false);
     }
-  }, [productSlug]);
+  }, [queryParam]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Auto-open the form and pre-fill name/email when arriving from a review-request email
+  useEffect(() => {
+    const wantsToReview = searchParams?.get('review') === '1';
+    const name = searchParams?.get('name') || '';
+    const email = searchParams?.get('email') || '';
+    if (name) setPrefillName(name);
+    if (email) setPrefillEmail(email);
+    if (wantsToReview) {
+      setFormOpen(true);
+      // Smooth-scroll to this section after mount
+      setTimeout(() => {
+        document.getElementById('avaliacoes')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
+  }, [searchParams]);
 
   // Restore "I've already clicked helpful" from localStorage
   useEffect(() => {
@@ -109,7 +139,7 @@ export default function ReviewSection({ productSlug, productTitle }: Props) {
   const maxDist = Math.max(1, ...Object.values(dist));
 
   return (
-    <section className="py-16 px-6 border-t border-white/5">
+    <section id="avaliacoes" className="py-16 px-6 border-t border-white/5 scroll-mt-24">
       <div className="max-w-5xl mx-auto">
         <div className="flex flex-col gap-10">
 
@@ -118,14 +148,16 @@ export default function ReviewSection({ productSlug, productTitle }: Props) {
             <div>
               <p className="text-xs text-accent tracking-[0.3em] uppercase mb-3">Avaliações</p>
               <h2 className="font-heading text-3xl md:text-4xl font-light text-text-primary leading-tight">
-                {hasReviews ? 'O que estão falando' : 'Seja o primeiro a avaliar'}
+                {hasReviews
+                  ? 'O que estão falando'
+                  : (targetType === 'guide' ? 'Seja o primeiro a comentar' : 'Seja o primeiro a avaliar')}
               </h2>
             </div>
             <button
               onClick={() => setFormOpen(true)}
               className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-5 py-3 rounded-full text-sm font-medium transition-all self-start lg:self-auto whitespace-nowrap shadow-lg shadow-accent/15"
             >
-              <PenLine size={14} /> Avaliar produto
+              <PenLine size={14} /> {targetType === 'guide' ? 'Avaliar guia' : 'Avaliar produto'}
             </button>
           </div>
 
@@ -335,7 +367,10 @@ export default function ReviewSection({ productSlug, productTitle }: Props) {
       {formOpen && (
         <ReviewForm
           productSlug={productSlug}
+          guideSlug={guideSlug}
           productTitle={productTitle}
+          prefillName={prefillName}
+          prefillEmail={prefillEmail}
           onClose={() => setFormOpen(false)}
           onSubmitted={() => { setFormOpen(false); load(); }}
         />
@@ -348,19 +383,25 @@ export default function ReviewSection({ productSlug, productTitle }: Props) {
 
 function ReviewForm({
   productSlug,
+  guideSlug,
   productTitle,
+  prefillName,
+  prefillEmail,
   onClose,
   onSubmitted,
 }: {
-  productSlug: string;
+  productSlug?: string;
+  guideSlug?: string;
   productTitle: string;
+  prefillName?: string;
+  prefillEmail?: string;
   onClose: () => void;
   onSubmitted: () => void;
 }) {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState(prefillName || '');
+  const [email, setEmail] = useState(prefillEmail || '');
   const [location, setLocation] = useState('');
   const [headline, setHeadline] = useState('');
   const [content, setContent] = useState('');
@@ -386,6 +427,7 @@ function ReviewForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           productSlug,
+          guideSlug,
           name,
           email,
           location,

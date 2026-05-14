@@ -11,7 +11,7 @@ import CountdownTimer from './CountdownTimer';
 import SalesVideo from './SalesVideo';
 import ProductEvents from './ProductEvents';
 import StarRating from '@/components/StarRating';
-import ReviewSection from './ReviewSection';
+import ReviewSection from '@/components/ReviewSection';
 
 export const dynamic = 'force-dynamic';
 

@@ -1,7 +1,7 @@
 import { getAdminDb } from './firebase-admin';
 import type { Query } from 'firebase-admin/firestore';
 import { FieldValue } from 'firebase-admin/firestore';
-import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification, MarqueePhrase, EmailCampaign, EmailAutomation, ChatSettings } from './types';
+import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification, MarqueePhrase, EmailCampaign, EmailAutomation, ChatSettings, ReviewSettings } from './types';
 
 const db = () => getAdminDb();
 
@@ -62,6 +62,12 @@ export const getLeads = (): Promise<Lead[]> => getCollection<Lead>('leads');
 export const saveLeads = (leads: Lead[]): Promise<void> => replaceCollection('leads', leads);
 export const upsertLead = (lead: Lead): Promise<void> => upsertDoc('leads', lead);
 export const deleteLead = (id: string): Promise<void> => deleteDoc('leads', id);
+
+export async function markLeadReviewRequestSent(leadId: string): Promise<void> {
+  await db().collection('leads').doc(leadId).update({
+    reviewRequestSentAt: new Date().toISOString(),
+  });
+}
 
 // Guide config (single doc with id='main')
 export async function getGuideConfig(): Promise<GuideConfig> {
@@ -362,4 +368,31 @@ export async function incrementPageView(path: string): Promise<void> {
 export async function getPageViewTotals(days = 30): Promise<{ date: string; total: number }[]> {
   const snap = await db().collection('pageviews').orderBy('date', 'desc').limit(days).get();
   return snap.docs.map((d) => ({ date: d.data().date as string, total: (d.data().total as number) || 0 }));
+}
+
+// ─── Review automation settings ───────────────────────────────────────────────
+
+const DEFAULT_REVIEW_SETTINGS: ReviewSettings = {
+  productEnabled: true,
+  productDelayDays: 15,
+  productSubject: 'Como foi sua experiência com {produto}?',
+  productBody: 'Olá {nome},\n\nEspero que {produto} esteja tocando algo dentro de você.\n\nSua avaliação ajuda outras pessoas a encontrarem o caminho que você acabou de começar. Demora menos de um minuto — e faz toda a diferença para a nossa comunidade.',
+  guideEnabled: true,
+  guideDelayDays: 15,
+  guideSubject: 'O guia "{guia}" te ajudou?',
+  guideBody: 'Olá {nome},\n\nFaz alguns dias que você baixou o guia {guia}. Como foi a leitura?\n\nSua opinião honesta ajuda outras pessoas a decidirem se vale a pena começar essa jornada — e nos ajuda a entender o que está realmente impactando.',
+  ctaLabel: 'Deixar minha avaliação',
+};
+
+export async function getReviewSettings(): Promise<ReviewSettings> {
+  const snap = await db().collection('reviewSettings').doc('default').get();
+  if (!snap.exists) return DEFAULT_REVIEW_SETTINGS;
+  return { ...DEFAULT_REVIEW_SETTINGS, ...(snap.data() as ReviewSettings) };
+}
+
+export async function saveReviewSettings(settings: ReviewSettings): Promise<void> {
+  await db().collection('reviewSettings').doc('default').set({
+    ...settings,
+    updatedAt: new Date().toISOString(),
+  });
 }

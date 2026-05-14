@@ -3,10 +3,12 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { BookOpen, Check, ArrowLeft, ArrowRight } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
-import { getGuideBySlug, getGuides } from '@/lib/db';
+import StarRating from '@/components/StarRating';
+import { getGuideBySlug, getGuides, getTestimonials } from '@/lib/db';
 import { getLocale, createT } from '@/lib/i18n';
 import { SITE_URL } from '@/lib/seo';
 import GuideSubscribeForm from './GuideSubscribeForm';
+import ReviewSection from '@/components/ReviewSection';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,11 +46,24 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ sl
   const locale = await getLocale();
   const t = createT(locale);
 
-  const [guide, allGuides] = await Promise.all([getGuideBySlug(slug), getGuides(true, locale)]);
+  const [guide, allGuides, allTestimonials] = await Promise.all([
+    getGuideBySlug(slug),
+    getGuides(true, locale),
+    getTestimonials(true),
+  ]);
 
   if (!guide?.published) notFound();
 
   const related = allGuides.filter((g) => g.id !== guide.id && g.published).slice(0, 3);
+
+  // Aggregate rating for the social-proof widget
+  const guideReviews = allTestimonials.filter((t) => t.guideSlug === guide.slug && typeof t.rating === 'number' && t.rating! > 0);
+  const guideRating = guideReviews.length > 0
+    ? {
+        avg: guideReviews.reduce((s, r) => s + (r.rating ?? 0), 0) / guideReviews.length,
+        count: guideReviews.length,
+      }
+    : null;
 
   const guideJsonLd = {
     '@context': 'https://schema.org',
@@ -118,6 +133,16 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ sl
                 <span className="text-xs text-accent tracking-[0.3em] uppercase mb-4 block">
                   {t('guide.badge_library')} · {t('guide.badge_free')}
                 </span>
+
+                {guideRating && (
+                  <a href="#avaliacoes" className="inline-flex items-center gap-2 mb-4 group">
+                    <StarRating rating={guideRating.avg} size={16} showCount={false} />
+                    <span className="text-text-secondary text-sm group-hover:text-accent transition-colors">
+                      <strong className="text-text-primary">{guideRating.avg.toFixed(1)}/5</strong>
+                      <span className="text-text-muted"> de {guideRating.count}+ leitores</span>
+                    </span>
+                  </a>
+                )}
 
                 <h1 className="font-heading text-4xl sm:text-5xl font-light text-text-primary leading-[1.08] mb-5">
                   {guide.title}
@@ -216,6 +241,9 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ sl
           </div>
         </div>
       </section>
+
+      {/* Customer reviews */}
+      <ReviewSection guideSlug={guide.slug} productTitle={guide.title} variant="guide" />
 
       {/* Related guides */}
       {related.length > 0 && (

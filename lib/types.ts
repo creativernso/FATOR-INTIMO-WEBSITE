@@ -53,6 +53,7 @@ export interface Testimonial {
   rating?: number;
   avatar?: string;
   productPurchased?: string;
+  guideSlug?: string;         // reviews can target a free guide instead of a paid product
   socialHandle?: string;
   anonymous?: boolean;
   status?: 'pending' | 'approved' | 'rejected';
@@ -62,7 +63,7 @@ export interface Testimonial {
   email?: string;             // used for verified-purchase lookup, never displayed
   location?: string;          // free text, e.g. "São Paulo, BR"
   photoUrl?: string;          // optional review photo (distinct from avatar)
-  verifiedPurchase?: boolean; // matched against orders by email
+  verifiedPurchase?: boolean; // matched against orders (for products) or downloads (for guides)
   helpfulCount?: number;      // visitors who clicked "Foi útil"
   adminReply?: {
     text: string;
@@ -81,6 +82,21 @@ export interface Lead {
   tags?: string[];
   createdAt: string;
   guideDownloaded?: boolean;
+  reviewRequestSentAt?: string; // when the post-download review email was sent
+}
+
+// Review automation + UX settings, stored at reviewSettings/default
+export interface ReviewSettings {
+  productEnabled: boolean;
+  productDelayDays: number;
+  productSubject: string;
+  productBody: string;        // supports {nome}, {produto}, {link}
+  guideEnabled: boolean;
+  guideDelayDays: number;
+  guideSubject: string;
+  guideBody: string;          // supports {nome}, {guia}, {link}
+  ctaLabel: string;
+  updatedAt?: string;
 }
 
 export interface Guide {

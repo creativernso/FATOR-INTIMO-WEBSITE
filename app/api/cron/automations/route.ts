@@ -1,13 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLeads, getEmailAutomations, upsertEmailAutomation, getProducts } from '@/lib/db';
+import {
+  getLeads,
+  getEmailAutomations,
+  upsertEmailAutomation,
+  getProducts,
+  getGuides,
+  getReviewSettings,
+  markLeadReviewRequestSent,
+} from '@/lib/db';
 import { getOrders, markOrderReviewRequestSent } from '@/lib/orders';
 import { resend, FROM_EMAIL } from '@/lib/resend';
-import { campaignHtml, campaignText, reviewRequestHtml, reviewRequestText } from '@/lib/email-template';
-
-const REVIEW_REQUEST_DELAY_DAYS = 3;
+import { campaignHtml, campaignText } from '@/lib/email-template';
 
 // Vercel cron — runs daily at 09:00 UTC
 // Configure in vercel.json: { "crons": [{ "path": "/api/cron/automations", "schedule": "0 9 * * *" }] }
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
+
+function fillTemplate(template: string, vars: Record<string, string>): string {
+  return template.replace(/\{(\w+)\}/g, (_, key) => vars[key] ?? '');
+}
+
+function buildReviewEmail(opts: {
+  subject: string;
+  body: string;
+  ctaLabel: string;
+  ctaUrl: string;
+  vars: Record<string, string>;
+}) {
+  const subject = fillTemplate(opts.subject, opts.vars);
+  const bodyText = fillTemplate(opts.body, opts.vars);
+  // Append the CTA in the campaign template body
+  const fullBody = `${bodyText}\n\n→ ${opts.ctaLabel}: ${opts.ctaUrl}`;
+  return {
+    subject,
+    html: campaignHtml({ subject, body: bodyText + `\n\n<a href="${opts.ctaUrl}" style="display:inline-block;background:#fe0050;color:#fff;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:13px;font-weight:600;margin-top:14px;">${opts.ctaLabel} →</a>`, recipientName: opts.vars.nome }),
+    text: campaignText({ subject, body: fullBody, recipientName: opts.vars.nome }),
+  };
+}
 
 export async function GET(req: NextRequest) {
   const secret = req.headers.get('authorization');
@@ -16,7 +46,11 @@ export async function GET(req: NextRequest) {
   }
   if (!resend) return NextResponse.json({ skipped: 'no resend' });
 
-  const [automations, leads] = await Promise.all([getEmailAutomations(), getLeads()]);
+  const [automations, leads, settings] = await Promise.all([
+    getEmailAutomations(),
+    getLeads(),
+    getReviewSettings(),
+  ]);
   const activeAutomations = automations.filter((a) => a.active);
   const results: Record<string, number> = {};
 
@@ -26,7 +60,6 @@ export async function GET(req: NextRequest) {
     const lastRun = auto.lastRunAt || '1970-01-01T00:00:00Z';
 
     if (auto.trigger === 'signup') {
-      // Send to leads who signed up `delayDays` days ago (within a 24h window)
       const from = new Date(Date.now() - (auto.delayDays + 1) * 86400000).toISOString();
       targets = leads.filter((l) => l.email && l.createdAt >= from && l.createdAt < cutoff);
     } else if (auto.trigger === 'guide_download') {
@@ -64,47 +97,107 @@ export async function GET(req: NextRequest) {
     results[auto.name] = sent;
   }
 
-  // ── Review request emails ───────────────────────────────────────────────
-  // Find paid orders created at least REVIEW_REQUEST_DELAY_DAYS days ago
-  // that haven't been review-requested yet, and ping the customer for a review.
-  let reviewRequestsSent = 0;
-  try {
-    const [orders, products] = await Promise.all([getOrders(), getProducts()]);
-    const productById = new Map(products.map((p) => [p.id, p]));
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
-    const cutoff = Date.now() - REVIEW_REQUEST_DELAY_DAYS * 86400000;
+  // ── Review request emails — products ────────────────────────────────────
+  let productReviewRequestsSent = 0;
+  if (settings.productEnabled) {
+    try {
+      const [orders, products] = await Promise.all([getOrders(), getProducts()]);
+      const productById = new Map(products.map((p) => [p.id, p]));
+      const cutoffMs = Date.now() - settings.productDelayDays * 86400000;
 
-    for (const order of orders) {
-      if (order.reviewRequestSentAt) continue;
-      if (!order.customerEmail) continue;
-      if ((order.amountTotal ?? 0) <= 0) continue; // skip free / pending
-      const createdMs = new Date(order.createdAt).getTime();
-      if (createdMs > cutoff) continue;
+      for (const order of orders) {
+        if (order.reviewRequestSentAt) continue;
+        if (!order.customerEmail) continue;
+        if ((order.amountTotal ?? 0) <= 0) continue;
+        if (new Date(order.createdAt).getTime() > cutoffMs) continue;
 
-      const product = productById.get(order.productId);
-      const productUrl = product ? `${baseUrl}/products/${product.slug}` : baseUrl;
-      try {
-        await resend.emails.send({
-          from: FROM_EMAIL,
-          to: order.customerEmail,
-          subject: `Como foi sua experiência com "${order.productTitle}"?`,
-          html: reviewRequestHtml({ name: order.customerName, productTitle: order.productTitle, productUrl }),
-          text: reviewRequestText({ name: order.customerName, productTitle: order.productTitle, productUrl }),
+        const product = productById.get(order.productId);
+        if (!product) continue;
+        const ctaUrl = `${BASE_URL}/products/${product.slug}?review=1&name=${encodeURIComponent(order.customerName || '')}&email=${encodeURIComponent(order.customerEmail)}#avaliacoes`;
+        const email = buildReviewEmail({
+          subject: settings.productSubject,
+          body: settings.productBody,
+          ctaLabel: settings.ctaLabel,
+          ctaUrl,
+          vars: {
+            nome: order.customerName?.split(' ')[0] || '',
+            produto: order.productTitle,
+            link: ctaUrl,
+          },
         });
-        await markOrderReviewRequestSent(order.id);
-        reviewRequestsSent++;
-      } catch {
-        // silent — will retry next day
+        try {
+          await resend.emails.send({
+            from: FROM_EMAIL,
+            to: order.customerEmail,
+            subject: email.subject,
+            html: email.html,
+            text: email.text,
+          });
+          await markOrderReviewRequestSent(order.id);
+          productReviewRequestsSent++;
+        } catch {
+          // silent — retried next day
+        }
+        await new Promise((r) => setTimeout(r, 100));
       }
-      await new Promise((r) => setTimeout(r, 100));
+    } catch (err) {
+      console.error('[cron/automations] product review requests failed:', err);
     }
-  } catch (err) {
-    console.error('[cron/automations] review requests failed:', err);
+  }
+
+  // ── Review request emails — guides ──────────────────────────────────────
+  let guideReviewRequestsSent = 0;
+  if (settings.guideEnabled) {
+    try {
+      const guides = await getGuides();
+      const guideBySlug = new Map(guides.map((g) => [g.slug, g]));
+      const cutoffMs = Date.now() - settings.guideDelayDays * 86400000;
+
+      for (const lead of leads) {
+        if (lead.reviewRequestSentAt) continue;
+        if (!lead.email) continue;
+        if (!lead.guideDownloaded) continue;
+        if (!lead.guideSlug) continue;
+        if (new Date(lead.createdAt).getTime() > cutoffMs) continue;
+
+        const guide = guideBySlug.get(lead.guideSlug);
+        if (!guide) continue;
+        const ctaUrl = `${BASE_URL}/guia/${guide.slug}?review=1&name=${encodeURIComponent(lead.name || '')}&email=${encodeURIComponent(lead.email)}#avaliacoes`;
+        const email = buildReviewEmail({
+          subject: settings.guideSubject,
+          body: settings.guideBody,
+          ctaLabel: settings.ctaLabel,
+          ctaUrl,
+          vars: {
+            nome: lead.name?.split(' ')[0] || '',
+            guia: guide.title,
+            link: ctaUrl,
+          },
+        });
+        try {
+          await resend.emails.send({
+            from: FROM_EMAIL,
+            to: lead.email,
+            subject: email.subject,
+            html: email.html,
+            text: email.text,
+          });
+          await markLeadReviewRequestSent(lead.id);
+          guideReviewRequestsSent++;
+        } catch {
+          // silent — retried next day
+        }
+        await new Promise((r) => setTimeout(r, 100));
+      }
+    } catch (err) {
+      console.error('[cron/automations] guide review requests failed:', err);
+    }
   }
 
   return NextResponse.json({
     ran: activeAutomations.length,
     results,
-    reviewRequestsSent,
+    productReviewRequestsSent,
+    guideReviewRequestsSent,
   });
 }

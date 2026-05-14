@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Testimonial, Product } from '@/lib/types';
+import { Testimonial, Product, ReviewSettings } from '@/lib/types';
 import {
   Check, X, Star, Trash2, Eye, EyeOff, Sparkles, Clock,
   MessageSquare, Search, ChevronDown, Plus, ShieldCheck, MapPin, ThumbsUp, Reply, Send,
+  Settings as SettingsIcon, Save,
 } from 'lucide-react';
 
 type Filter = 'all' | 'pending' | 'approved' | 'rejected';
+type Tab = 'list' | 'settings';
 
 const EMPTY_FORM = {
   name: '',
@@ -62,6 +64,34 @@ export default function AdminTestimonials() {
   const [replyOpen, setReplyOpen] = useState<string | null>(null);
   const [replyDraft, setReplyDraft] = useState<Record<string, string>>({});
   const [replyBusy, setReplyBusy] = useState<string | null>(null);
+
+  // Settings tab
+  const [tab, setTab] = useState<Tab>('list');
+  const [reviewSettings, setReviewSettings] = useState<ReviewSettings | null>(null);
+  const [settingsSaving, setSettingsSaving] = useState(false);
+  const [settingsSaved, setSettingsSaved] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/admin/review-settings').then((r) => r.json()).then(setReviewSettings).catch(() => {});
+  }, []);
+
+  const saveReviewSettings = async () => {
+    if (!reviewSettings) return;
+    setSettingsSaving(true);
+    try {
+      const res = await fetch('/api/admin/review-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reviewSettings),
+      });
+      if (res.ok) {
+        setSettingsSaved(true);
+        setTimeout(() => setSettingsSaved(false), 2000);
+      }
+    } finally {
+      setSettingsSaving(false);
+    }
+  };
 
   const sendReply = async (id: string, text: string) => {
     setReplyBusy(id);
@@ -166,18 +196,43 @@ export default function AdminTestimonials() {
             Prova social
           </p>
           <h2 className="font-body text-text-primary font-medium" style={{ fontSize: fs('1.2rem', '1.8vw', '1.6rem') }}>
-            Depoimentos
+            Depoimentos & Avaliações
           </h2>
           <p className="text-text-muted mt-1" style={{ fontSize: fs('0.78rem', '0.9vw', '0.875rem') }}>
             {testimonials.length} recebidos · {pending.length} pendentes
           </p>
         </div>
-        <button
-          onClick={() => setShowCreate((v) => !v)}
-          className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
-        >
-          <Plus size={14} /> {showCreate ? 'Cancelar' : 'Novo depoimento'}
-        </button>
+        <div className="flex gap-2">
+          {tab === 'list' && (
+            <button
+              onClick={() => setShowCreate((v) => !v)}
+              className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
+            >
+              <Plus size={14} /> {showCreate ? 'Cancelar' : 'Novo depoimento'}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Top tabs: list / automation settings */}
+      <div className="flex gap-1 bg-surface border border-white/5 rounded-xl p-1 w-fit">
+        {([
+          { id: 'list' as Tab, label: 'Avaliações', icon: MessageSquare },
+          { id: 'settings' as Tab, label: 'Automação', icon: SettingsIcon },
+        ]).map((opt) => {
+          const Icon = opt.icon;
+          return (
+            <button
+              key={opt.id}
+              onClick={() => setTab(opt.id)}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium transition-all ${
+                tab === opt.id ? 'bg-accent/15 text-accent' : 'text-text-muted hover:text-text-primary'
+              }`}
+            >
+              <Icon size={12} /> {opt.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Create form */}
@@ -280,6 +335,8 @@ export default function AdminTestimonials() {
           </div>
         </div>
       )}
+
+      {tab === 'list' && (<>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
@@ -571,6 +628,120 @@ export default function AdminTestimonials() {
           })
         )}
       </div>
+
+      </>)}
+
+      {/* ── Automation settings tab ────────────────────────────────────── */}
+      {tab === 'settings' && reviewSettings && (
+        <div className="space-y-6 max-w-3xl">
+          <p className="text-text-muted text-sm">
+            Configure quando e como os emails automáticos de pedido de avaliação são enviados aos clientes (produtos pagos) e aos leitores que baixaram guias gratuitos. Placeholders disponíveis: <code className="bg-white/5 px-1.5 py-0.5 rounded text-xs">{'{nome}'}</code>, <code className="bg-white/5 px-1.5 py-0.5 rounded text-xs">{'{produto}'}</code> ou <code className="bg-white/5 px-1.5 py-0.5 rounded text-xs">{'{guia}'}</code>.
+          </p>
+
+          {/* Products block */}
+          <div className="rounded-2xl border border-white/8 bg-surface p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-text-primary font-medium">Avaliação de produto (pós-compra)</h3>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <span className="text-text-muted text-xs">{reviewSettings.productEnabled ? 'Ativo' : 'Inativo'}</span>
+                <button
+                  type="button"
+                  onClick={() => setReviewSettings({ ...reviewSettings, productEnabled: !reviewSettings.productEnabled })}
+                  className={`w-10 h-6 rounded-full relative transition-colors ${reviewSettings.productEnabled ? 'bg-accent' : 'bg-white/10'}`}
+                >
+                  <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${reviewSettings.productEnabled ? 'left-[18px]' : 'left-0.5'}`} />
+                </button>
+              </label>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-3 items-center">
+              <label className="text-text-muted text-xs">Atraso (dias)</label>
+              <input
+                type="number"
+                min={0}
+                max={365}
+                value={reviewSettings.productDelayDays}
+                onChange={(e) => setReviewSettings({ ...reviewSettings, productDelayDays: Number(e.target.value) })}
+                className="bg-white/[0.03] border border-white/8 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent/30"
+              />
+              <label className="text-text-muted text-xs">Assunto</label>
+              <input
+                value={reviewSettings.productSubject}
+                onChange={(e) => setReviewSettings({ ...reviewSettings, productSubject: e.target.value })}
+                className="bg-white/[0.03] border border-white/8 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent/30"
+              />
+              <label className="text-text-muted text-xs self-start mt-2">Corpo</label>
+              <textarea
+                value={reviewSettings.productBody}
+                onChange={(e) => setReviewSettings({ ...reviewSettings, productBody: e.target.value })}
+                rows={6}
+                className="bg-white/[0.03] border border-white/8 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent/30 resize-y"
+              />
+            </div>
+          </div>
+
+          {/* Guides block */}
+          <div className="rounded-2xl border border-white/8 bg-surface p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-text-primary font-medium">Avaliação de guia gratuito (pós-download)</h3>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <span className="text-text-muted text-xs">{reviewSettings.guideEnabled ? 'Ativo' : 'Inativo'}</span>
+                <button
+                  type="button"
+                  onClick={() => setReviewSettings({ ...reviewSettings, guideEnabled: !reviewSettings.guideEnabled })}
+                  className={`w-10 h-6 rounded-full relative transition-colors ${reviewSettings.guideEnabled ? 'bg-accent' : 'bg-white/10'}`}
+                >
+                  <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${reviewSettings.guideEnabled ? 'left-[18px]' : 'left-0.5'}`} />
+                </button>
+              </label>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-3 items-center">
+              <label className="text-text-muted text-xs">Atraso (dias)</label>
+              <input
+                type="number"
+                min={0}
+                max={365}
+                value={reviewSettings.guideDelayDays}
+                onChange={(e) => setReviewSettings({ ...reviewSettings, guideDelayDays: Number(e.target.value) })}
+                className="bg-white/[0.03] border border-white/8 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent/30"
+              />
+              <label className="text-text-muted text-xs">Assunto</label>
+              <input
+                value={reviewSettings.guideSubject}
+                onChange={(e) => setReviewSettings({ ...reviewSettings, guideSubject: e.target.value })}
+                className="bg-white/[0.03] border border-white/8 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent/30"
+              />
+              <label className="text-text-muted text-xs self-start mt-2">Corpo</label>
+              <textarea
+                value={reviewSettings.guideBody}
+                onChange={(e) => setReviewSettings({ ...reviewSettings, guideBody: e.target.value })}
+                rows={6}
+                className="bg-white/[0.03] border border-white/8 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent/30 resize-y"
+              />
+            </div>
+          </div>
+
+          {/* CTA label */}
+          <div className="rounded-2xl border border-white/8 bg-surface p-6">
+            <label className="block text-text-muted text-xs mb-2">Texto do botão de chamada (CTA)</label>
+            <input
+              value={reviewSettings.ctaLabel}
+              onChange={(e) => setReviewSettings({ ...reviewSettings, ctaLabel: e.target.value })}
+              className="w-full bg-white/[0.03] border border-white/8 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent/30"
+            />
+          </div>
+
+          {/* Save */}
+          <div className="flex justify-end">
+            <button
+              onClick={saveReviewSettings}
+              disabled={settingsSaving}
+              className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white px-5 py-3 rounded-xl text-sm font-medium transition-all"
+            >
+              {settingsSaved ? <><Check size={14} /> Salvo</> : settingsSaving ? 'Salvando...' : (<><Save size={14} /> Salvar configurações</>)}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
