@@ -39,11 +39,12 @@ export default async function ComunidadePage() {
                 <span className="text-[11px] text-accent tracking-[0.35em] uppercase mb-3 block">
                   Comunidade Íntima
                 </span>
-                <h1 className="font-heading text-4xl sm:text-5xl font-light text-text-primary leading-[1.05]">
-                  Um espaço para<br />
+                <h1 className="font-heading text-4xl sm:text-5xl font-light text-text-primary leading-[1.05] sm:whitespace-nowrap">
+                  {'Um espaço para '}
+                  <br className="sm:hidden" />
                   <span style={{ color: '#fe0050' }}>conversas reais</span>
                 </h1>
-                <p className="text-text-secondary text-sm leading-relaxed mt-3 max-w-md">
+                <p className="text-text-secondary text-sm leading-relaxed mt-3 max-w-md sm:max-w-none sm:whitespace-nowrap">
                   Sem julgamentos. Pessoas reais compartilhando o que vivem, sentem e aprendem.
                 </p>
               </div>
