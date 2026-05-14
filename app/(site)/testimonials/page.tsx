@@ -5,11 +5,14 @@ import AnimateOnScroll from '@/components/AnimateOnScroll';
 import TestimonialCard from '@/components/TestimonialCard';
 import { getTestimonials } from '@/lib/db';
 import { createT } from '@/lib/i18n';
+import { buildPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Histórias',
-  description: 'Transformações reais de quem aplicou a psicologia do Fator Íntimo.',
-};
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Histórias de Transformação',
+  description: 'Depoimentos reais de quem aplicou a psicologia do Fator Íntimo e transformou suas relações, sua autoestima e sua forma de amar.',
+  path: '/testimonials',
+  keywords: ['depoimentos fator íntimo', 'histórias transformação', 'avaliações psicologia relações'],
+});
 
 export const dynamic = 'force-dynamic';
 

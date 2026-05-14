@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, Youtube, Instagram, Facebook, MessageCircle, Heart, Users } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
@@ -9,6 +10,23 @@ import TestimonialsSlider from '@/components/TestimonialsSlider';
 import { getPosts, getProducts, getTestimonials, getMarqueePhrases, getGuides, getCommunityPosts } from '@/lib/db';
 import { getLatestVideos } from '@/lib/youtube';
 import { getLocale, createT } from '@/lib/i18n';
+import { buildPageMetadata } from '@/lib/seo';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Fator Íntimo: Psicologia das Relações',
+  description: 'Entenda o amor e domine suas relações. Psicologia profunda, inteligência emocional e comportamento humano — explore guias gratuitos, artigos e a comunidade Fator Íntimo.',
+  path: '/',
+  keywords: [
+    'psicologia das relações',
+    'amor e relacionamento',
+    'inteligência emocional',
+    'apego ansioso',
+    'autoconhecimento',
+    'comportamento humano',
+    'guia relacionamento grátis',
+    'comunidade psicologia',
+  ],
+});
 
 function TikTokIcon({ size = 18 }: { size?: number }) {
   return (

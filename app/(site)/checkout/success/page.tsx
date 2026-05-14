@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, Mail, Instagram, Youtube, ArrowRight } from 'lucide-react';
@@ -7,6 +8,13 @@ import DownloadButton from './DownloadButton';
 import PurchaseEvent from './PurchaseEvent';
 
 export const dynamic = 'force-dynamic';
+
+// Private confirmation page — must never be indexed
+export const metadata: Metadata = {
+  title: 'Compra Confirmada',
+  description: 'Sua compra foi confirmada.',
+  robots: { index: false, follow: false, nocache: true },
+};
 
 export default async function SuccessPage({
   searchParams,

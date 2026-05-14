@@ -44,10 +44,42 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = (await getProducts()).find((p) => p.slug === slug);
+  const allProducts = await getProducts();
+  const product = allProducts.find((p) => p.slug === slug);
   if (!product) notFound();
 
-  const productJsonLd = {
+  // Related products — same category first, then fill with featured/others
+  const relatedProducts = (() => {
+    const sameCategory = allProducts.filter((p) => p.id !== product.id && p.category === product.category);
+    const others = allProducts.filter((p) => p.id !== product.id && p.category !== product.category);
+    return [...sameCategory, ...others].slice(0, 3);
+  })();
+
+  // Load testimonials before building JSON-LD so the Product schema can
+  // include AggregateRating + reviews (eligible for star rich results).
+  const testimonials = (await getTestimonials(true)).filter(
+    (t) => t.productPurchased === product.title
+  );
+  const rated = testimonials.filter((t) => typeof t.rating === 'number' && t.rating! > 0);
+  const aggregateRating = rated.length > 0
+    ? {
+        '@type': 'AggregateRating',
+        ratingValue: (rated.reduce((s, t) => s + (t.rating ?? 0), 0) / rated.length).toFixed(2),
+        reviewCount: rated.length,
+        bestRating: 5,
+        worstRating: 1,
+      }
+    : null;
+  const reviewsForSchema = testimonials.slice(0, 10).map((t) => ({
+    '@type': 'Review',
+    reviewRating: t.rating
+      ? { '@type': 'Rating', ratingValue: t.rating, bestRating: 5 }
+      : undefined,
+    author: { '@type': 'Person', name: t.name },
+    reviewBody: t.content,
+  }));
+
+  const productJsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.title,
@@ -64,6 +96,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       seller: { '@type': 'Organization', name: 'Fator Íntimo' },
     },
   };
+  if (aggregateRating) productJsonLd.aggregateRating = aggregateRating;
+  if (reviewsForSchema.length > 0) productJsonLd.review = reviewsForSchema;
 
   const faqJsonLd = (product.faq?.length ?? 0) > 0 ? {
     '@context': 'https://schema.org',
@@ -84,10 +118,6 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       { '@type': 'ListItem', position: 3, name: product.title, item: `${SITE_URL}/products/${product.slug}` },
     ],
   };
-
-  const testimonials = (await getTestimonials()).filter(
-    (t) => t.productPurchased === product.title
-  );
 
   const stripeReady = !!process.env.STRIPE_SECRET_KEY;
   const discount = product.originalPrice
@@ -387,6 +417,50 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               </div>
             </AnimateOnScroll>
             <FAQAccordion items={product.faq} />
+          </div>
+        </section>
+      )}
+
+      {/* ── RELATED PRODUCTS ── */}
+      {relatedProducts.length > 0 && (
+        <section className="py-16 px-6 border-t border-white/5">
+          <div className="max-w-5xl mx-auto">
+            <AnimateOnScroll>
+              <p className="text-xs text-text-muted tracking-[0.3em] uppercase mb-8">Você também pode gostar</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {relatedProducts.map((p) => {
+                  const dscnt = p.originalPrice ? Math.round((1 - p.price / p.originalPrice) * 100) : null;
+                  return (
+                    <Link
+                      key={p.id}
+                      href={`/products/${p.slug}`}
+                      className="group rounded-2xl border border-white/8 bg-surface overflow-hidden hover:border-accent/30 transition-all"
+                    >
+                      <div className="relative aspect-[3/2] overflow-hidden">
+                        <Image
+                          src={p.coverImage}
+                          alt={p.title}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        {dscnt && (
+                          <div className="absolute top-3 right-3 bg-accent text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                            {dscnt}% OFF
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-5">
+                        <p className="text-xs text-accent uppercase tracking-widest mb-2">{p.category}</p>
+                        <h3 className="font-heading text-lg font-medium text-text-primary mb-2 line-clamp-2">{p.title}</h3>
+                        <p className="text-text-secondary text-sm italic line-clamp-2 mb-3">&ldquo;{p.hook}&rdquo;</p>
+                        <p className="font-heading text-xl font-medium text-text-primary">R$ {p.price}</p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </AnimateOnScroll>
           </div>
         </section>
       )}

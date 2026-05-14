@@ -5,11 +5,14 @@ import { ArrowRight } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import { getProducts } from '@/lib/db';
 import { createT } from '@/lib/i18n';
+import { buildPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Produtos',
-  description: 'Ferramentas de transformação para quem quer entender e dominar seus relacionamentos.',
-};
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Produtos & Materiais',
+  description: 'Ebooks e materiais exclusivos sobre psicologia das relações, apego, atração e inteligência emocional. Ferramentas para transformar sua vida amorosa.',
+  path: '/products',
+  keywords: ['ebook relacionamento', 'curso psicologia', 'material amor', 'fator íntimo produtos'],
+});
 
 export const dynamic = 'force-dynamic';
 

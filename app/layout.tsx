@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { LocaleProvider } from '@/components/LocaleProvider';
@@ -74,6 +74,14 @@ export const metadata: Metadata = {
     },
   },
   category: 'Lifestyle & Psychology',
+  manifest: '/manifest.webmanifest',
+};
+
+export const viewport: Viewport = {
+  themeColor: '#0a0705',
+  colorScheme: 'dark',
+  width: 'device-width',
+  initialScale: 1,
 };
 
 const LANG_ATTR: Record<string, string> = { pt: 'pt-BR', en: 'en', fr: 'fr' };
@@ -112,6 +120,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang={LANG_ATTR[locale]} suppressHydrationWarning>
       <head>
         <meta name="google-adsense-account" content="ca-pub-4821949064173943" />
+        {/* Preconnect to font hosts so the first request doesn't wait on DNS */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://storage.googleapis.com" />
+        <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
         <script
           dangerouslySetInnerHTML={{
             __html: `try{var t=localStorage.getItem('fi-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}`,

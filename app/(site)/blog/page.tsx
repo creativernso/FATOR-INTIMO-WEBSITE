@@ -6,11 +6,14 @@ import AnimateOnScroll from '@/components/AnimateOnScroll';
 import BlogCard from '@/components/BlogCard';
 import { getPosts } from '@/lib/db';
 import { getLocale, createT } from '@/lib/i18n';
+import { buildPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Artigos',
-  description: 'Psicologia profunda sobre relacionamentos, atração e comportamento humano.',
-};
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Blog — Psicologia das Relações',
+  description: 'Artigos profundos sobre psicologia do relacionamento, atração, apego, inteligência emocional e comportamento humano. Leituras semanais para você se entender — e às suas conexões.',
+  path: '/blog',
+  keywords: ['blog psicologia das relações', 'artigos relacionamento', 'apego ansioso artigo', 'inteligência emocional blog'],
+});
 
 export const dynamic = 'force-dynamic';
 

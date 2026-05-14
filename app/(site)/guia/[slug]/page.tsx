@@ -5,6 +5,7 @@ import { BookOpen, Check, ArrowLeft, ArrowRight } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import { getGuideBySlug, getGuides } from '@/lib/db';
 import { getLocale, createT } from '@/lib/i18n';
+import { SITE_URL } from '@/lib/seo';
 import GuideSubscribeForm from './GuideSubscribeForm';
 
 export const dynamic = 'force-dynamic';
@@ -12,12 +13,29 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const guide = await getGuideBySlug(slug);
-  if (!guide?.published) return {};
-  const locale = await getLocale();
-  const t = createT(locale);
+  if (!guide?.published) return { title: 'Guia não encontrado', robots: { index: false, follow: false } };
+  const description = (guide.subtitle || guide.description || '').slice(0, 160);
+  const url = `${SITE_URL}/guia/${guide.slug}`;
   return {
-    title: `${guide.title} — ${t('guide.badge_library')}`,
-    description: guide.subtitle || guide.description.slice(0, 160),
+    title: guide.title,
+    description,
+    alternates: { canonical: url },
+    keywords: guide.tags,
+    openGraph: {
+      type: 'article',
+      title: guide.title,
+      description,
+      url,
+      siteName: 'Fator Íntimo',
+      locale: 'pt_BR',
+      images: guide.coverImage ? [{ url: guide.coverImage, width: 1200, height: 630, alt: guide.title }] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: guide.title,
+      description,
+      images: guide.coverImage ? [guide.coverImage] : undefined,
+    },
   };
 }
 
@@ -32,8 +50,40 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ sl
 
   const related = allGuides.filter((g) => g.id !== guide.id && g.published).slice(0, 3);
 
+  const guideJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Book',
+    name: guide.title,
+    description: guide.description || guide.subtitle,
+    image: guide.coverImage,
+    author: { '@type': 'Person', name: guide.authorName || 'Rafael Moreira' },
+    publisher: { '@type': 'Organization', name: 'Fator Íntimo', url: SITE_URL },
+    inLanguage: 'pt-BR',
+    isAccessibleForFree: true,
+    bookFormat: 'https://schema.org/EBook',
+    url: `${SITE_URL}/guia/${guide.slug}`,
+  };
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Início', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Guias', item: `${SITE_URL}/guia` },
+      { '@type': 'ListItem', position: 3, name: guide.title, item: `${SITE_URL}/guia/${guide.slug}` },
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(guideJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       {/* Hero */}
       <section className="relative pt-32 pb-12 px-6 overflow-hidden">
         <div

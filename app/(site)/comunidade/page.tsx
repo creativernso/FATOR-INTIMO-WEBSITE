@@ -6,11 +6,14 @@ import CategoryBadge from '@/components/community/CategoryBadge';
 import FeedClient from '@/components/community/FeedClient';
 import { getCommunityPosts } from '@/lib/db';
 import { COMMUNITY_CATEGORIES } from '@/lib/community';
+import { buildPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: 'Comunidade Íntima',
-  description: 'Um espaço seguro para conversas profundas sobre relacionamentos, emoções e autoconhecimento.',
-};
+  description: 'Conversas reais sobre relacionamentos, emoções e autoconhecimento. Junte-se a milhares de pessoas que estão entendendo a fundo o próprio amor e suas relações.',
+  path: '/comunidade',
+  keywords: ['comunidade psicologia das relações', 'fórum amor', 'grupo autoconhecimento', 'comunidade íntima'],
+});
 
 export const dynamic = 'force-dynamic';
 

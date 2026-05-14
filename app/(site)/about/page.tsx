@@ -3,10 +3,26 @@ import Link from 'next/link';
 import { ArrowRight, Target, Eye, Heart, Zap } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import { getLocale, createT } from '@/lib/i18n';
+import { buildPageMetadata, SITE_URL } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Sobre',
-  description: 'Fator Íntimo é uma plataforma de psicologia dos relacionamentos, inteligência emocional e comportamento humano.',
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Sobre o Fator Íntimo',
+  description: 'A história, a visão e o método por trás do Fator Íntimo — uma plataforma de psicologia das relações fundada por Rafael Moreira para ajudar pessoas a entender, transformar e dominar a forma como se conectam.',
+  path: '/about',
+  keywords: ['sobre fator íntimo', 'rafael moreira psicólogo', 'método fator íntimo'],
+});
+
+const PERSON_JSONLD = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Rafael Moreira',
+  url: `${SITE_URL}/about`,
+  jobTitle: 'Especialista em Psicologia das Relações',
+  worksFor: { '@type': 'Organization', name: 'Fator Íntimo', url: SITE_URL },
+  sameAs: [
+    'https://www.instagram.com/fatorintimo/',
+    'https://www.youtube.com/@fatorintimo',
+  ],
 };
 
 export default async function AboutPage() {
@@ -37,6 +53,10 @@ export default async function AboutPage() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(PERSON_JSONLD) }}
+      />
       {/* ── HERO ── */}
       <section className="pt-36 pb-24 px-6 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-5 pointer-events-none"

@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import CategoryBadge from '@/components/community/CategoryBadge';
-import { getCommunityPost } from '@/lib/db';
+import { getCommunityPost, getCommunityComments } from '@/lib/db';
+import { SITE_URL } from '@/lib/seo';
 import PostInteractions from './PostInteractions';
 
 type Props = { params: Promise<{ postId: string }> };
@@ -12,10 +13,30 @@ type Props = { params: Promise<{ postId: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { postId } = await params;
   const post = await getCommunityPost(postId);
-  if (!post || post.status !== 'approved') return { title: 'Discussão — Comunidade Íntima' };
+  if (!post || post.status !== 'approved') {
+    return { title: 'Discussão — Comunidade Íntima', robots: { index: false, follow: true } };
+  }
+  const description = post.body.slice(0, 155);
+  const url = `${SITE_URL}/comunidade/${postId}`;
   return {
     title: post.title,
-    description: post.body.slice(0, 155),
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: 'article',
+      title: post.title,
+      description,
+      url,
+      siteName: 'Fator Íntimo',
+      locale: 'pt_BR',
+      publishedTime: post.createdAt,
+      authors: [post.anonymous ? 'Anônimo' : post.authorName],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description,
+    },
   };
 }
 
@@ -34,8 +55,66 @@ export default async function PostPage({ params }: Props) {
   const post = await getCommunityPost(postId);
   if (!post || post.status !== 'approved') notFound();
 
+  const comments = await getCommunityComments(postId);
+  const approvedComments = comments.filter((c) => c.status === 'approved');
+
+  const discussionJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'DiscussionForumPosting',
+    headline: post.title,
+    text: post.body,
+    datePublished: post.createdAt,
+    author: {
+      '@type': 'Person',
+      name: post.anonymous ? 'Anônimo' : post.authorName,
+    },
+    interactionStatistic: [
+      {
+        '@type': 'InteractionCounter',
+        interactionType: 'https://schema.org/CommentAction',
+        userInteractionCount: post.commentCount ?? approvedComments.length,
+      },
+      {
+        '@type': 'InteractionCounter',
+        interactionType: 'https://schema.org/LikeAction',
+        userInteractionCount: post.reactionCount ?? 0,
+      },
+    ],
+    comment: approvedComments.slice(0, 20).map((c) => ({
+      '@type': 'Comment',
+      text: c.content,
+      datePublished: c.createdAt,
+      author: { '@type': 'Person', name: c.anonymous ? 'Anônimo' : c.authorName },
+    })),
+    url: `${SITE_URL}/comunidade/${postId}`,
+    inLanguage: 'pt-BR',
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'Comunidade Íntima',
+      url: `${SITE_URL}/comunidade`,
+    },
+  };
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Início', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Comunidade', item: `${SITE_URL}/comunidade` },
+      { '@type': 'ListItem', position: 3, name: post.title, item: `${SITE_URL}/comunidade/${postId}` },
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(discussionJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <section className="pt-32 pb-8 px-6">
         <div className="max-w-3xl mx-auto">
           <AnimateOnScroll>
