@@ -111,14 +111,14 @@ export default function GuideLibraryContent({ guides }: Props) {
               ))}
             </div>
 
-            <div className="border-t border-white/[0.06] mt-14" />
+            <div className="border-t border-white/[0.04] mt-14" />
           </div>
         </section>
       )}
 
       {/* ── Filter + Sort ─────────────────────────────────────── */}
       <section className="px-6 sticky top-[72px] z-20 bg-background/80 backdrop-blur-xl">
-        <div className="max-w-6xl mx-auto py-4 border-b border-white/6">
+        <div className="max-w-6xl mx-auto py-4 border-b border-white/[0.04]">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 
             {/* Tag filter */}
@@ -139,7 +139,7 @@ export default function GuideLibraryContent({ guides }: Props) {
             </div>
 
             {/* Sort */}
-            <div className="flex items-center gap-1 bg-white/4 border border-white/8 rounded-xl p-1 flex-shrink-0">
+            <div className="flex items-center gap-1 bg-white/[0.03] border border-white/[0.05] rounded-xl p-1 flex-shrink-0">
               {[
                 { id: 'recentes' as SortMode, icon: Clock, label: t('library.sort_recent') },
                 { id: 'downloads' as SortMode, icon: TrendingUp, label: t('library.sort_popular') },
@@ -212,7 +212,7 @@ function GuidePortraitCard({ guide, large = false }: { guide: Guide; large?: boo
   const { t } = useLocale();
   return (
     <Link href={`/guia/${guide.slug}`} className="group block h-full">
-      <div className="relative overflow-hidden rounded-2xl border border-white/6 bg-surface transition-all duration-300 group-hover:border-accent/25 group-hover:shadow-xl group-hover:shadow-accent/6 flex flex-col h-full">
+      <div className="relative overflow-hidden rounded-2xl border border-white/[0.05] bg-surface transition-all duration-300 group-hover:border-accent/25 group-hover:shadow-xl group-hover:shadow-accent/6 flex flex-col h-full">
 
         {/* Portrait cover — 2:3 ratio */}
         <div
@@ -243,7 +243,7 @@ function GuidePortraitCard({ guide, large = false }: { guide: Guide; large?: boo
           {/* Tag pill — top left */}
           {(guide.category || (guide.tags ?? []).length > 0) && (
             <div className="absolute top-3 left-3">
-              <span className="text-[9px] bg-black/60 backdrop-blur-sm text-white/70 border border-white/10 rounded-full px-2 py-0.5">
+              <span className="text-[9px] bg-black/60 backdrop-blur-sm text-white/70 border border-white/[0.06] rounded-full px-2 py-0.5">
                 {guide.category || guide.tags![0]}
               </span>
             </div>
@@ -252,7 +252,7 @@ function GuidePortraitCard({ guide, large = false }: { guide: Guide; large?: boo
           {/* Download count — top right */}
           {(guide.downloadCount ?? 0) > 0 && (
             <div className="absolute top-3 right-3">
-              <span className="text-[9px] bg-black/60 backdrop-blur-sm text-white/60 border border-white/8 rounded-full px-2 py-0.5 flex items-center gap-1">
+              <span className="text-[9px] bg-black/60 backdrop-blur-sm text-white/60 border border-white/[0.06] rounded-full px-2 py-0.5 flex items-center gap-1">
                 <Download size={7} /> {guide.downloadCount}
               </span>
             </div>
