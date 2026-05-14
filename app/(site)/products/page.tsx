@@ -29,16 +29,16 @@ export default async function ProductsPage() {
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] pointer-events-none"
           style={{ background: 'radial-gradient(ellipse at top, rgba(254,0,80,0.07) 0%, transparent 65%)' }}
         />
-        <div className="relative max-w-2xl mx-auto">
+        <div className="relative max-w-2xl lg:max-w-5xl mx-auto">
           <AnimateOnScroll>
             <span className="text-xs text-accent tracking-[0.3em] uppercase mb-5 block">
               {t('products.label')}
             </span>
-            <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-light text-text-primary mb-6 leading-[1.05]">
+            <h1 className="font-heading text-5xl md:text-6xl lg:text-6xl font-light text-text-primary mb-6 leading-[1.05] lg:whitespace-nowrap">
               {t('products.heading1')}{' '}
               <span style={{ color: '#fe0050' }}>{t('products.heading2')}</span>
             </h1>
-            <p className="text-text-muted text-sm tracking-wide max-w-md mx-auto leading-relaxed">
+            <p className="text-text-muted text-sm tracking-wide max-w-md mx-auto leading-relaxed lg:max-w-none lg:whitespace-nowrap">
               {t('products.desc')}
             </p>
           </AnimateOnScroll>
