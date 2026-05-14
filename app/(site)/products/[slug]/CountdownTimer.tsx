@@ -38,24 +38,30 @@ export default function CountdownTimer({ endsAt, text }: Props) {
   if (expired || !timeLeft) return null;
 
   return (
-    <div className="rounded-xl border border-accent/20 bg-accent/5 px-4 py-3 flex items-center gap-3">
-      <Clock size={14} className="text-accent flex-shrink-0 animate-pulse" />
+    <div className="rounded-2xl border border-accent/25 bg-accent/[0.06] px-5 py-4 sm:px-6 sm:py-5 flex items-center gap-4">
+      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-accent/10 border border-accent/25 flex items-center justify-center flex-shrink-0">
+        <Clock size={24} className="text-accent animate-pulse" />
+      </div>
       <div className="flex-1 min-w-0">
-        <p className="text-accent text-xs font-medium mb-1.5">
+        <p className="text-accent text-sm font-medium mb-2 tracking-wide">
           {text || 'Oferta por tempo limitado'}
         </p>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-baseline gap-2 sm:gap-3">
           {[
             { v: timeLeft.h, label: 'h' },
             { v: timeLeft.m, label: 'min' },
             { v: timeLeft.s, label: 's' },
           ].map(({ v, label }, i) => (
-            <div key={i} className="flex items-center gap-1">
-              <span className="font-heading text-lg font-medium text-text-primary tabular-nums">
+            <div key={i} className="flex items-baseline gap-1">
+              <span className="font-heading text-3xl sm:text-4xl font-medium text-text-primary tabular-nums leading-none">
                 {pad(v)}
               </span>
-              <span className="text-text-muted text-[11px]">{label}</span>
-              {i < 2 && <span className="text-text-muted/40 text-sm font-light">:</span>}
+              <span className="text-text-muted text-xs sm:text-sm font-medium">{label}</span>
+              {i < 2 && (
+                <span className="text-text-muted/30 text-2xl sm:text-3xl font-light leading-none ml-1 sm:ml-2">
+                  :
+                </span>
+              )}
             </div>
           ))}
         </div>

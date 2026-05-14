@@ -154,7 +154,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
           {/* Cover */}
           <AnimateOnScroll>
-            <div className="relative rounded-2xl overflow-hidden border border-white/8 shadow-2xl shadow-black/40 aspect-[3/4] lg:aspect-auto lg:h-[560px]">
+            <div className="relative rounded-2xl overflow-hidden border border-white/8 shadow-2xl shadow-black/40 aspect-[3/4] mx-auto w-full max-w-md lg:max-w-none">
               <Image
                 src={product.coverImage}
                 alt={product.title}
