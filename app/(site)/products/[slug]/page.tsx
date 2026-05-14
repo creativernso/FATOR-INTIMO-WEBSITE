@@ -272,7 +272,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       {/* ── SALES VIDEO ── */}
       {product.videoUrl && (
         <section className="py-10 px-6 border-t border-white/5">
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <AnimateOnScroll>
               <p className="text-xs text-accent tracking-widest uppercase mb-5 text-center">Apresentação</p>
               <SalesVideo url={product.videoUrl} />
