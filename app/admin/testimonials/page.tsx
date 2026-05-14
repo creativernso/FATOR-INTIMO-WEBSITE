@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Testimonial, Product } from '@/lib/types';
 import {
   Check, X, Star, Trash2, Eye, EyeOff, Sparkles, Clock,
-  MessageSquare, Search, ChevronDown, Plus,
+  MessageSquare, Search, ChevronDown, Plus, ShieldCheck, MapPin, ThumbsUp, Reply, Send,
 } from 'lucide-react';
 
 type Filter = 'all' | 'pending' | 'approved' | 'rejected';
@@ -59,6 +59,25 @@ export default function AdminTestimonials() {
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [replyOpen, setReplyOpen] = useState<string | null>(null);
+  const [replyDraft, setReplyDraft] = useState<Record<string, string>>({});
+  const [replyBusy, setReplyBusy] = useState<string | null>(null);
+
+  const sendReply = async (id: string, text: string) => {
+    setReplyBusy(id);
+    try {
+      await fetch(`/api/reviews/${id}/reply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+      setReplyOpen(null);
+      setReplyDraft((d) => ({ ...d, [id]: '' }));
+      await fetchAll();
+    } finally {
+      setReplyBusy(null);
+    }
+  };
 
   const fetchAll = async () => {
     setLoading(true);
@@ -341,6 +360,11 @@ export default function AdminTestimonials() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
                       <span className="text-text-primary text-sm font-medium">{displayName}</span>
+                      {t.verifiedPurchase && (
+                        <span className="inline-flex items-center gap-1 text-[10px] text-green-400 bg-green-400/10 border border-green-400/20 rounded-full px-1.5 py-0.5">
+                          <ShieldCheck size={9} /> verificado
+                        </span>
+                      )}
                       {t.anonymous && (
                         <span className="inline-flex items-center gap-1 text-[10px] text-text-muted border border-white/10 rounded-full px-1.5 py-0.5">
                           <EyeOff size={9} /> anônimo
@@ -397,6 +421,16 @@ export default function AdminTestimonials() {
                           ))}
                         </div>
                       )}
+                      {t.location && (
+                        <span className="inline-flex items-center gap-1 text-text-muted text-[10px]">
+                          <MapPin size={9} /> {t.location}
+                        </span>
+                      )}
+                      {(t.helpfulCount ?? 0) > 0 && (
+                        <span className="inline-flex items-center gap-1 text-text-muted text-[10px]">
+                          <ThumbsUp size={9} /> {t.helpfulCount} útil
+                        </span>
+                      )}
                       <div className="flex items-center gap-1.5">
                         <label className="text-text-muted text-[10px] uppercase tracking-wider">Produto:</label>
                         <select
@@ -412,6 +446,68 @@ export default function AdminTestimonials() {
                         </select>
                       </div>
                     </div>
+
+                    {/* Admin reply */}
+                    {t.adminReply?.text && replyOpen !== t.id && (
+                      <div className="mt-3 rounded-xl bg-accent/[0.05] border-l-2 border-accent/40 pl-3 py-2 pr-3 flex items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-accent text-[10px] font-medium mb-1 flex items-center gap-1">
+                            <Reply size={10} /> Sua resposta
+                          </p>
+                          <p className="text-text-secondary text-xs leading-relaxed whitespace-pre-line">{t.adminReply.text}</p>
+                        </div>
+                        <button
+                          onClick={() => { setReplyOpen(t.id); setReplyDraft((d) => ({ ...d, [t.id]: t.adminReply!.text })); }}
+                          className="text-text-muted hover:text-accent text-[10px] transition-colors flex-shrink-0"
+                        >
+                          Editar
+                        </button>
+                      </div>
+                    )}
+
+                    {replyOpen === t.id ? (
+                      <div className="mt-3 space-y-2">
+                        <textarea
+                          value={replyDraft[t.id] ?? ''}
+                          onChange={(e) => setReplyDraft((d) => ({ ...d, [t.id]: e.target.value }))}
+                          rows={2}
+                          placeholder="Sua resposta como Fator Íntimo..."
+                          className="w-full bg-white/[0.03] border border-white/8 rounded-lg px-3 py-2 text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/30 resize-none"
+                          autoFocus
+                        />
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => { setReplyOpen(null); }}
+                            className="text-text-muted hover:text-text-primary text-xs"
+                          >
+                            Cancelar
+                          </button>
+                          {t.adminReply?.text && (
+                            <button
+                              onClick={() => sendReply(t.id, '')}
+                              disabled={replyBusy === t.id}
+                              className="text-red-400 hover:text-red-300 text-xs"
+                            >
+                              Remover
+                            </button>
+                          )}
+                          <button
+                            onClick={() => sendReply(t.id, (replyDraft[t.id] ?? '').trim())}
+                            disabled={replyBusy === t.id || !(replyDraft[t.id] ?? '').trim()}
+                            className="inline-flex items-center gap-1 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                          >
+                            <Send size={10} /> Publicar resposta
+                          </button>
+                        </div>
+                      </div>
+                    ) : !t.adminReply?.text ? (
+                      <button
+                        onClick={() => setReplyOpen(t.id)}
+                        className="mt-3 inline-flex items-center gap-1 text-xs text-text-muted hover:text-accent transition-colors"
+                      >
+                        <Reply size={11} /> Responder
+                      </button>
+                    ) : null}
                   </div>
 
                   {/* Actions */}

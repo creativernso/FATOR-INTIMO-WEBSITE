@@ -11,6 +11,7 @@ import CountdownTimer from './CountdownTimer';
 import SalesVideo from './SalesVideo';
 import ProductEvents from './ProductEvents';
 import StarRating from '@/components/StarRating';
+import ReviewSection from './ReviewSection';
 
 export const dynamic = 'force-dynamic';
 
@@ -375,43 +376,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         </section>
       )}
 
-      {/* ── TESTIMONIALS ── */}
-      {testimonials.length > 0 && (
-        <section className="py-14 px-6 border-t border-white/5">
-          <div className="max-w-6xl mx-auto">
-            <AnimateOnScroll>
-              <div className="text-center mb-10">
-                <h2 className="font-heading text-3xl font-light text-text-primary">
-                  Quem já <span style={{ color: '#fe0050' }}>transformou</span>
-                </h2>
-              </div>
-            </AnimateOnScroll>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {testimonials.map((t, i) => (
-                <AnimateOnScroll key={t.id} delay={i * 80}>
-                  <div className="p-6 rounded-2xl border border-white/5 bg-surface flex flex-col gap-4">
-                    <div className="flex gap-0.5">
-                      {Array.from({ length: t.rating ?? 0 }).map((_, s) => (
-                        <Star key={s} size={13} className="text-accent fill-accent" />
-                      ))}
-                    </div>
-                    <p className="text-text-secondary text-sm leading-relaxed flex-1">&ldquo;{t.content}&rdquo;</p>
-                    {t.transformation && (
-                      <div className="border-t border-white/5 pt-3">
-                        <p className="text-text-muted text-xs italic">{t.transformation}</p>
-                      </div>
-                    )}
-                    <div>
-                      <p className="text-text-primary text-sm font-medium">{t.name}</p>
-                      <p className="text-text-muted text-xs">{t.role}</p>
-                    </div>
-                  </div>
-                </AnimateOnScroll>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* ── REVIEWS ── (replaces the static testimonials block — now fully interactive) */}
+      <ReviewSection productSlug={product.slug} productTitle={product.title} />
 
       {/* ── FAQ ── */}
       {product.faq && product.faq.length > 0 && (

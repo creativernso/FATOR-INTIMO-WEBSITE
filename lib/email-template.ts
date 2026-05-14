@@ -731,6 +731,71 @@ Acessar: ${postUrl}
 
 // ── Community: someone commented on your post ────────────────────────────────
 
+// ── Review request after purchase ─────────────────────────────────────────────
+
+interface ReviewRequestData {
+  name?: string;
+  productTitle: string;
+  productUrl: string;
+}
+
+export function reviewRequestHtml({ name, productTitle, productUrl }: ReviewRequestData): string {
+  const firstName = name?.split(' ')[0] || '';
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0a0705;font-family:Georgia,serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0705;padding:48px 16px;">
+    <tr><td align="center">
+      <table width="100%" style="max-width:560px;background:#1a1410;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;">
+        <tr><td style="height:1px;background:linear-gradient(to right,transparent,#fe0050,transparent);"></td></tr>
+        <tr><td align="center" style="padding:36px 40px 0;">
+          <p style="margin:0;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#fe0050;">FATOR ÍNTIMO</p>
+        </td></tr>
+        <tr><td style="padding:28px 40px 8px;">
+          <h1 style="margin:0;font-size:26px;font-weight:300;color:#f5f0eb;line-height:1.3;">Como foi sua experiência${firstName ? `, ${firstName}` : ''}?</h1>
+        </td></tr>
+        <tr><td style="padding:8px 40px 24px;">
+          <p style="margin:0 0 14px;font-size:14px;color:#a09080;line-height:1.7;">
+            Espero que <strong style="color:#f5f0eb;">${productTitle}</strong> esteja tocando algo dentro de você.
+          </p>
+          <p style="margin:0;font-size:14px;color:#a09080;line-height:1.7;">
+            Sua avaliação ajuda outras pessoas a encontrarem o caminho que você acabou de começar. Demora menos de um minuto — e faz toda a diferença.
+          </p>
+        </td></tr>
+        <tr><td style="padding:0 40px;text-align:center;">
+          <table align="center" cellpadding="0" cellspacing="0">
+            <tr>
+              ${[1,2,3,4,5].map(() => `<td style="padding:0 4px;color:#fe0050;font-size:30px;">★</td>`).join('')}
+            </tr>
+          </table>
+        </td></tr>
+        <tr><td align="center" style="padding:24px 40px 36px;">
+          <a href="${productUrl}#avaliacoes" style="display:inline-block;background:#fe0050;color:#fff;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:13px;font-weight:600;letter-spacing:0.5px;">Deixar minha avaliação →</a>
+        </td></tr>
+        <tr><td style="padding:20px 40px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+          <p style="margin:0;font-size:12px;color:#605040;">Obrigado por confiar no Fator Íntimo. Sua voz aqui é o que sustenta o projeto.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+export function reviewRequestText({ name, productTitle, productUrl }: ReviewRequestData): string {
+  const firstName = name?.split(' ')[0] || '';
+  return `Como foi sua experiência${firstName ? `, ${firstName}` : ''}?
+
+Espero que "${productTitle}" esteja tocando algo dentro de você.
+
+Sua avaliação ajuda outras pessoas a encontrarem o caminho que você acabou de começar. Demora menos de um minuto — e faz toda a diferença.
+
+Deixar avaliação: ${productUrl}
+
+— Fator Íntimo`;
+}
+
 interface CommunityNewCommentData {
   authorName: string;
   postTitle: string;

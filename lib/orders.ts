@@ -11,6 +11,7 @@ export interface Order {
   currency: string;
   createdAt: string;
   downloadUrl?: string;
+  reviewRequestSentAt?: string;
 }
 
 const db = () => getAdminDb();
@@ -28,4 +29,10 @@ export async function getOrderBySession(sessionId: string): Promise<Order | unde
   const snap = await db().collection('orders').where('sessionId', '==', sessionId).limit(1).get();
   if (snap.empty) return undefined;
   return snap.docs[0].data() as Order;
+}
+
+export async function markOrderReviewRequestSent(orderId: string): Promise<void> {
+  await db().collection('orders').doc(orderId).update({
+    reviewRequestSentAt: new Date().toISOString(),
+  });
 }

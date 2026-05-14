@@ -58,6 +58,16 @@ export interface Testimonial {
   status?: 'pending' | 'approved' | 'rejected';
   featured?: boolean;
   submittedAt?: string;
+  // Review-system extras
+  email?: string;             // used for verified-purchase lookup, never displayed
+  location?: string;          // free text, e.g. "São Paulo, BR"
+  photoUrl?: string;          // optional review photo (distinct from avatar)
+  verifiedPurchase?: boolean; // matched against orders by email
+  helpfulCount?: number;      // visitors who clicked "Foi útil"
+  adminReply?: {
+    text: string;
+    repliedAt: string;
+  };
 }
 
 export interface Lead {

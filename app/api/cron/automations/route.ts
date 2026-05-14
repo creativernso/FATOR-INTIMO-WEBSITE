@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLeads, getEmailAutomations, upsertEmailAutomation } from '@/lib/db';
+import { getLeads, getEmailAutomations, upsertEmailAutomation, getProducts } from '@/lib/db';
+import { getOrders, markOrderReviewRequestSent } from '@/lib/orders';
 import { resend, FROM_EMAIL } from '@/lib/resend';
-import { campaignHtml, campaignText } from '@/lib/email-template';
+import { campaignHtml, campaignText, reviewRequestHtml, reviewRequestText } from '@/lib/email-template';
+
+const REVIEW_REQUEST_DELAY_DAYS = 3;
 
 // Vercel cron — runs daily at 09:00 UTC
 // Configure in vercel.json: { "crons": [{ "path": "/api/cron/automations", "schedule": "0 9 * * *" }] }
@@ -61,5 +64,47 @@ export async function GET(req: NextRequest) {
     results[auto.name] = sent;
   }
 
-  return NextResponse.json({ ran: activeAutomations.length, results });
+  // ── Review request emails ───────────────────────────────────────────────
+  // Find paid orders created at least REVIEW_REQUEST_DELAY_DAYS days ago
+  // that haven't been review-requested yet, and ping the customer for a review.
+  let reviewRequestsSent = 0;
+  try {
+    const [orders, products] = await Promise.all([getOrders(), getProducts()]);
+    const productById = new Map(products.map((p) => [p.id, p]));
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
+    const cutoff = Date.now() - REVIEW_REQUEST_DELAY_DAYS * 86400000;
+
+    for (const order of orders) {
+      if (order.reviewRequestSentAt) continue;
+      if (!order.customerEmail) continue;
+      if ((order.amountTotal ?? 0) <= 0) continue; // skip free / pending
+      const createdMs = new Date(order.createdAt).getTime();
+      if (createdMs > cutoff) continue;
+
+      const product = productById.get(order.productId);
+      const productUrl = product ? `${baseUrl}/products/${product.slug}` : baseUrl;
+      try {
+        await resend.emails.send({
+          from: FROM_EMAIL,
+          to: order.customerEmail,
+          subject: `Como foi sua experiência com "${order.productTitle}"?`,
+          html: reviewRequestHtml({ name: order.customerName, productTitle: order.productTitle, productUrl }),
+          text: reviewRequestText({ name: order.customerName, productTitle: order.productTitle, productUrl }),
+        });
+        await markOrderReviewRequestSent(order.id);
+        reviewRequestsSent++;
+      } catch {
+        // silent — will retry next day
+      }
+      await new Promise((r) => setTimeout(r, 100));
+    }
+  } catch (err) {
+    console.error('[cron/automations] review requests failed:', err);
+  }
+
+  return NextResponse.json({
+    ran: activeAutomations.length,
+    results,
+    reviewRequestsSent,
+  });
 }

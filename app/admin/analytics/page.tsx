@@ -290,6 +290,112 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         )}
       </div>
 
+      {/* ── Reviews analytics ─────────────────────────────────────────── */}
+      {(() => {
+        // Compute on the fly so this stays a single-file change
+        const reviewed = testimonials.filter((t) => typeof t.rating === 'number' && t.rating! > 0);
+        const totalReviews = reviewed.length;
+        const avgReview = totalReviews > 0
+          ? reviewed.reduce((s, t) => s + (t.rating ?? 0), 0) / totalReviews
+          : 0;
+        const verifiedReviews = reviewed.filter((t) => t.verifiedPurchase).length;
+        const pendingReviews = testimonials.filter((t) => !t.status || t.status === 'pending').length;
+        const dist: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        reviewed.forEach((t) => {
+          const r = Math.round(t.rating ?? 0);
+          if (r >= 1 && r <= 5) dist[r]++;
+        });
+        const maxDist = Math.max(1, ...Object.values(dist));
+
+        // Top reviewed products
+        const reviewsByProductTitle = new Map<string, { count: number; sum: number }>();
+        reviewed.forEach((t) => {
+          if (!t.productPurchased) return;
+          const entry = reviewsByProductTitle.get(t.productPurchased) ?? { count: 0, sum: 0 };
+          entry.count++;
+          entry.sum += t.rating ?? 0;
+          reviewsByProductTitle.set(t.productPurchased, entry);
+        });
+        const topReviewed = Array.from(reviewsByProductTitle.entries())
+          .map(([title, v]) => ({ title, count: v.count, avg: v.sum / v.count }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 5);
+
+        if (totalReviews === 0) return null;
+
+        return (
+          <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
+            <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#fe005018', border: '1px solid #fe005038' }}>
+                  <Star size={15} className="text-accent fill-accent" />
+                </div>
+                <div>
+                  <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>Avaliações de produtos</h3>
+                  <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
+                    {totalReviews} avaliações · {verifiedReviews} verificadas · {pendingReviews} pendentes
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/admin/testimonials"
+                className="text-text-muted hover:text-accent transition-colors text-xs"
+              >
+                Gerenciar →
+              </Link>
+            </div>
+            <div className="px-5 py-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Score + distribution */}
+              <div>
+                <div className="flex items-baseline gap-3 mb-4">
+                  <p className="font-heading text-5xl font-light text-text-primary leading-none">{avgReview.toFixed(1)}</p>
+                  <p className="text-text-muted text-sm">/ 5</p>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  {[5, 4, 3, 2, 1].map((s) => {
+                    const n = dist[s] ?? 0;
+                    const pct = totalReviews > 0 ? (n / totalReviews) * 100 : 0;
+                    const width = (n / maxDist) * 100;
+                    return (
+                      <div key={s} className="flex items-center gap-2 text-xs">
+                        <span className="text-text-muted w-6 flex items-center gap-0.5">
+                          {s}<Star size={8} className="text-accent fill-accent" />
+                        </span>
+                        <div className="flex-1 h-1 rounded-full bg-white/[0.04] overflow-hidden">
+                          <div className="h-full bg-accent rounded-full transition-all duration-700" style={{ width: `${width}%` }} />
+                        </div>
+                        <span className="text-text-muted w-10 text-right tabular-nums">{pct.toFixed(0)}%</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              {/* Top reviewed products */}
+              <div>
+                <p className="text-text-muted text-xs uppercase tracking-widest mb-3">Mais avaliados</p>
+                {topReviewed.length === 0 ? (
+                  <p className="text-text-muted text-xs">Nenhum produto avaliado ainda.</p>
+                ) : (
+                  <div className="space-y-2.5">
+                    {topReviewed.map((p) => (
+                      <div key={p.title} className="flex items-center justify-between gap-3">
+                        <p className="text-text-secondary text-xs flex-1 truncate">{p.title}</p>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className="text-accent text-xs font-medium tabular-nums flex items-center gap-1">
+                            <Star size={10} className="fill-accent" /> {p.avg.toFixed(1)}
+                          </span>
+                          <span className="text-text-muted text-[10px]">({p.count})</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Two-column tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
