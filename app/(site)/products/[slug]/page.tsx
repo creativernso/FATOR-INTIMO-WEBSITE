@@ -194,14 +194,14 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               {/* Price box */}
               <div className="rounded-2xl border border-white/8 bg-surface p-6 space-y-4">
                 <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
-                  <p className="font-heading text-4xl font-medium text-text-primary">
-                    R$ {product.price},<span className="text-2xl">00</span>
-                  </p>
                   {product.originalPrice && (
                     <p className="text-accent text-base sm:text-lg line-through font-medium opacity-80">
                       R$ {product.originalPrice},00
                     </p>
                   )}
+                  <p className="font-heading text-4xl font-medium text-text-primary">
+                    R$ {product.price},<span className="text-2xl">00</span>
+                  </p>
                   {discount && (
                     <span className="text-accent text-sm font-medium">Economize {discount}%</span>
                   )}

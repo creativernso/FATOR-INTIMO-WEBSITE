@@ -46,19 +46,19 @@ export default function CountdownTimer({ endsAt, text }: Props) {
         <p className="text-accent text-sm font-medium mb-2 tracking-wide">
           {text || 'Oferta por tempo limitado'}
         </p>
-        <div className="flex items-baseline gap-2 sm:gap-3">
+        <div className="flex items-baseline gap-1 sm:gap-1.5">
           {[
             { v: timeLeft.h, label: 'h' },
             { v: timeLeft.m, label: 'min' },
             { v: timeLeft.s, label: 's' },
           ].map(({ v, label }, i) => (
-            <div key={i} className="flex items-baseline gap-1">
+            <div key={i} className="flex items-baseline gap-0.5">
               <span className="font-heading text-3xl sm:text-4xl font-medium text-text-primary tabular-nums leading-none">
                 {pad(v)}
               </span>
-              <span className="text-text-muted text-xs sm:text-sm font-medium">{label}</span>
+              <span className="text-white/40 text-[10px] sm:text-xs font-medium">{label}</span>
               {i < 2 && (
-                <span className="text-text-muted/30 text-2xl sm:text-3xl font-light leading-none ml-1 sm:ml-2">
+                <span className="text-white/20 text-xl sm:text-2xl font-light leading-none mx-1">
                   :
                 </span>
               )}
