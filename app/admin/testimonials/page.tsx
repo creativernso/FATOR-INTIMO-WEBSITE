@@ -1,13 +1,28 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Testimonial } from '@/lib/types';
+import { Testimonial, Product } from '@/lib/types';
 import {
   Check, X, Star, Trash2, Eye, EyeOff, Sparkles, Clock,
-  MessageSquare, Search, ChevronDown,
+  MessageSquare, Search, ChevronDown, Plus,
 } from 'lucide-react';
 
 type Filter = 'all' | 'pending' | 'approved' | 'rejected';
+
+const EMPTY_FORM = {
+  name: '',
+  role: '',
+  age: '',
+  headline: '',
+  content: '',
+  transformation: '',
+  rating: '5',
+  productPurchased: '',
+  avatar: '',
+  socialHandle: '',
+  anonymous: false,
+  featured: false,
+};
 
 const fs = (min: string, mid: string, max: string) => `clamp(${min}, ${mid}, ${max})`;
 
@@ -35,23 +50,53 @@ function StatusBadge({ status }: { status?: string }) {
 
 export default function AdminTestimonials() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<Filter>('all');
   const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [saving, setSaving] = useState(false);
 
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/testimonials');
-      if (res.ok) setTestimonials(await res.json());
+      const [tRes, pRes] = await Promise.all([
+        fetch('/api/admin/testimonials'),
+        fetch('/api/products'),
+      ]);
+      if (tRes.ok) setTestimonials(await tRes.json());
+      if (pRes.ok) setProducts(await pRes.json());
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => { fetchAll(); }, []);
+
+  const handleCreate = async () => {
+    if (!form.name.trim() || !form.content.trim()) {
+      alert('Nome e conteúdo são obrigatórios.');
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch('/api/admin/testimonials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) {
+        setForm(EMPTY_FORM);
+        setShowCreate(false);
+        await fetchAll();
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const patch = async (id: string, data: Partial<Testimonial>) => {
     setActionLoading(id);
@@ -96,7 +141,7 @@ export default function AdminTestimonials() {
   return (
     <div className="space-y-6 lg:space-y-8">
       {/* Header */}
-      <div className="flex items-end justify-between">
+      <div className="flex items-end justify-between gap-3 flex-wrap">
         <div>
           <p className="text-text-muted tracking-widest uppercase mb-1.5" style={{ fontSize: fs('0.62rem', '0.72vw', '0.7rem') }}>
             Prova social
@@ -108,7 +153,114 @@ export default function AdminTestimonials() {
             {testimonials.length} recebidos · {pending.length} pendentes
           </p>
         </div>
+        <button
+          onClick={() => setShowCreate((v) => !v)}
+          className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
+        >
+          <Plus size={14} /> {showCreate ? 'Cancelar' : 'Novo depoimento'}
+        </button>
       </div>
+
+      {/* Create form */}
+      {showCreate && (
+        <div className="rounded-2xl border border-accent/20 bg-accent/[0.04] p-5 lg:p-6 space-y-4">
+          <h3 className="text-text-primary font-medium text-sm">Adicionar depoimento</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="Nome *"
+              className="bg-surface border border-white/8 rounded-xl px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/30 transition-colors"
+            />
+            <input
+              value={form.role}
+              onChange={(e) => setForm({ ...form, role: e.target.value })}
+              placeholder="Profissão (opcional)"
+              className="bg-surface border border-white/8 rounded-xl px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/30 transition-colors"
+            />
+            <input
+              value={form.age}
+              onChange={(e) => setForm({ ...form, age: e.target.value.replace(/[^0-9]/g, '') })}
+              placeholder="Idade (opcional)"
+              className="bg-surface border border-white/8 rounded-xl px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/30 transition-colors"
+            />
+            <select
+              value={form.productPurchased}
+              onChange={(e) => setForm({ ...form, productPurchased: e.target.value })}
+              className="bg-surface border border-white/8 rounded-xl px-3.5 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent/30 transition-colors"
+            >
+              <option value="">Produto associado (opcional)</option>
+              {products.map((p) => (
+                <option key={p.id} value={p.title}>{p.title}</option>
+              ))}
+            </select>
+          </div>
+          <input
+            value={form.headline}
+            onChange={(e) => setForm({ ...form, headline: e.target.value })}
+            placeholder="Frase de destaque (opcional)"
+            className="w-full bg-surface border border-white/8 rounded-xl px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/30 transition-colors"
+          />
+          <textarea
+            value={form.content}
+            onChange={(e) => setForm({ ...form, content: e.target.value })}
+            placeholder="Conteúdo do depoimento *"
+            rows={4}
+            className="w-full bg-surface border border-white/8 rounded-xl px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/30 transition-colors resize-none"
+          />
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2">
+              <label className="text-text-muted text-xs">Nota</label>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setForm({ ...form, rating: String(r) })}
+                    className="transition-colors"
+                  >
+                    <Star
+                      size={18}
+                      className={Number(form.rating) >= r ? 'text-accent fill-accent' : 'text-accent/20'}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+            <label className="flex items-center gap-2 text-text-secondary text-xs">
+              <input
+                type="checkbox"
+                checked={form.featured}
+                onChange={(e) => setForm({ ...form, featured: e.target.checked })}
+              />
+              Destacar
+            </label>
+            <label className="flex items-center gap-2 text-text-secondary text-xs">
+              <input
+                type="checkbox"
+                checked={form.anonymous}
+                onChange={(e) => setForm({ ...form, anonymous: e.target.checked })}
+              />
+              Anônimo
+            </label>
+          </div>
+          <div className="flex items-center justify-end gap-2 pt-2">
+            <button
+              onClick={() => { setForm(EMPTY_FORM); setShowCreate(false); }}
+              className="px-4 py-2 text-text-muted hover:text-text-primary text-sm transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleCreate}
+              disabled={saving || !form.name.trim() || !form.content.trim()}
+              className="bg-accent hover:bg-accent-hover disabled:opacity-50 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all"
+            >
+              {saving ? 'Salvando...' : 'Adicionar (aprovado)'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
@@ -237,7 +389,7 @@ export default function AdminTestimonials() {
                       </div>
                     )}
 
-                    <div className="flex items-center gap-3 mt-2">
+                    <div className="flex items-center gap-3 mt-2 flex-wrap">
                       {t.rating && (
                         <div className="flex gap-0.5">
                           {Array.from({ length: t.rating }).map((_, i) => (
@@ -245,9 +397,20 @@ export default function AdminTestimonials() {
                           ))}
                         </div>
                       )}
-                      {t.productPurchased && (
-                        <span className="text-accent text-xs">{t.productPurchased}</span>
-                      )}
+                      <div className="flex items-center gap-1.5">
+                        <label className="text-text-muted text-[10px] uppercase tracking-wider">Produto:</label>
+                        <select
+                          value={t.productPurchased || ''}
+                          onChange={(e) => patch(t.id, { productPurchased: e.target.value || undefined })}
+                          disabled={busy}
+                          className="bg-white/4 border border-white/8 rounded-lg px-2 py-1 text-xs text-accent focus:outline-none focus:border-accent/30 max-w-[200px] truncate"
+                        >
+                          <option value="">— Geral —</option>
+                          {products.map((p) => (
+                            <option key={p.id} value={p.title}>{p.title}</option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                   </div>
 
