@@ -53,12 +53,12 @@ export default function CountdownTimer({ endsAt, text }: Props) {
             { v: timeLeft.s, label: 's' },
           ].map(({ v, label }, i) => (
             <div key={i} className="flex items-baseline gap-0.5">
-              <span className="font-heading text-3xl sm:text-4xl font-medium text-text-primary tabular-nums leading-none">
+              <span className="font-heading text-3xl sm:text-4xl font-medium text-accent tabular-nums leading-none">
                 {pad(v)}
               </span>
-              <span className="text-white/40 text-[10px] sm:text-xs font-medium">{label}</span>
+              <span className="text-accent/70 text-[10px] sm:text-xs font-medium">{label}</span>
               {i < 2 && (
-                <span className="text-white/20 text-xl sm:text-2xl font-light leading-none mx-1">
+                <span className="text-accent/50 text-xl sm:text-2xl font-light leading-none mx-1">
                   :
                 </span>
               )}
