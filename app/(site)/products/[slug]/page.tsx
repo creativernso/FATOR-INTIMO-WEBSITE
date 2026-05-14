@@ -295,7 +295,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 <AnimateOnScroll key={i} delay={i * 60}>
                   <div className="flex items-start gap-3 p-4 rounded-xl border border-white/5 bg-surface">
                     <div className="w-5 h-5 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check size={10} className="text-green-400" strokeWidth={3} />
+                      <Check size={10} className="text-accent" strokeWidth={3} />
                     </div>
                     <p className="text-text-secondary text-sm leading-relaxed">{item}</p>
                   </div>
