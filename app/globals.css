@@ -344,3 +344,21 @@ h1, h2, h3, h4, h5 {
   box-shadow: 2px 0 24px rgba(0, 0, 0, 0.07);
   border-right-color: var(--border-subtle) !important;
 }
+
+/* ─── Countdown clock hand animations ────────────────────────────────────── */
+@keyframes fi-clock-minute {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes fi-clock-hour {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.fi-clock-hand-minute {
+  transform-origin: 12px 12px;
+  animation: fi-clock-minute 3s linear infinite;
+}
+.fi-clock-hand-hour {
+  transform-origin: 12px 12px;
+  animation: fi-clock-hour 36s linear infinite;
+}

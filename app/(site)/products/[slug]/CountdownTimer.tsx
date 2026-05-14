@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Clock } from 'lucide-react';
 
 interface Props {
   endsAt: string;
@@ -10,6 +9,44 @@ interface Props {
 
 function pad(n: number) {
   return String(n).padStart(2, '0');
+}
+
+// Custom clock icon whose hour and minute hands rotate independently. The
+// keyframes live in globals.css (fi-clock-minute / fi-clock-hour).
+function AnimatedClock({ size = 24 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="10" />
+      {/* Hour hand — rotates slowly */}
+      <line
+        x1="12"
+        y1="12"
+        x2="12"
+        y2="6"
+        className="fi-clock-hand-hour"
+      />
+      {/* Minute hand — rotates fast */}
+      <line
+        x1="12"
+        y1="12"
+        x2="16"
+        y2="14"
+        className="fi-clock-hand-minute"
+      />
+      {/* Center pivot dot */}
+      <circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none" />
+    </svg>
+  );
 }
 
 export default function CountdownTimer({ endsAt, text }: Props) {
@@ -39,8 +76,8 @@ export default function CountdownTimer({ endsAt, text }: Props) {
 
   return (
     <div className="rounded-2xl border border-accent/25 bg-accent/[0.06] px-5 py-4 sm:px-6 sm:py-5 flex items-center gap-4">
-      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-accent/10 border border-accent/25 flex items-center justify-center flex-shrink-0">
-        <Clock size={24} className="text-accent animate-pulse" />
+      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-accent/10 border border-accent/25 flex items-center justify-center flex-shrink-0 text-accent">
+        <AnimatedClock size={24} />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-accent text-sm font-medium mb-2 tracking-wide">
