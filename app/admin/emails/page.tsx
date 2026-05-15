@@ -350,7 +350,7 @@ export default function AdminEmails() {
 
           {/* Campaign history */}
           <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
-            <div className="px-5 py-4 border-b border-white/5">
+            <div className="px-5 py-4 border-b border-white/[0.04]">
               <h3 className="text-text-primary font-medium" style={{ fontSize: fs('0.85rem', '1vw', '0.95rem') }}>Histórico de campanhas</h3>
             </div>
             {campaigns.length === 0 ? (
@@ -360,7 +360,7 @@ export default function AdminEmails() {
                 <button onClick={() => setShowComposer(true)} className="text-accent hover:underline text-sm mt-2">Criar primeira campanha →</button>
               </div>
             ) : (
-              <div className="divide-y divide-white/4">
+              <div className="divide-y divide-white/[0.04]">
                 {campaigns.map((c) => {
                   const { cls, label } = statusBadge(c.status);
                   return (
@@ -420,11 +420,11 @@ export default function AdminEmails() {
           </div>
 
           <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/5">
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.04]">
               <p className="text-text-muted text-xs">{filteredLeads.length} contatos</p>
               <p className="text-text-muted text-xs">{emailLeads.length} com email · {leads.filter((l) => l.guideDownloaded).length} baixaram guia</p>
             </div>
-            <div className="divide-y divide-white/4 max-h-[500px] overflow-y-auto">
+            <div className="divide-y divide-white/[0.04] max-h-[500px] overflow-y-auto">
               {filteredLeads.length === 0 ? (
                 <div className="p-12 text-center"><p className="text-text-muted text-sm">Nenhum contato encontrado.</p></div>
               ) : filteredLeads.slice(0, 200).map((lead) => (
@@ -562,10 +562,10 @@ export default function AdminEmails() {
           </div>
 
           <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
-            <div className="px-5 py-4 border-b border-white/5">
+            <div className="px-5 py-4 border-b border-white/[0.04]">
               <h3 className="text-text-primary font-medium text-sm">Desempenho por campanha</h3>
             </div>
-            <div className="divide-y divide-white/4">
+            <div className="divide-y divide-white/[0.04]">
               {campaigns.filter((c) => c.status === 'sent').slice(0, 10).map((c) => {
                 const rate = c.totalRecipients > 0 ? Math.round((c.sentCount / c.totalRecipients) * 100) : 0;
                 return (

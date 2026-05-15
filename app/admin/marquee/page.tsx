@@ -84,7 +84,7 @@ export default function AdminMarqueePage() {
 
       {/* Preview strip */}
       <div className="mb-8 rounded-2xl border border-white/5 bg-surface overflow-hidden">
-        <div className="px-4 py-2.5 border-b border-white/5 flex items-center gap-2">
+        <div className="px-4 py-2.5 border-b border-white/[0.04] flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-green-400" />
           <span className="text-xs text-text-muted">Pré-visualização</span>
         </div>

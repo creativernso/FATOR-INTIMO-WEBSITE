@@ -101,7 +101,7 @@ export default function AdminComments() {
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-white/4">
+          <div className="divide-y divide-white/[0.04]">
             {filtered.map((c) => (
               <div key={c.id} className="p-5 lg:p-6 hover:bg-white/2 transition-colors">
                 <div className="flex items-start justify-between gap-4">

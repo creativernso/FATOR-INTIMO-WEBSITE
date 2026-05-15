@@ -244,7 +244,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
       {/* Meta Pixel status card */}
       <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
-        <div className="px-6 py-5 border-b border-white/5 flex items-center justify-between flex-wrap gap-3">
+        <div className="px-6 py-5 border-b border-white/[0.04] flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#1877f218', border: '1px solid #1877f238' }}>
               <Activity size={15} style={{ color: '#1877f2' }} />
@@ -325,7 +325,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
         return (
           <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
-            <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between flex-wrap gap-2">
+            <div className="px-5 py-4 border-b border-white/[0.04] flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#fe005018', border: '1px solid #fe005038' }}>
                   <Star size={15} className="text-accent fill-accent" />
@@ -400,7 +400,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
         <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.04]">
             <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
               Artigos publicados
             </h3>
@@ -408,7 +408,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
               Ver todos →
             </Link>
           </div>
-          <div className="divide-y divide-white/4">
+          <div className="divide-y divide-white/[0.04]">
             {topPosts.length === 0 ? (
               <p className="px-5 py-8 text-text-muted text-center" style={{ fontSize: '0.8rem' }}>Nenhum artigo ainda.</p>
             ) : topPosts.map((post, i) => (
@@ -427,7 +427,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         </div>
 
         <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.04]">
             <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
               Guias mais baixados
             </h3>
@@ -435,7 +435,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
               Ver todos →
             </Link>
           </div>
-          <div className="divide-y divide-white/4">
+          <div className="divide-y divide-white/[0.04]">
             {topGuides.length === 0 ? (
               <p className="px-5 py-8 text-text-muted text-center" style={{ fontSize: '0.8rem' }}>Nenhum guia ainda.</p>
             ) : topGuides.map((guide, i) => (

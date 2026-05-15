@@ -152,7 +152,7 @@ export default function AdminProducts() {
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b border-white/5">
+              <tr className="border-b border-white/[0.04]">
                 {['Produto', 'Categoria', 'Preço', 'Status', ''].map((h, i) => (
                   <th key={i}
                     className={`text-left px-5 lg:px-6 py-4 text-text-muted font-medium tracking-widest uppercase ${i === 1 ? 'hidden md:table-cell' : ''} ${i === 3 ? 'hidden sm:table-cell' : ''} ${i === 4 ? 'text-right' : ''}`}
@@ -162,7 +162,7 @@ export default function AdminProducts() {
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/4">
+            <tbody className="divide-y divide-white/[0.04]">
               {products.map((product) => (
                 <tr key={product.id} className="hover:bg-white/2 transition-colors group">
                   <td className="px-5 lg:px-6 py-4 lg:py-5">
@@ -215,7 +215,7 @@ export default function AdminProducts() {
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-6 px-4 pb-6 overflow-auto"
           style={{ background: 'rgba(10,7,3,0.92)', backdropFilter: 'blur(12px)' }}>
           <div className="bg-surface border border-white/8 rounded-2xl w-full max-w-2xl shadow-2xl">
-            <div className="flex items-center justify-between px-6 lg:px-8 py-5 border-b border-white/5">
+            <div className="flex items-center justify-between px-6 lg:px-8 py-5 border-b border-white/[0.04]">
               <div>
                 <h3 className="text-text-primary font-medium" style={{ fontSize: fs('0.95rem', '1.1vw', '1.05rem') }}>
                   {editingId ? 'Editar produto' : 'Novo produto'}
@@ -313,14 +313,14 @@ export default function AdminProducts() {
               </div>
 
               {/* Video */}
-              <div className="border-t border-white/5 pt-5">
+              <div className="border-t border-white/[0.04] pt-5">
                 <p className="text-text-primary text-xs font-medium mb-3 tracking-wide uppercase opacity-60">Vídeo de vendas</p>
                 <label className="text-text-muted text-xs mb-1.5 block">URL do vídeo (YouTube, Vimeo ou MP4)</label>
                 <input className="admin-input" value={form.videoUrl} onChange={(e) => setForm({ ...form, videoUrl: e.target.value })} placeholder="https://youtube.com/watch?v=... ou https://vimeo.com/..." />
               </div>
 
               {/* Countdown */}
-              <div className="border-t border-white/5 pt-5">
+              <div className="border-t border-white/[0.04] pt-5">
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-text-primary text-xs font-medium tracking-wide uppercase opacity-60">Countdown de urgência</p>
                   <button type="button" onClick={() => setForm({ ...form, countdownEnabled: !form.countdownEnabled })}
@@ -365,7 +365,7 @@ export default function AdminProducts() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 px-6 lg:px-8 py-5 border-t border-white/5">
+            <div className="flex items-center justify-end gap-3 px-6 lg:px-8 py-5 border-t border-white/[0.04]">
               <button onClick={() => setShowForm(false)} className="px-4 py-2.5 text-text-muted hover:text-text-primary transition-colors" style={{ fontSize: fs('0.8rem', '0.9vw', '0.875rem') }}>Cancelar</button>
               <button onClick={handleSave} disabled={saving || !form.title}
                 className="flex items-center gap-2 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white px-5 py-2.5 rounded-xl transition-all hover:shadow-lg hover:shadow-accent/20"

@@ -114,7 +114,7 @@ export default function AdminBlog() {
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b border-white/5">
+              <tr className="border-b border-white/[0.04]">
                 {['Artigo', 'Categoria', 'Data', 'Status', ''].map((h, i) => (
                   <th key={i} className={`text-left px-5 lg:px-6 py-4 text-text-muted font-medium tracking-widest uppercase ${i > 1 && i < 4 ? 'hidden md:table-cell' : ''} ${i === 1 ? 'hidden sm:table-cell' : ''} ${i === 4 ? 'text-right' : ''}`}
                     style={{ fontSize: fs('0.62rem', '0.7vw', '0.68rem') }}>
@@ -123,7 +123,7 @@ export default function AdminBlog() {
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/4">
+            <tbody className="divide-y divide-white/[0.04]">
               {posts.map((post) => {
                 const color = categoryColors[post.category] || '#6b7280';
                 return (
@@ -182,7 +182,7 @@ export default function AdminBlog() {
         >
           <div className="bg-surface border border-white/8 rounded-2xl w-full max-w-2xl shadow-2xl">
             {/* Modal header */}
-            <div className="flex items-center justify-between px-6 lg:px-8 py-5 border-b border-white/5">
+            <div className="flex items-center justify-between px-6 lg:px-8 py-5 border-b border-white/[0.04]">
               <div>
                 <h3 className="text-text-primary font-medium" style={{ fontSize: fs('0.95rem', '1.1vw', '1.05rem') }}>
                   {editingId ? 'Editar artigo' : 'Novo artigo'}
@@ -272,7 +272,7 @@ export default function AdminBlog() {
               />
             </div>
 
-            <div className="flex items-center justify-end gap-3 px-6 lg:px-8 py-5 border-t border-white/5">
+            <div className="flex items-center justify-end gap-3 px-6 lg:px-8 py-5 border-t border-white/[0.04]">
               <button onClick={() => setShowForm(false)} className="px-4 py-2.5 text-text-muted hover:text-text-primary transition-colors" style={{ fontSize: fs('0.8rem', '0.9vw', '0.875rem') }}>
                 Cancelar
               </button>

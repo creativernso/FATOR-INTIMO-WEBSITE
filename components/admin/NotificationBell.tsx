@@ -104,7 +104,7 @@ export default function NotificationBell() {
           className="absolute right-0 top-11 w-80 bg-surface border border-white/8 rounded-2xl shadow-2xl z-50 overflow-hidden"
           style={{ boxShadow: '0 16px 48px rgba(0,0,0,0.6)' }}
         >
-          <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/5">
+          <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/[0.04]">
             <div className="flex items-center gap-2">
               <span className="text-text-primary text-sm font-medium">Notificações</span>
               {unread > 0 && (
@@ -161,7 +161,7 @@ export default function NotificationBell() {
           </div>
 
           {notifications.length > 0 && (
-            <div className="px-4 py-3 border-t border-white/5 text-center">
+            <div className="px-4 py-3 border-t border-white/[0.04] text-center">
               <button
                 onClick={() => setOpen(false)}
                 className="text-text-muted text-xs hover:text-accent transition-colors flex items-center gap-1 mx-auto"

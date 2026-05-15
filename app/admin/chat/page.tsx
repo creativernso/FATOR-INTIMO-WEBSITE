@@ -194,7 +194,7 @@ export default function AdminChatPage() {
       {tab === 'chat' && (
         <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden" style={{ height: '65vh', display: 'flex' }}>
           <div className="w-64 lg:w-72 flex-shrink-0 border-r border-white/5 flex flex-col">
-            <div className="px-4 py-3 border-b border-white/5">
+            <div className="px-4 py-3 border-b border-white/[0.04]">
               <p className="text-text-muted text-xs font-medium tracking-widest uppercase">Conversas</p>
             </div>
             <div className="flex-1 overflow-y-auto">
@@ -207,7 +207,7 @@ export default function AdminChatPage() {
                 <button
                   key={s.visitorId}
                   onClick={() => setActiveSession(s.visitorId)}
-                  className={`w-full flex items-start gap-3 px-4 py-3.5 border-b border-white/4 text-left transition-colors ${
+                  className={`w-full flex items-start gap-3 px-4 py-3.5 border-b border-white/[0.04] text-left transition-colors ${
                     activeSession === s.visitorId ? 'bg-accent/8 border-l-2 border-l-accent' : 'hover:bg-white/3'
                   }`}
                 >
@@ -248,7 +248,7 @@ export default function AdminChatPage() {
               </div>
             ) : (
               <>
-                <div className="flex items-center gap-3 px-5 py-3.5 border-b border-white/5">
+                <div className="flex items-center gap-3 px-5 py-3.5 border-b border-white/[0.04]">
                   <div className="relative">
                     <div className="w-8 h-8 rounded-full bg-white/8 border border-white/10 flex items-center justify-center">
                       <User size={13} className="text-text-muted" />
@@ -292,7 +292,7 @@ export default function AdminChatPage() {
                 </div>
 
                 {settings.quickReplies.length > 0 && (
-                  <div className="px-4 pb-2 flex flex-wrap gap-1.5 border-t border-white/5 pt-2">
+                  <div className="px-4 pb-2 flex flex-wrap gap-1.5 border-t border-white/[0.04] pt-2">
                     {settings.quickReplies.map((reply, i) => (
                       <button
                         key={i}
@@ -305,7 +305,7 @@ export default function AdminChatPage() {
                   </div>
                 )}
 
-                <div className="border-t border-white/5 p-4 flex items-center gap-3">
+                <div className="border-t border-white/[0.04] p-4 flex items-center gap-3">
                   <input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}

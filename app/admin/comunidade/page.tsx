@@ -321,7 +321,7 @@ export default function AdminComunidade() {
           ) : (
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/5">
+                <tr className="border-b border-white/[0.04]">
                   {['Membro', 'Papel', 'Publicações', 'Status', ''].map((h, i) => (
                     <th key={i} className={`text-left px-5 py-4 text-text-muted font-medium tracking-widest uppercase text-[10px] ${
                       i >= 2 ? 'hidden md:table-cell' : ''
@@ -331,7 +331,7 @@ export default function AdminComunidade() {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/4">
+              <tbody className="divide-y divide-white/[0.04]">
                 {users.map((user) => (
                   <tr key={user.uid} className="hover:bg-white/2 group transition-colors">
                     <td className="px-5 py-4">

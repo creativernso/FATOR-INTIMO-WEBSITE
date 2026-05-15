@@ -141,7 +141,7 @@ export default async function AdminDashboard() {
 
         {/* Recent posts */}
         <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
-          <div className="flex items-center justify-between px-5 lg:px-6 py-4 lg:py-5 border-b border-white/5">
+          <div className="flex items-center justify-between px-5 lg:px-6 py-4 lg:py-5 border-b border-white/[0.04]">
             <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.85rem, 1vw, 1rem)' }}>
               Artigos recentes
             </h3>
@@ -153,7 +153,7 @@ export default async function AdminDashboard() {
               Ver todos <ArrowUpRight size={11} />
             </Link>
           </div>
-          <div className="divide-y divide-white/4">
+          <div className="divide-y divide-white/[0.04]">
             {posts.slice(0, 5).map((post) => (
               <div key={post.id} className="flex items-center gap-4 px-5 lg:px-6 py-3.5 lg:py-4 hover:bg-white/2 transition-colors">
                 <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/15 flex items-center justify-center flex-shrink-0">
@@ -195,7 +195,7 @@ export default async function AdminDashboard() {
 
         {/* Recent leads */}
         <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
-          <div className="flex items-center justify-between px-5 lg:px-6 py-4 lg:py-5 border-b border-white/5">
+          <div className="flex items-center justify-between px-5 lg:px-6 py-4 lg:py-5 border-b border-white/[0.04]">
             <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.85rem, 1vw, 1rem)' }}>
               Últimos leads
             </h3>
@@ -207,7 +207,7 @@ export default async function AdminDashboard() {
               Ver todos <ArrowUpRight size={11} />
             </Link>
           </div>
-          <div className="divide-y divide-white/4">
+          <div className="divide-y divide-white/[0.04]">
             {recentLeads.map((lead) => (
               <div key={lead.id} className="flex items-center gap-4 px-5 lg:px-6 py-3.5 lg:py-4 hover:bg-white/2 transition-colors">
                 <div
