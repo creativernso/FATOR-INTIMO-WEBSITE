@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from 'react';
 
 interface BadgeCounts {
   testimonials: number;
@@ -11,11 +11,8 @@ interface BadgeCounts {
 }
 
 interface BadgesContextValue {
-  // Effective badge counts (raw minus what the admin has already "seen")
-  badges: BadgeCounts;
-  // Raw current counts from the server (for components that need totals, not deltas)
-  rawCounts: BadgeCounts;
-  // Mark a section as visited — drops its effective badge to 0 until new items arrive
+  badges: BadgeCounts;       // effective: raw minus seen, clamped to 0
+  rawCounts: BadgeCounts;    // current totals from the server
   dismiss: (section: keyof BadgeCounts) => void;
 }
 
@@ -64,13 +61,20 @@ function computeEffective(raw: BadgeCounts, seen: BadgeCounts): BadgeCounts {
 export default function AdminBadgesProvider({ children }: { children: ReactNode }) {
   const [rawCounts, setRawCounts] = useState<BadgeCounts>(ZERO);
   const [seen, setSeen] = useState<BadgeCounts>(ZERO);
+  const [hasHydrated, setHasHydrated] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
+
+  // Keep a ref to the latest rawCounts so dismiss() doesn't churn references
+  const rawCountsRef = useRef(rawCounts);
+  useEffect(() => { rawCountsRef.current = rawCounts; }, [rawCounts]);
 
   // Hydrate "seen" from localStorage on first mount
   useEffect(() => {
     setSeen(loadSeen());
+    setHasHydrated(true);
   }, []);
 
-  // Poll the server for current counts
+  // Poll the server for current counts every 8s
   useEffect(() => {
     let cancelled = false;
     const fetchBadges = async () => {
@@ -80,6 +84,7 @@ export default function AdminBadgesProvider({ children }: { children: ReactNode 
         const data = await res.json();
         if (cancelled) return;
         setRawCounts({ ...ZERO, ...data });
+        setHasFetched(true);
       } catch {}
     };
     fetchBadges();
@@ -90,10 +95,13 @@ export default function AdminBadgesProvider({ children }: { children: ReactNode 
     };
   }, []);
 
-  // If the server count drops below what we had recorded as "seen" (e.g. admin
-  // approved 2 pending items), shrink seen to match — otherwise the badge stays
-  // hidden forever even when new items arrive later.
+  // Shrink "seen" if the server count drops below it (e.g. admin approved items).
+  // Crucially we only run this after BOTH the localStorage hydrate AND the first
+  // server fetch — otherwise the initial rawCounts=ZERO would wipe out the
+  // freshly-loaded localStorage values and the badge would reappear on every
+  // page navigation.
   useEffect(() => {
+    if (!hasHydrated || !hasFetched) return;
     setSeen((s) => {
       const next: BadgeCounts = {
         testimonials: Math.min(s.testimonials, rawCounts.testimonials),
@@ -112,16 +120,20 @@ export default function AdminBadgesProvider({ children }: { children: ReactNode 
       saveSeen(next);
       return next;
     });
-  }, [rawCounts]);
+  }, [rawCounts, hasHydrated, hasFetched]);
 
+  // Stable dismiss — always reads the latest rawCounts via the ref so this
+  // function never needs to be recreated (and never causes layout useEffects
+  // to re-run on every poll).
   const dismiss = useCallback((section: keyof BadgeCounts) => {
     setSeen((s) => {
-      if (s[section] === rawCounts[section]) return s;
-      const next = { ...s, [section]: rawCounts[section] };
+      const currentRaw = rawCountsRef.current[section];
+      if (s[section] === currentRaw) return s;
+      const next = { ...s, [section]: currentRaw };
       saveSeen(next);
       return next;
     });
-  }, [rawCounts]);
+  }, []);
 
   const effective = computeEffective(rawCounts, seen);
 

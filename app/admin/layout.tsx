@@ -55,10 +55,11 @@ const PATH_TO_SECTION: Record<string, BadgeSection> = {
 
 function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { badges, dismiss } = useAdminBadges();
+  const { badges, rawCounts, dismiss } = useAdminBadges();
 
-  // When the admin navigates to a section with a badge, mark it as seen so
-  // the badge disappears. It will only reappear if new items come in later.
+  // Dismiss the badge of the section the admin is currently viewing. Depends
+  // on rawCounts so that if a new item arrives while the admin is *already on*
+  // that section, the freshly-incremented count is also marked as seen.
   useEffect(() => {
     for (const [path, section] of Object.entries(PATH_TO_SECTION)) {
       if (pathname === path || pathname.startsWith(`${path}/`)) {
@@ -66,7 +67,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         return;
       }
     }
-  }, [pathname, dismiss]);
+  }, [pathname, rawCounts, dismiss]);
 
   if (pathname === '/admin/login') return <>{children}</>;
 
