@@ -100,7 +100,7 @@ export default async function ProductsPage() {
                         {/* Stars in the spot where the category badge used to live */}
                         <div className="mb-1.5 min-h-[18px]">
                           {rating && (
-                            <StarRating rating={rating.avg} count={rating.count} size={11} />
+                            <StarRating rating={rating.avg} count={rating.count} size={11} showCount={false} />
                           )}
                         </div>
                         <h2 className="font-heading text-sm md:text-base font-medium text-text-primary leading-snug mb-3 line-clamp-2">

@@ -44,7 +44,7 @@ export default function StarRating({
       </div>
       {showCount && typeof count === 'number' && count > 0 && (
         <span className="text-text-muted text-xs">
-          {clamped.toFixed(1)} · {count} {count === 1 ? 'avaliação' : 'avaliações'}
+          {clamped.toFixed(1)} · {count} {count === 1 ? 'leitor transformado' : 'leitores transformados'}
         </span>
       )}
     </div>
