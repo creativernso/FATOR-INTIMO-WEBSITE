@@ -140,7 +140,7 @@ export default function ReviewSection({ productSlug, guideSlug, productTitle, va
 
   return (
     <section id="avaliacoes" className="py-16 px-6 border-t border-white/5 scroll-mt-24">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <div className="flex flex-col gap-10">
 
           {/* Header */}

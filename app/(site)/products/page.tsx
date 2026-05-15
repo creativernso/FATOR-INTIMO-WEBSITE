@@ -97,13 +97,10 @@ export default async function ProductsPage() {
 
                       {/* Info below image */}
                       <div className="px-1 pb-1 flex flex-col flex-1">
-                        {/* Stars + count + category on the same top row */}
-                        <div className="flex items-center justify-between gap-2 mb-1.5 min-h-[18px]">
-                          <p className="text-accent text-[0.62rem] tracking-[0.2em] uppercase font-medium">
-                            {product.category}
-                          </p>
+                        {/* Stars in the spot where the category badge used to live */}
+                        <div className="mb-1.5 min-h-[18px]">
                           {rating && (
-                            <StarRating rating={rating.avg} count={rating.count} size={11} className="flex-shrink-0" />
+                            <StarRating rating={rating.avg} count={rating.count} size={11} />
                           )}
                         </div>
                         <h2 className="font-heading text-sm md:text-base font-medium text-text-primary leading-snug mb-3 line-clamp-2">

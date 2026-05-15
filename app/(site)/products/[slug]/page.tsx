@@ -177,8 +177,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <AnimateOnScroll delay={100}>
             <div className="flex flex-col gap-6">
               <div>
-                <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
-                  <span className="text-xs text-accent tracking-widest uppercase">{product.category}</span>
+                {/* Rating sits exactly where the "Relacionamentos" category badge used to be */}
+                <div className="mb-3 min-h-[20px]">
                   {aggregateRating && (
                     <StarRating
                       rating={Number(aggregateRating.ratingValue)}
