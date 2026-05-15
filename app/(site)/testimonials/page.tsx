@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight, PenLine } from 'lucide-react';
+import { ArrowRight, PenLine, Star, BookOpen, Users } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import TestimonialCard from '@/components/TestimonialCard';
 import { getTestimonials } from '@/lib/db';
@@ -75,13 +75,22 @@ export default async function TestimonialsPage() {
               <AnimateOnScroll>
                 <div className="grid grid-cols-3 gap-4 mb-14">
                   {[
-                    { value: `${testimonials.length}+`, label: statsLabels[0] },
-                    { value: `⭐ ${avgRating.toFixed(1)}`, label: statsLabels[1] },
-                    { value: '10k+', label: statsLabels[2] },
+                    { Icon: BookOpen, value: `${testimonials.length}+`, label: statsLabels[0] },
+                    { Icon: Star,     value: avgRating.toFixed(1),       label: statsLabels[1], fillStar: true },
+                    { Icon: Users,    value: '10k+',                     label: statsLabels[2] },
                   ].map((stat, i) => (
                     <div key={i} className="rounded-xl border border-white/5 bg-surface p-5 text-center">
-                      <p className="font-heading text-2xl md:text-3xl font-medium text-text-primary">{stat.value}</p>
-                      <p className="text-text-muted text-xs mt-1">{stat.label}</p>
+                      <div className="flex items-center justify-center gap-2">
+                        <stat.Icon
+                          size={22}
+                          className={stat.fillStar ? 'text-accent fill-accent' : 'text-accent'}
+                          strokeWidth={1.75}
+                        />
+                        <p className="font-heading text-2xl md:text-3xl font-medium text-text-primary leading-none">
+                          {stat.value}
+                        </p>
+                      </div>
+                      <p className="text-text-muted text-xs mt-2">{stat.label}</p>
                     </div>
                   ))}
                 </div>

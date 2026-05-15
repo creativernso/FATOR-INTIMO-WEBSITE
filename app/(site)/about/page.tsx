@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight, Target, Eye, Heart, Zap } from 'lucide-react';
+import { ArrowRight, Target, Eye, Heart, Zap, Brain, Search, Sprout } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import { getLocale, createT } from '@/lib/i18n';
 import { buildPageMetadata, SITE_URL } from '@/lib/seo';
@@ -30,10 +30,10 @@ export default async function AboutPage() {
   const t = createT(locale);
 
   const pillars = [
-    { icon: '🧠', title: t('about.pillar1_title'), desc: t('about.pillar1_desc') },
-    { icon: '⚡', title: t('about.pillar2_title'), desc: t('about.pillar2_desc') },
-    { icon: '🔍', title: t('about.pillar3_title'), desc: t('about.pillar3_desc') },
-    { icon: '🌱', title: t('about.pillar4_title'), desc: t('about.pillar4_desc') },
+    { Icon: Brain,  title: t('about.pillar1_title'), desc: t('about.pillar1_desc') },
+    { Icon: Zap,    title: t('about.pillar2_title'), desc: t('about.pillar2_desc') },
+    { Icon: Search, title: t('about.pillar3_title'), desc: t('about.pillar3_desc') },
+    { Icon: Sprout, title: t('about.pillar4_title'), desc: t('about.pillar4_desc') },
   ];
 
   const problems = [
@@ -157,7 +157,9 @@ export default async function AboutPage() {
             {pillars.map((p, i) => (
               <AnimateOnScroll key={i} delay={i * 80}>
                 <div className="p-6 rounded-2xl border border-white/5 bg-surface hover:border-accent/15 transition-all duration-300">
-                  <span className="text-3xl mb-4 block">{p.icon}</span>
+                  <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center mb-4">
+                    <p.Icon size={22} className="text-accent" strokeWidth={1.75} />
+                  </div>
                   <h3 className="font-heading text-xl font-medium text-text-primary mb-2">{p.title}</h3>
                   <p className="text-text-secondary text-sm leading-relaxed">{p.desc}</p>
                 </div>
