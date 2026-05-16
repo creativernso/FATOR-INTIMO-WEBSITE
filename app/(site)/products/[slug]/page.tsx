@@ -278,6 +278,20 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                     <path d="M29.4 7.6c-2 0-3.6.9-3.6 2.7 0 3.4 4.7 2.5 4.7 4.1 0 .6-.6 1-1.5 1-1.3 0-2.8-.5-4-1.3v3c1.3.6 2.7.9 4 .9 2.1 0 3.8-1 3.8-2.8 0-3.5-4.8-2.6-4.8-4.1 0-.6.5-.9 1.3-.9 1.2 0 2.5.4 3.5 1V8.1c-1-.4-2.2-.5-3.4-.5zm-8.8.2L18 17.8h2.5l.5-1.6h3.5l.5 1.6H27L24.4 7.8h-3.8zm1.6 2.4l1.2 3.8h-2.4l1.2-3.8zm-9.5-2.4v10h2.6v-10h-2.6zm-5.7 0H3v10h2.6v-3.3h.9c2.1 0 3.6-1.1 3.6-3.4 0-2.1-1.4-3.3-3.5-3.3zm-.1 2.1c.9 0 1.2.5 1.2 1.2 0 .8-.4 1.2-1.2 1.2H5.6v-2.4h1.3zm29.7 5.7c-1.2 0-1.9-1-1.9-2.5 0-1.6.7-2.5 1.9-2.5s1.9 1 1.9 2.5c0 1.6-.7 2.5-1.9 2.5zm0-7.8c-2.6 0-4.5 1.9-4.5 5.3s1.9 5.3 4.5 5.3 4.5-1.9 4.5-5.3-1.9-5.3-4.5-5.3zm13.2.2h-2.8l-2 3.4-2-3.4h-2.8l3.4 5.2-3.6 4.8H44l2.3-3.7 2.3 3.7h2.8l-3.6-4.8 3.4-5.2z" fill="#635bff"/>
                   </svg>
                 </div>
+                {/* Apple Pay */}
+                <div className="h-8 px-3 rounded-lg border border-white/10 bg-black flex items-center justify-center gap-1">
+                  <svg height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="white">
+                    <path d="M17.05 12.04c-.03-2.39 1.95-3.55 2.04-3.61-1.11-1.62-2.84-1.85-3.46-1.88-1.47-.15-2.87.86-3.62.86-.75 0-1.91-.84-3.14-.82-1.61.03-3.09.94-3.92 2.38-1.67 2.9-.43 7.18 1.2 9.53.8 1.16 1.74 2.45 2.97 2.4 1.2-.05 1.66-.78 3.11-.78 1.45 0 1.85.78 3.12.75 1.29-.03 2.1-1.17 2.89-2.34.91-1.34 1.29-2.65 1.31-2.72-.03-.01-2.51-.97-2.54-3.84zM14.66 5.05c.66-.82 1.11-1.93 1-3.05-.96.04-2.13.64-2.82 1.46-.62.72-1.16 1.87-1.01 2.97 1.07.08 2.16-.55 2.83-1.38z"/>
+                    <text x="0" y="22" fontFamily="system-ui,sans-serif" fontWeight="600" fontSize="6" fill="white">Pay</text>
+                  </svg>
+                </div>
+                {/* Google Pay */}
+                <div className="h-8 px-3 rounded-lg border border-white/10 bg-white flex items-center justify-center gap-1">
+                  <svg height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z" fill="#4285F4"/>
+                  </svg>
+                  <span className="text-[10px] font-semibold text-[#5f6368]">Pay</span>
+                </div>
               </div>
             </div>
           </AnimateOnScroll>
@@ -430,8 +444,12 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                       </div>
                       <div className="p-5">
                         <p className="text-xs text-accent uppercase tracking-widest mb-2">{p.category}</p>
-                        <h3 className="font-heading text-lg font-medium text-text-primary mb-2 line-clamp-2">{p.title}</h3>
-                        <p className="text-text-secondary text-sm italic line-clamp-2 mb-3">&ldquo;{p.hook}&rdquo;</p>
+                        <h3 className="font-heading text-lg font-medium text-text-primary uppercase tracking-tight leading-tight mb-2 line-clamp-2">{p.title}</h3>
+                        {p.hook && (
+                          <p className="text-accent text-xs font-medium uppercase tracking-wide leading-snug line-clamp-2 mb-3">
+                            {p.hook}
+                          </p>
+                        )}
                         <p className="font-heading text-xl font-medium text-text-primary">R$ {p.price}</p>
                       </div>
                     </Link>
