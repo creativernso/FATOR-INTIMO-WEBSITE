@@ -62,7 +62,7 @@ export default function GuideLibraryContent({ guides }: Props) {
             <span className="text-xs text-accent tracking-[0.4em] uppercase mb-6 block">
               {t('library.badge')}
             </span>
-            <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl font-light text-text-primary leading-[1.0] mb-6">
+            <h1 className="font-heading text-3xl sm:text-6xl md:text-7xl font-light text-text-primary leading-[1.1] sm:leading-[1.0] mb-6">
               {t('library.headline_1')}<br />
               <span style={{ color: '#fe0050' }}>{t('library.headline_2')}</span>
             </h1>

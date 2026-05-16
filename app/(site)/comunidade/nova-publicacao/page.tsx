@@ -3,7 +3,7 @@ import AnimateOnScroll from '@/components/AnimateOnScroll';
 import CreatePostForm from './CreatePostForm';
 
 export const metadata: Metadata = {
-  title: 'Nova publicação — Comunidade Íntima',
+  title: 'Nova publicação | Comunidade Íntima',
   description: 'Compartilhe sua história, reflexão ou pergunta com a Comunidade Íntima.',
 };
 

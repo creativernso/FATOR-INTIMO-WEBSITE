@@ -496,7 +496,7 @@ export default function AdminTestimonials() {
                           disabled={busy}
                           className="bg-white/4 border border-white/8 rounded-lg px-2 py-1 text-xs text-accent focus:outline-none focus:border-accent/30 max-w-[200px] truncate"
                         >
-                          <option value="">— Geral —</option>
+                          <option value="">Geral</option>
                           {products.map((p) => (
                             <option key={p.id} value={p.title}>{p.title}</option>
                           ))}

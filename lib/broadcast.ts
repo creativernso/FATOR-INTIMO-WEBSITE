@@ -52,7 +52,7 @@ export async function broadcastArticle(args: {
   if (leads.length === 0) return;
   await sendInChunks(leads, (lead) => ({
     to: lead.email!,
-    subject: `Novo artigo — ${args.title}`,
+    subject: `Novo artigo: ${args.title}`,
     html: newArticleHtml({
       name: lead.name,
       articleTitle: args.title,
@@ -81,7 +81,7 @@ export async function broadcastProduct(args: {
   if (leads.length === 0) return;
   await sendInChunks(leads, (lead) => ({
     to: lead.email!,
-    subject: `Novo material — ${args.title}`,
+    subject: `Novo material: ${args.title}`,
     html: newProductHtml({
       name: lead.name,
       productTitle: args.title,
@@ -111,7 +111,7 @@ export async function broadcastGuide(args: {
   if (leads.length === 0) return;
   await sendInChunks(leads, (lead) => ({
     to: lead.email!,
-    subject: `Novo guia gratuito — ${args.title}`,
+    subject: `Novo guia gratuito: ${args.title}`,
     html: newGuideHtml({
       name: lead.name,
       guideTitle: args.title,

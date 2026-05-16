@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 
   // Admin email alert (fire and forget)
   sendAdminAlert({
-    subject: `Novo artigo publicado — ${newPost.title}`,
+    subject: `Novo artigo publicado: ${newPost.title}`,
     title: `Novo artigo: ${newPost.title}`,
     body: newPost.excerpt || 'Um novo artigo foi publicado no blog.',
     ctaLabel: 'Ver artigo',

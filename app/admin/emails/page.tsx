@@ -22,9 +22,9 @@ const SEGMENTS: { val: Segment; label: string; desc: string }[] = [
 const TEMPLATES = [
   { label: 'Novo artigo', subject: 'Novo artigo no Fator Íntimo', body: 'Olá, {nome}!\n\nPublicamos um novo artigo que pode transformar a forma como você entende seus relacionamentos.\n\nAcesse agora em fatorintimo.com/blog\n\nCom carinho,\nFator Íntimo' },
   { label: 'Novo produto', subject: 'Novidade exclusiva para você', body: 'Olá, {nome}!\n\nTemos uma novidade especial para você. Nosso novo material está disponível com condições exclusivas para quem já faz parte da nossa comunidade.\n\nAcesse: fatorintimo.com/products\n\nFator Íntimo' },
-  { label: 'Newsletter', subject: 'Insights da semana — Fator Íntimo', body: 'Olá, {nome}!\n\nAqui estão os principais insights desta semana sobre psicologia das relações.\n\n[Escreva o conteúdo aqui]\n\nFator Íntimo' },
+  { label: 'Newsletter', subject: 'Insights da semana | Fator Íntimo', body: 'Olá, {nome}!\n\nAqui estão os principais insights desta semana sobre psicologia das relações.\n\n[Escreva o conteúdo aqui]\n\nFator Íntimo' },
   { label: 'Re-engajamento', subject: 'Sentimos sua falta, {nome}', body: 'Olá, {nome}!\n\nFaz algum tempo que não nos conectamos. Queremos lembrar que nossa comunidade está aqui para você.\n\nConfira o que há de novo: fatorintimo.com\n\nFator Íntimo' },
-  { label: 'Oferta especial', subject: '⏰ Oferta especial — apenas para você', body: 'Olá, {nome}!\n\nPreparamos uma condição especial exclusiva para membros da nossa lista.\n\nAproveite antes que expire: fatorintimo.com/products\n\nFator Íntimo' },
+  { label: 'Oferta especial', subject: '⏰ Oferta especial: apenas para você', body: 'Olá, {nome}!\n\nPreparamos uma condição especial exclusiva para membros da nossa lista.\n\nAproveite antes que expire: fatorintimo.com/products\n\nFator Íntimo' },
 ];
 
 const TRIGGER_LABELS: Record<EmailAutomation['trigger'], string> = {

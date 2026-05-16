@@ -101,7 +101,7 @@ export function alertNewCommunityPost(title: string, author: string) {
 
 export function alertNewOrder(productTitle: string, amount: number, customerEmail: string) {
   return sendAdminAlert({
-    subject: `Nova venda — R$ ${(amount / 100).toFixed(2)}`,
+    subject: `Nova venda: R$ ${(amount / 100).toFixed(2)}`,
     title: 'Nova venda realizada! 🎉',
     body: `${productTitle} foi comprado.`,
     ctaLabel: 'Ver pedido',

@@ -102,7 +102,7 @@ export function purchaseConfirmationHtml({ productTitle, customerName, downloadU
                 Garantia de 7 dias. Se não ficou satisfeito, basta responder este email.
               </p>
               <p style="margin:0;font-size:12px;color:#6b6055;">
-                © Fator Íntimo — fatorintimo.com
+                © Fator Íntimo · fatorintimo.com
               </p>
             </td>
           </tr>
@@ -126,7 +126,7 @@ ${downloadUrl ? `Baixe seu ebook aqui: ${downloadUrl}` : 'Seu link de download s
 
 Garantia de 7 dias. Qualquer dúvida, responda este email.
 
-— Fator Íntimo`;
+Fator Íntimo`;
 }
 
 // ─── Guide delivery email ───────────────────────────────────────────────────
@@ -191,7 +191,7 @@ export function guideDeliveryHtml({ name, downloadUrl, guideTitle, guideSubtitle
                 O seu guia <strong style="color:#dcdcdc;">${title}</strong> está pronto para download.
               </p>
               <p style="margin:0 0 28px;font-size:15px;line-height:1.85;color:#a0a0a0;">
-                Este material foi criado para quem quer entender, de verdade, o que acontece dentro das relações — e dentro de si mesmo.
+                Este material foi criado para quem quer entender, de verdade, o que acontece dentro das relações e dentro de si mesmo.
               </p>
 
               ${downloadUrl ? `
@@ -285,7 +285,7 @@ Explore mais:
 - Artigos: https://fatorintimo.com/blog
 - Materiais: https://fatorintimo.com/products
 
-— Fator Íntimo
+Fator Íntimo
 fatorintimo.com`;
 }
 
@@ -348,7 +348,7 @@ export function campaignHtml({ subject, body, recipientName }: CampaignEmailData
 }
 
 export function campaignText({ subject, body, recipientName }: CampaignEmailData): string {
-  return `${subject}\n\n${recipientName ? `Olá, ${recipientName},\n\n` : ''}${body}\n\n— Fator Íntimo\nfatorintimo.com`;
+  return `${subject}\n\n${recipientName ? `Olá, ${recipientName},\n\n` : ''}${body}\n\nFator Íntimo\nfatorintimo.com`;
 }
 
 // ─── Community welcome email ─────────────────────────────────────────────────
@@ -405,7 +405,7 @@ export function communityWelcomeHtml({ name }: CommunityWelcomeData): string {
                 Olá${name ? `, <strong style="color:#dcdcdc;">${displayName}</strong>` : ''},
               </p>
               <p style="margin:0 0 16px;font-size:15px;line-height:1.85;color:#a0a0a0;">
-                Seja bem-vindo à <strong style="color:#dcdcdc;">Comunidade Íntima</strong> — um espaço construído para conversas reais sobre relacionamentos, emoções, autoconhecimento e o que ninguém costuma falar em voz alta.
+                Seja bem-vindo à <strong style="color:#dcdcdc;">Comunidade Íntima</strong>, um espaço construído para conversas reais sobre relacionamentos, emoções, autoconhecimento e o que ninguém costuma falar em voz alta.
               </p>
               <p style="margin:0 0 28px;font-size:15px;line-height:1.85;color:#a0a0a0;">
                 Aqui você pode compartilhar o que vive, aprender com quem passou pelo mesmo e crescer com pessoas que estão, como você, em busca de algo mais profundo.
@@ -482,7 +482,7 @@ export function communityWelcomeText({ name }: CommunityWelcomeData): string {
 
 Olá${name ? `, ${name}` : ''},
 
-Seja bem-vindo à Comunidade Íntima — um espaço para conversas reais sobre relacionamentos, emoções e autoconhecimento.
+Seja bem-vindo à Comunidade Íntima, um espaço para conversas reais sobre relacionamentos, emoções e autoconhecimento.
 
 Aqui você pode compartilhar o que vive, aprender com quem passou pelo mesmo e crescer com pessoas que buscam algo mais profundo.
 
@@ -493,7 +493,7 @@ Explore também:
 - Materiais: https://fatorintimo.com/products
 - Instagram: https://www.instagram.com/fatorintimo/
 
-— Fator Íntimo
+Fator Íntimo
 fatorintimo.com`;
 }
 
@@ -545,13 +545,13 @@ export function newArticleHtml({ name, articleTitle, articleExcerpt, articleUrl,
 }
 
 export function newArticleText({ articleTitle, articleExcerpt, articleUrl }: NewArticleData): string {
-  return `Novo artigo — ${articleTitle}
+  return `Novo artigo: ${articleTitle}
 
 ${articleExcerpt}
 
 Leia agora: ${articleUrl}
 
-— Fator Íntimo
+Fator Íntimo
 fatorintimo.com`;
 }
 
@@ -609,13 +609,13 @@ export function newProductHtml({ name, productTitle, productHook, productPrice, 
 }
 
 export function newProductText({ productTitle, productHook, productPrice, productUrl }: NewProductData): string {
-  return `Novo material — ${productTitle}
+  return `Novo material: ${productTitle}
 ${productHook ? `\n"${productHook}"\n` : ''}
 Preço: R$ ${productPrice}
 
 Ver detalhes: ${productUrl}
 
-— Fator Íntimo
+Fator Íntimo
 fatorintimo.com`;
 }
 
@@ -667,13 +667,13 @@ export function newGuideHtml({ name, guideTitle, guideDescription, guideUrl, cov
 }
 
 export function newGuideText({ guideTitle, guideDescription, guideUrl }: NewGuideData): string {
-  return `Novo guia gratuito — ${guideTitle}
+  return `Novo guia gratuito: ${guideTitle}
 
 ${guideDescription}
 
 Baixar: ${guideUrl}
 
-— Fator Íntimo
+Fator Íntimo
 fatorintimo.com`;
 }
 
@@ -726,7 +726,7 @@ Sua publicação "${postTitle}" acaba de ser publicada na Comunidade Íntima.
 
 Acessar: ${postUrl}
 
-— Fator Íntimo`;
+Fator Íntimo`;
 }
 
 // ── Community: someone commented on your post ────────────────────────────────
@@ -760,7 +760,7 @@ export function reviewRequestHtml({ name, productTitle, productUrl }: ReviewRequ
             Espero que <strong style="color:#f5f0eb;">${productTitle}</strong> esteja tocando algo dentro de você.
           </p>
           <p style="margin:0;font-size:14px;color:#a09080;line-height:1.7;">
-            Sua avaliação ajuda outras pessoas a encontrarem o caminho que você acabou de começar. Demora menos de um minuto — e faz toda a diferença.
+            Sua avaliação ajuda outras pessoas a encontrarem o caminho que você acabou de começar. Demora menos de um minuto e faz toda a diferença.
           </p>
         </td></tr>
         <tr><td style="padding:0 40px;text-align:center;">
@@ -789,11 +789,11 @@ export function reviewRequestText({ name, productTitle, productUrl }: ReviewRequ
 
 Espero que "${productTitle}" esteja tocando algo dentro de você.
 
-Sua avaliação ajuda outras pessoas a encontrarem o caminho que você acabou de começar. Demora menos de um minuto — e faz toda a diferença.
+Sua avaliação ajuda outras pessoas a encontrarem o caminho que você acabou de começar. Demora menos de um minuto e faz toda a diferença.
 
 Deixar avaliação: ${productUrl}
 
-— Fator Íntimo`;
+Fator Íntimo`;
 }
 
 interface CommunityNewCommentData {
@@ -848,5 +848,5 @@ Em "${postTitle}":
 
 Responder: ${postUrl}
 
-— Fator Íntimo`;
+Fator Íntimo`;
 }

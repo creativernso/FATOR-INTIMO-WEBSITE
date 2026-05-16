@@ -9,7 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
   const t = createT(locale);
   return {
-    title: `${t('library.badge')} — Fator Íntimo`,
+    title: `${t('library.badge')} | Fator Íntimo`,
     description: t('library.subtext'),
   };
 }

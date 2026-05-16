@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { postId } = await params;
   const post = await getCommunityPost(postId);
   if (!post || post.status !== 'approved') {
-    return { title: 'Discussão — Comunidade Íntima', robots: { index: false, follow: true } };
+    return { title: 'Discussão | Comunidade Íntima', robots: { index: false, follow: true } };
   }
   const description = post.body.slice(0, 155);
   const url = `${SITE_URL}/comunidade/${postId}`;

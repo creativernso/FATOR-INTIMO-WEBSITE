@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Fator Íntimo — Psicologia das Relações',
+    name: 'Fator Íntimo: Psicologia das Relações',
     short_name: 'Fator Íntimo',
     description: 'Entenda o amor. Domine suas relações.',
     start_url: '/',

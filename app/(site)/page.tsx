@@ -14,7 +14,7 @@ import { buildPageMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Fator Íntimo: Psicologia das Relações',
-  description: 'Entenda o amor e domine suas relações. Psicologia profunda, inteligência emocional e comportamento humano — explore guias gratuitos, artigos e a comunidade Fator Íntimo.',
+  description: 'Entenda o amor e domine suas relações. Psicologia profunda, inteligência emocional e comportamento humano. Explore guias gratuitos, artigos e a comunidade Fator Íntimo.',
   path: '/',
   keywords: [
     'psicologia das relações',
@@ -129,8 +129,9 @@ export default async function Home() {
             <AnimateOnScroll>
               <div className="text-center mb-14">
                 <span className="text-xs text-accent tracking-widest uppercase mb-3 block">{t('home.testimonials.label')}</span>
-                <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary">
-                  <span style={{ color: '#fe0050' }}>{t('home.testimonials.heading1')}</span> {t('home.testimonials.heading2')}
+                <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-light text-text-primary leading-tight">
+                  <span style={{ color: '#fe0050' }}>{t('home.testimonials.heading1')}</span>{' '}
+                  <span className="block sm:inline">{t('home.testimonials.heading2')}</span>
                 </h2>
               </div>
             </AnimateOnScroll>

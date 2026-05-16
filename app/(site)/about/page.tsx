@@ -7,7 +7,7 @@ import { buildPageMetadata, SITE_URL } from '@/lib/seo';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Sobre o Fator Íntimo',
-  description: 'A história, a visão e o método por trás do Fator Íntimo — uma plataforma de psicologia das relações fundada por Rafael Moreira para ajudar pessoas a entender, transformar e dominar a forma como se conectam.',
+  description: 'A história, a visão e o método por trás do Fator Íntimo, uma plataforma de psicologia das relações fundada por Rafael Moreira para ajudar pessoas a entender, transformar e dominar a forma como se conectam.',
   path: '/about',
   keywords: ['sobre fator íntimo', 'rafael moreira psicólogo', 'método fator íntimo'],
 });

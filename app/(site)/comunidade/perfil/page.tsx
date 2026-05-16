@@ -3,7 +3,7 @@ import AnimateOnScroll from '@/components/AnimateOnScroll';
 import ProfileClient from './ProfileClient';
 
 export const metadata: Metadata = {
-  title: 'Meu Perfil — Comunidade Íntima',
+  title: 'Meu Perfil | Comunidade Íntima',
 };
 
 export default function PerfilPage() {

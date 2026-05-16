@@ -12,8 +12,8 @@ type Props = { params: Promise<{ categoria: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { categoria } = await params;
   const cat = getCategoryBySlug(categoria);
-  if (!cat) return { title: 'Categoria — Comunidade Íntima' };
-  return { title: `${cat.label} — Comunidade Íntima`, description: cat.description };
+  if (!cat) return { title: 'Categoria | Comunidade Íntima' };
+  return { title: `${cat.label} | Comunidade Íntima`, description: cat.description };
 }
 
 export const dynamic = 'force-dynamic';

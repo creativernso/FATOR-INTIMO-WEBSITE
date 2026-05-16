@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     const result = await resend.emails.send({
       from: FROM_EMAIL,
       to,
-      subject: '[Teste] Fator Íntimo — Email funcionando',
+      subject: '[Teste] Fator Íntimo: Email funcionando',
       html: `
         <div style="font-family:sans-serif;background:#111;color:#ddd;padding:40px;border-radius:12px;max-width:500px;margin:0 auto;">
           <p style="color:#fe0050;font-size:11px;letter-spacing:4px;text-transform:uppercase;">FATOR ÍNTIMO</p>

@@ -3,7 +3,7 @@ import AnimateOnScroll from '@/components/AnimateOnScroll';
 import SubmitForm from '../SubmitForm';
 
 export const metadata: Metadata = {
-  title: 'Compartilhe sua história — Fator Íntimo',
+  title: 'Compartilhe sua história | Fator Íntimo',
   description: 'Conte como o Fator Íntimo transformou sua perspectiva sobre relacionamentos.',
 };
 

@@ -224,7 +224,7 @@ export async function toggleCommunityPostReaction(postId: string, uid: string): 
 const DEFAULT_MARQUEE_PHRASES: MarqueePhrase[] = [
   { id: '1', text: 'O amor que você merece começa pelo amor que você dá a si mesmo', order: 1, active: true },
   { id: '2', text: 'Padrões que se repetem são mensagens que ainda não foram lidas', order: 2, active: true },
-  { id: '3', text: 'Solidão não é ausência de pessoas — é ausência de conexão real', order: 3, active: true },
+  { id: '3', text: 'Solidão não é ausência de pessoas, é ausência de conexão real', order: 3, active: true },
   { id: '4', text: 'Atração é química. Amor é escolha. Intimidade é construção.', order: 4, active: true },
   { id: '5', text: 'Cada relacionamento é um espelho da sua relação com você mesmo', order: 5, active: true },
   { id: '6', text: 'A cura começa quando você para de fugir do que sente', order: 6, active: true },
@@ -376,11 +376,11 @@ const DEFAULT_REVIEW_SETTINGS: ReviewSettings = {
   productEnabled: true,
   productDelayDays: 15,
   productSubject: 'Como foi sua experiência com {produto}?',
-  productBody: 'Olá {nome},\n\nEspero que {produto} esteja tocando algo dentro de você.\n\nSua avaliação ajuda outras pessoas a encontrarem o caminho que você acabou de começar. Demora menos de um minuto — e faz toda a diferença para a nossa comunidade.',
+  productBody: 'Olá {nome},\n\nEspero que {produto} esteja tocando algo dentro de você.\n\nSua avaliação ajuda outras pessoas a encontrarem o caminho que você acabou de começar. Demora menos de um minuto e faz toda a diferença para a nossa comunidade.',
   guideEnabled: true,
   guideDelayDays: 15,
   guideSubject: 'O guia "{guia}" te ajudou?',
-  guideBody: 'Olá {nome},\n\nFaz alguns dias que você baixou o guia {guia}. Como foi a leitura?\n\nSua opinião honesta ajuda outras pessoas a decidirem se vale a pena começar essa jornada — e nos ajuda a entender o que está realmente impactando.',
+  guideBody: 'Olá {nome},\n\nFaz alguns dias que você baixou o guia {guia}. Como foi a leitura?\n\nSua opinião honesta ajuda outras pessoas a decidirem se vale a pena começar essa jornada e nos ajuda a entender o que está realmente impactando.',
   ctaLabel: 'Deixar minha avaliação',
 };
 

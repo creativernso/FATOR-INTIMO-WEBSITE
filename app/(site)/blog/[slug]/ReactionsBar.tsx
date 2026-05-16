@@ -55,7 +55,7 @@ export default function ReactionsBar({ slug, commentCount }: Props) {
           }`}
         >
           <Heart size={15} className={liked ? 'fill-accent text-accent' : ''} />
-          <span>{likes ?? '—'}</span>
+          <span>{likes ?? 0}</span>
         </button>
 
         {/* Comments */}

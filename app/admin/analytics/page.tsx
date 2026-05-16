@@ -164,7 +164,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>
-              Novos leads — últimos {chartDays} dias
+              Novos leads nos últimos {chartDays} dias
             </h3>
             <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>
               {leadsThisMonth} leads nos últimos 30 dias

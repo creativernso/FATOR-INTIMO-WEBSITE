@@ -25,7 +25,7 @@ export async function POST(
   await resend.emails.send({
     from: FROM_EMAIL,
     to: order.customerEmail,
-    subject: `Seu acesso a ${order.productTitle} — reenvio`,
+    subject: `Seu acesso a ${order.productTitle} (reenvio)`,
     html: purchaseConfirmationHtml({
       productTitle: order.productTitle,
       customerName: order.customerName,
