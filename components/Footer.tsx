@@ -100,7 +100,7 @@ export default async function Footer() {
           <Link href="/" className="inline-flex items-center justify-center gap-3 mb-6">
             <LogoImage height={26} />
             <Image
-              src="/FAV.png?v=2"
+              src="/FAV.png"
               alt=""
               width={32}
               height={32}
