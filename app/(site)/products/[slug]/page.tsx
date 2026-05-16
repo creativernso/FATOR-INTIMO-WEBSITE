@@ -201,7 +201,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
               {/* Price + Countdown + Buy — single bordered block */}
               <div className="flex flex-col gap-4">
-                <div className="flex items-center flex-wrap gap-x-5 gap-y-2">
+                <div className="flex items-center flex-wrap gap-x-5 gap-y-2 pb-2">
                   {product.originalPrice && (
                     <p className="text-accent/70 text-lg sm:text-xl line-through font-medium">
                       R$ {product.originalPrice}
@@ -279,10 +279,12 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                   </svg>
                 </div>
                 {/* Apple Pay */}
-                <div className="h-8 px-3 rounded-lg border border-white/10 bg-black flex items-center justify-center gap-1">
-                  <svg height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="white">
-                    <path d="M17.05 12.04c-.03-2.39 1.95-3.55 2.04-3.61-1.11-1.62-2.84-1.85-3.46-1.88-1.47-.15-2.87.86-3.62.86-.75 0-1.91-.84-3.14-.82-1.61.03-3.09.94-3.92 2.38-1.67 2.9-.43 7.18 1.2 9.53.8 1.16 1.74 2.45 2.97 2.4 1.2-.05 1.66-.78 3.11-.78 1.45 0 1.85.78 3.12.75 1.29-.03 2.1-1.17 2.89-2.34.91-1.34 1.29-2.65 1.31-2.72-.03-.01-2.51-.97-2.54-3.84zM14.66 5.05c.66-.82 1.11-1.93 1-3.05-.96.04-2.13.64-2.82 1.46-.62.72-1.16 1.87-1.01 2.97 1.07.08 2.16-.55 2.83-1.38z"/>
-                    <text x="0" y="22" fontFamily="system-ui,sans-serif" fontWeight="600" fontSize="6" fill="white">Pay</text>
+                <div className="h-8 px-3 rounded-lg border border-white/10 bg-white flex items-center justify-center">
+                  <svg height="18" viewBox="0 0 64 26" xmlns="http://www.w3.org/2000/svg" aria-label="Apple Pay">
+                    {/* Apple logo */}
+                    <path d="M13.96 5.86c-.74.88-1.93 1.57-3.12 1.47-.15-1.19.43-2.45 1.11-3.23.74-.9 2.04-1.54 3.1-1.59.12 1.24-.36 2.46-1.09 3.35zm1.08 1.71c-1.72-.1-3.19.98-4.01.98s-2.08-.93-3.44-.9c-1.77.03-3.41 1.03-4.31 2.62-1.85 3.18-.48 7.89 1.32 10.47.88 1.28 1.93 2.69 3.31 2.64 1.31-.05 1.83-.85 3.42-.85s2.05.85 3.44.83c1.43-.02 2.33-1.28 3.2-2.56 1-1.46 1.41-2.88 1.43-2.96-.03-.01-2.75-1.06-2.78-4.17-.03-2.6 2.12-3.85 2.22-3.92-1.21-1.78-3.1-1.97-3.78-2.01z" fill="#000"/>
+                    {/* Pay text */}
+                    <text x="22" y="20" fontFamily="-apple-system, system-ui, sans-serif" fontSize="16" fontWeight="600" fill="#000" letterSpacing="-0.5">Pay</text>
                   </svg>
                 </div>
                 {/* Google Pay */}
