@@ -31,13 +31,23 @@ export default async function Footer() {
     { href: '/guia', label: t('nav.guides') },
   ];
 
+  const legalLinks = [
+    { href: '/legal/privacidade', label: 'Privacidade' },
+    { href: '/legal/termos', label: 'Termos & Condições' },
+    { href: '/legal/cookies', label: 'Cookies' },
+    { href: '/legal/aviso-legal', label: 'Aviso Legal' },
+    { href: '/legal/reembolsos', label: 'Reembolsos' },
+    { href: '/legal/diretrizes-comunidade', label: 'Diretrizes da Comunidade' },
+    { href: '/legal/direitos-autorais', label: 'Direitos Autorais' },
+  ];
+
   return (
     <footer className="border-t border-white/5 bg-background">
       <div className="max-w-6xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div className="grid grid-cols-2 md:grid-cols-12 gap-10 md:gap-12">
 
           {/* Brand */}
-          <div className="md:col-span-2">
+          <div className="col-span-2 md:col-span-4">
             <Link href="/" className="inline-block mb-5">
               <LogoImage height={26} />
             </Link>
@@ -61,7 +71,7 @@ export default async function Footer() {
           </div>
 
           {/* Nav */}
-          <div>
+          <div className="md:col-span-2">
             <h4 className="text-text-primary text-xs font-medium tracking-widest uppercase mb-5">{t('footer.nav_heading')}</h4>
             <ul className="space-y-3">
               {navLinks.map((link) => (
@@ -74,8 +84,22 @@ export default async function Footer() {
             </ul>
           </div>
 
+          {/* Legal */}
+          <div className="md:col-span-3">
+            <h4 className="text-text-primary text-xs font-medium tracking-widest uppercase mb-5">Legal</h4>
+            <ul className="space-y-3">
+              {legalLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-text-secondary text-sm hover:text-text-primary transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* CTA */}
-          <div>
+          <div className="col-span-2 md:col-span-3">
             <h4 className="text-text-primary text-xs font-medium tracking-widest uppercase mb-5">{t('footer.cta_heading')}</h4>
             <p className="text-text-secondary text-sm mb-5 leading-relaxed">{t('footer.cta_description')}</p>
             <Link

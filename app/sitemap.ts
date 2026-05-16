@@ -34,6 +34,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/testimonials`, changeFrequency: 'weekly',  priority: 0.7, lastModified: now },
     { url: `${SITE_URL}/about`,        changeFrequency: 'monthly', priority: 0.5, lastModified: now },
     { url: `${SITE_URL}/social`,       changeFrequency: 'monthly', priority: 0.4, lastModified: now },
+    { url: `${SITE_URL}/legal/privacidade`,            changeFrequency: 'yearly', priority: 0.3, lastModified: now },
+    { url: `${SITE_URL}/legal/termos`,                 changeFrequency: 'yearly', priority: 0.3, lastModified: now },
+    { url: `${SITE_URL}/legal/cookies`,                changeFrequency: 'yearly', priority: 0.3, lastModified: now },
+    { url: `${SITE_URL}/legal/aviso-legal`,            changeFrequency: 'yearly', priority: 0.3, lastModified: now },
+    { url: `${SITE_URL}/legal/reembolsos`,             changeFrequency: 'yearly', priority: 0.3, lastModified: now },
+    { url: `${SITE_URL}/legal/diretrizes-comunidade`,  changeFrequency: 'yearly', priority: 0.3, lastModified: now },
+    { url: `${SITE_URL}/legal/direitos-autorais`,      changeFrequency: 'yearly', priority: 0.3, lastModified: now },
   ];
 
   // Community category landing pages
