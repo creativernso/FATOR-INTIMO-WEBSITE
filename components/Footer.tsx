@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { Youtube, Instagram, Facebook } from 'lucide-react';
 import LogoImage from './LogoImage';
 import { getLocale, createT } from '@/lib/i18n';
@@ -19,25 +18,22 @@ const socialLinks = [
   { href: 'https://www.tiktok.com/@fatorintimo', icon: TikTokIcon, label: 'TikTok', color: 'hover:text-white' },
 ];
 
-/** Renders an array of links inline, separated by middle dots, with natural wrap. */
+/** Renders an array of links inline, spaced out with natural wrap. */
 function InlineLinkList({
   items,
 }: {
   items: { href: string; label: string }[];
 }) {
   return (
-    <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 text-text-secondary text-[15px] leading-snug max-w-xl mx-auto">
-      {items.map((item, i) => (
-        <span key={item.href} className="inline-flex items-center gap-3 whitespace-nowrap">
-          <Link href={item.href} className="hover:text-text-primary transition-colors">
-            {item.label}
-          </Link>
-          {i < items.length - 1 && (
-            <span className="text-text-muted/50" aria-hidden>
-              ·
-            </span>
-          )}
-        </span>
+    <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2.5 text-text-secondary text-[15px] leading-snug max-w-xl mx-auto">
+      {items.map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          className="whitespace-nowrap hover:text-text-primary transition-colors"
+        >
+          {item.label}
+        </Link>
       ))}
     </div>
   );
@@ -45,19 +41,17 @@ function InlineLinkList({
 
 function InlineSocialList() {
   return (
-    <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-1 text-text-muted text-xs">
-      {socialLinks.map((s, i) => (
-        <span key={s.label} className="inline-flex items-center gap-3 whitespace-nowrap">
-          <a
-            href={s.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`${s.color} transition-colors`}
-          >
-            {s.label}
-          </a>
-          {i < socialLinks.length - 1 && <span aria-hidden>·</span>}
-        </span>
+    <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-1 text-text-muted text-xs">
+      {socialLinks.map((s) => (
+        <a
+          key={s.label}
+          href={s.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`whitespace-nowrap ${s.color} transition-colors`}
+        >
+          {s.label}
+        </a>
       ))}
     </div>
   );
@@ -96,17 +90,9 @@ export default async function Footer() {
         {/* ───────────────── MOBILE + TABLET (< lg) ───────────────── */}
         <div className="lg:hidden text-center">
 
-          {/* Logo + rose icon */}
-          <Link href="/" className="inline-flex items-center justify-center gap-3 mb-6">
+          {/* Logo */}
+          <Link href="/" className="inline-flex items-center justify-center mb-6">
             <LogoImage height={26} />
-            <Image
-              src="/FAV.png"
-              alt=""
-              width={32}
-              height={32}
-              className="w-7 h-7 object-contain"
-              aria-hidden
-            />
           </Link>
 
           {/* Brand description */}
