@@ -201,17 +201,17 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
               {/* Price + Countdown + Buy — single bordered block */}
               <div className="flex flex-col gap-4">
-                <div className="flex items-center flex-wrap gap-x-5 gap-y-2 pb-2">
+                <div className="flex flex-nowrap items-baseline justify-center sm:justify-start gap-2.5 sm:gap-5 pb-2">
                   {product.originalPrice && (
-                    <p className="text-accent/70 text-lg sm:text-xl line-through font-medium">
+                    <p className="text-accent/70 text-base sm:text-xl line-through font-medium flex-shrink-0">
                       R$ {product.originalPrice}
                     </p>
                   )}
-                  <p className="font-heading text-4xl sm:text-5xl font-semibold text-text-primary leading-none">
-                    R$ {product.price},<span className="text-3xl sm:text-4xl">00</span>
+                  <p className="font-heading text-3xl sm:text-5xl font-semibold text-text-primary leading-none flex-shrink-0 whitespace-nowrap">
+                    R$ {product.price},<span className="text-2xl sm:text-4xl">00</span>
                   </p>
                   {discount && (
-                    <span className="inline-flex items-center bg-accent text-white text-sm font-semibold px-4 py-1.5 rounded-full shadow-lg shadow-accent/20">
+                    <span className="inline-flex items-center bg-accent text-white text-[11px] sm:text-sm font-semibold px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full shadow-lg shadow-accent/20 flex-shrink-0 whitespace-nowrap self-center">
                       Economize {discount}%
                     </span>
                   )}
