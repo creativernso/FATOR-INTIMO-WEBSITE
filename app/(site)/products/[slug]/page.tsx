@@ -230,17 +230,17 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                   </div>
                 )}
 
-                <div className="flex items-center justify-center gap-5 pt-1">
-                  <div className="flex items-center gap-1.5 text-text-muted text-xs">
-                    <Shield size={12} className="text-green-400" />
+                <div className="grid grid-cols-3 items-start sm:flex sm:justify-center sm:items-center gap-2 sm:gap-6 pt-2">
+                  <div className="flex flex-col sm:flex-row items-center gap-1.5 text-text-muted text-[11px] sm:text-xs text-center sm:text-left leading-tight">
+                    <Shield size={16} className="text-green-400 sm:w-3 sm:h-3" />
                     <span>Garantia 7 dias</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-text-muted text-xs">
-                    <Download size={12} className="text-blue-400" />
+                  <div className="flex flex-col sm:flex-row items-center gap-1.5 text-text-muted text-[11px] sm:text-xs text-center sm:text-left leading-tight">
+                    <Download size={16} className="text-blue-400 sm:w-3 sm:h-3" />
                     <span>Acesso imediato</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-text-muted text-xs">
-                    <Clock size={12} className="text-purple-400" />
+                  <div className="flex flex-col sm:flex-row items-center gap-1.5 text-text-muted text-[11px] sm:text-xs text-center sm:text-left leading-tight">
+                    <Clock size={16} className="text-purple-400 sm:w-3 sm:h-3" />
                     <span>PDF & Mobile</span>
                   </div>
                 </div>

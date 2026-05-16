@@ -58,9 +58,9 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
   },
   icons: {
-    icon: '/FAV.png',
-    shortcut: '/FAV.png',
-    apple: '/FAV.png',
+    icon: '/FAV.png?v=2',
+    shortcut: '/FAV.png?v=2',
+    apple: '/FAV.png?v=2',
   },
   robots: {
     index: true,

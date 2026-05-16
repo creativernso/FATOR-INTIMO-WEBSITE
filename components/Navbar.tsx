@@ -52,7 +52,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
-            <span className="block lg:hidden"><LogoImage height={14} /></span>
+            <span className="block lg:hidden"><LogoImage height={18} /></span>
             <span className="hidden lg:block"><LogoImage height={18} /></span>
           </Link>
 
