@@ -187,36 +187,40 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                     />
                   )}
                 </div>
-                <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl font-medium text-text-primary leading-tight mb-3">
+                <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl font-medium text-text-primary leading-[1.05] tracking-tight uppercase mb-3">
                   {product.title}
                 </h1>
-                <p className="text-text-secondary text-base sm:text-lg leading-relaxed italic">
-                  &ldquo;{product.hook}&rdquo;
-                </p>
+                {product.hook && (
+                  <p className="text-accent text-sm sm:text-base font-medium uppercase tracking-wide leading-snug">
+                    {product.hook}
+                  </p>
+                )}
               </div>
 
               <p className="text-text-secondary text-base leading-relaxed">{product.description}</p>
 
-              {/* Countdown timer */}
-              {product.countdownEnabled && product.countdownEndsAt && (
-                <CountdownTimer endsAt={product.countdownEndsAt} text={product.countdownText} />
-              )}
-
-              {/* Price box */}
-              <div className="rounded-2xl border border-white/8 bg-surface p-6 space-y-4">
-                <div className="flex items-baseline flex-wrap gap-x-4 gap-y-1">
+              {/* Price + Countdown + Buy — single bordered block */}
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center flex-wrap gap-x-5 gap-y-2">
                   {product.originalPrice && (
-                    <p className="text-accent text-base sm:text-lg line-through font-medium opacity-80">
-                      R$ {product.originalPrice},00
+                    <p className="text-accent/70 text-lg sm:text-xl line-through font-medium">
+                      R$ {product.originalPrice}
                     </p>
                   )}
-                  <p className="font-heading text-4xl font-medium text-text-primary">
-                    R$ {product.price},<span className="text-2xl">00</span>
+                  <p className="font-heading text-4xl sm:text-5xl font-semibold text-text-primary leading-none">
+                    R$ {product.price},<span className="text-3xl sm:text-4xl">00</span>
                   </p>
                   {discount && (
-                    <span className="text-accent text-sm font-medium">Economize {discount}%</span>
+                    <span className="inline-flex items-center bg-accent text-white text-sm font-semibold px-4 py-1.5 rounded-full shadow-lg shadow-accent/20">
+                      Economize {discount}%
+                    </span>
                   )}
                 </div>
+
+                {/* Countdown timer */}
+                {product.countdownEnabled && product.countdownEndsAt && (
+                  <CountdownTimer endsAt={product.countdownEndsAt} text={product.countdownText} />
+                )}
 
                 {stripeReady ? (
                   <BuyButton productId={product.id} />
