@@ -74,7 +74,7 @@ export default async function Footer() {
     { href: '/products', label: t('nav.products') },
     { href: '/testimonials', label: t('nav.stories') },
     { href: '/guia', label: t('nav.guides') },
-    { href: '/comunidade', label: 'Comunidade Íntima' },
+    { href: '/comunidade', label: 'Comunidade' },
   ];
 
   const legalLinks = [
