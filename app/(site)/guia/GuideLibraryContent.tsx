@@ -62,13 +62,10 @@ export default function GuideLibraryContent({ guides }: Props) {
             <span className="text-xs text-accent tracking-[0.4em] uppercase mb-6 block">
               {t('library.badge')}
             </span>
-            <h1 className="font-heading text-3xl sm:text-6xl md:text-7xl font-light text-text-primary leading-[1.1] sm:leading-[1.0] mb-6">
+            <h1 className="font-heading text-3xl sm:text-6xl md:text-7xl font-light text-text-primary leading-[1.1] sm:leading-[1.0] mb-8 sm:mb-10">
               {t('library.headline_1')}<br />
               <span style={{ color: '#fe0050' }}>{t('library.headline_2')}</span>
             </h1>
-            <p className="text-text-secondary text-base sm:text-lg leading-relaxed max-w-2xl mx-auto mb-10">
-              {t('library.subtext')}
-            </p>
 
             {/* Stats strip */}
             <div className="flex flex-wrap items-center justify-center gap-6 text-text-muted text-sm">
@@ -118,16 +115,19 @@ export default function GuideLibraryContent({ guides }: Props) {
 
       {/* ── Filter + Sort ─────────────────────────────────────── */}
       <section className="px-6 sticky top-[72px] z-20 bg-background/80 backdrop-blur-xl">
-        <div className="max-w-6xl mx-auto py-4 border-b border-white/[0.04]">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto py-2.5 sm:py-4 border-b border-white/[0.04]">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-4">
 
-            {/* Tag filter */}
-            <div className="flex items-center gap-2 flex-wrap">
+            {/* Tag filter — horizontal scroll on mobile, wrap on desktop */}
+            <div
+              className="flex items-center gap-2 overflow-x-auto sm:overflow-visible sm:flex-wrap -mx-6 px-6 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
+              style={{ scrollbarWidth: 'none' }}
+            >
               {['todos', ...allTags].map((tag) => (
                 <button
                   key={tag}
                   onClick={() => setActiveTag(tag)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  className={`px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                     activeTag === tag
                       ? 'bg-accent text-white'
                       : 'bg-white/[0.03] border border-white/[0.06] text-text-muted hover:border-white/[0.1] hover:text-text-secondary'
@@ -138,8 +138,8 @@ export default function GuideLibraryContent({ guides }: Props) {
               ))}
             </div>
 
-            {/* Sort */}
-            <div className="flex items-center gap-1 bg-white/[0.03] border border-white/[0.05] rounded-xl p-1 flex-shrink-0">
+            {/* Sort — compact on mobile, centered; right-aligned on desktop */}
+            <div className="flex items-center gap-1 bg-white/[0.03] border border-white/[0.05] rounded-xl p-1 flex-shrink-0 self-center sm:self-auto">
               {[
                 { id: 'recentes' as SortMode, icon: Clock, label: t('library.sort_recent') },
                 { id: 'downloads' as SortMode, icon: TrendingUp, label: t('library.sort_popular') },
@@ -147,7 +147,7 @@ export default function GuideLibraryContent({ guides }: Props) {
                 <button
                   key={id}
                   onClick={() => setSort(id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all ${
+                  className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs transition-all ${
                     sort === id ? 'bg-white/10 text-text-primary' : 'text-text-muted hover:text-text-secondary'
                   }`}
                 >
