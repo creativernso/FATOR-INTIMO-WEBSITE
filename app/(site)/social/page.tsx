@@ -17,7 +17,7 @@ function TikTokIcon({ size = 20 }: { size?: number }) {
   );
 }
 
-// Sample post data — update these with real post thumbnails/links as content grows
+// Sample post data, update these with real post thumbnails/links as content grows
 const instagramPosts = [
   { img: 'https://images.unsplash.com/photo-1516302752625-fcc3c50ae61f?w=400&q=80', url: 'https://www.instagram.com/fatorintimo/' },
   { img: 'https://images.unsplash.com/photo-1474631245212-32dc3c8310c6?w=400&q=80', url: 'https://www.instagram.com/fatorintimo/' },
@@ -104,7 +104,7 @@ export default async function SocialPage() {
             </div>
           ) : (
             <>
-              {/* Featured video — autoplay muted */}
+              {/* Featured video, autoplay muted */}
               <AnimateOnScroll>
                 <div className="rounded-2xl overflow-hidden border border-white/8 bg-surface mb-6">
                   <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
@@ -240,7 +240,7 @@ export default async function SocialPage() {
             </div>
           </AnimateOnScroll>
 
-          {/* TikTok grid — portrait cards */}
+          {/* TikTok grid, portrait cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {tiktokPosts.map((post, i) => (
               <AnimateOnScroll key={i} delay={i * 80}>

@@ -25,8 +25,8 @@ const sections = [
           quais dados pessoais coletamos, por que coletamos, como utilizamos e quais são os seus direitos.
         </P>
         <P>
-          Levamos privacidade a sério porque o tema central da nossa plataforma — a vida emocional e
-          relacional das pessoas — exige confiança. Esta política se aplica a todos os visitantes,
+          Levamos privacidade a sério porque o tema central da nossa plataforma, a vida emocional e
+          relacional das pessoas, exige confiança. Esta política se aplica a todos os visitantes,
           assinantes, leitores, membros da comunidade e clientes do Fator Íntimo, independentemente do
           país onde se encontram.
         </P>
@@ -127,18 +127,18 @@ const sections = [
         </P>
         <UL>
           <LI>
-            <Strong>Consentimento</Strong> — quando você opta por receber e-mails, ativa cookies opcionais
+            <Strong>Consentimento</Strong>, quando você opta por receber e-mails, ativa cookies opcionais
             ou envia publicações na comunidade.
           </LI>
           <LI>
-            <Strong>Execução de contrato</Strong> — para entregar materiais e produtos que você adquiriu.
+            <Strong>Execução de contrato</Strong>, para entregar materiais e produtos que você adquiriu.
           </LI>
           <LI>
-            <Strong>Legítimo interesse</Strong> — para segurança, prevenção de fraudes, análise de
+            <Strong>Legítimo interesse</Strong>, para segurança, prevenção de fraudes, análise de
             performance agregada e proteção da plataforma e dos seus membros.
           </LI>
           <LI>
-            <Strong>Obrigação legal</Strong> — para cumprir leis, regulamentos e ordens de autoridades
+            <Strong>Obrigação legal</Strong>, para cumprir leis, regulamentos e ordens de autoridades
             competentes.
           </LI>
         </UL>
@@ -282,7 +282,7 @@ const sections = [
         </P>
         <P>
           Mesmo que você opte por sair de listas de marketing, ainda receberá comunicações estritamente
-          necessárias — confirmações de compra, alertas de segurança e informações sobre sua conta.
+          necessárias, confirmações de compra, alertas de segurança e informações sobre sua conta.
         </P>
       </>
     ),
@@ -346,7 +346,7 @@ export default function PrivacidadePage() {
       intro="Esta política descreve, sem jargão, como o Fator Íntimo coleta, utiliza, armazena e protege as informações de quem visita, lê, se inscreve, compra e participa da nossa plataforma."
       lastUpdated={LAST_UPDATED}
       sections={sections}
-      contactSubject="Solicitação de privacidade — LGPD/GDPR"
+      contactSubject="Solicitação de privacidade, LGPD/GDPR"
       contactCta="Exercer meus direitos"
     />
   );

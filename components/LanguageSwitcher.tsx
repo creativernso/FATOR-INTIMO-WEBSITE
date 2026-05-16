@@ -1,2 +1,2 @@
-// Language switcher removed — site is Portuguese only
+// Language switcher removed, site is Portuguese only
 export default function LanguageSwitcher() { return null; }

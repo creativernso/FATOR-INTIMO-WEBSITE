@@ -32,7 +32,7 @@ interface Aggregate {
 type Sort = 'recent' | 'rating' | 'helpful';
 
 interface Props {
-  /** product slug (paid ebook) OR guide slug (free guide) — exactly one */
+  /** product slug (paid ebook) OR guide slug (free guide), exactly one */
   productSlug?: string;
   guideSlug?: string;
   /** display name of the thing being reviewed (used in headers & form) */

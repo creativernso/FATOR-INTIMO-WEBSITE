@@ -349,7 +349,7 @@ export default function AdminGuidePage() {
       {isFormMode && (
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-          {/* Main — left 2 cols */}
+          {/* Main, left 2 cols */}
           <div className="xl:col-span-2 space-y-5">
 
             {/* Basic */}

@@ -73,7 +73,7 @@ export function alertNewLead(name: string, email?: string, source?: string) {
     body: `${name} acabou de entrar na sua lista.`,
     ctaLabel: 'Ver leads',
     ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/leads`,
-    meta: { Nome: name, Email: email || '—', Fonte: source || '—' },
+    meta: { Nome: name, Email: email || '-', Fonte: source || '-' },
   });
 }
 

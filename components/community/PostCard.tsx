@@ -141,7 +141,7 @@ export default function PostCard({ post, featured }: Props) {
         )}
       </Link>
 
-      {/* Footer — reactions + actions */}
+      {/* Footer, reactions + actions */}
       <div className="px-5 sm:px-6 pb-4 pt-3 border-t border-white/4 flex items-center justify-between">
         <div className="flex items-center gap-4 text-text-muted">
           <span className="flex items-center gap-1.5 text-xs hover:text-red-400 transition-colors cursor-pointer select-none">

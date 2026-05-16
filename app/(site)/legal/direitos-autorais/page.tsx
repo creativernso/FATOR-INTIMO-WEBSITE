@@ -19,9 +19,9 @@ const sections = [
     body: (
       <>
         <P>
-          Todo o material publicado pelo <Strong>Fator Íntimo</Strong> — artigos, e-books, guias,
+          Todo o material publicado pelo <Strong>Fator Íntimo</Strong>, artigos, e-books, guias,
           newsletters, vídeos, ilustrações, fotografias, design, identidade visual, marca, logotipos,
-          tipografia, código-fonte e estrutura editorial — é protegido pela Lei de Direitos Autorais
+          tipografia, código-fonte e estrutura editorial, é protegido pela Lei de Direitos Autorais
           brasileira (Lei nº 9.610/98), pela Convenção de Berna e por tratados internacionais aplicáveis.
         </P>
         <P>
@@ -66,7 +66,7 @@ const sections = [
             vídeos ou materiais pagos.
           </LI>
           <LI>
-            Criar produtos derivados — resumos, traduções, adaptações, cursos, podcasts ou newsletters —
+            Criar produtos derivados (resumos, traduções, adaptações, cursos, podcasts ou newsletters)
             baseados no nosso material.
           </LI>
           <LI>
@@ -93,7 +93,7 @@ const sections = [
         <P>
           “Fator Íntimo” é uma marca em uso comercial. O logotipo, paleta de cores, tipografia, ícones e
           composição visual fazem parte de uma identidade protegida. O uso para qualquer finalidade
-          comercial — incluindo materiais de afiliados ou parceiros — depende de autorização específica
+          comercial, incluindo materiais de afiliados ou parceiros, depende de autorização específica
           obtida por escrito.
         </P>
       </>
@@ -239,7 +239,7 @@ export default function DireitosAutoraisPage() {
           <span style={{ color: '#fe0050' }}>protegido</span>, e isso protege você também
         </>
       }
-      intro="A integridade do que publicamos sustenta a confiança do leitor. Por isso, regras claras sobre uso, citação, reprodução e denúncias — para autores, parceiros e quem encontrar nosso material onde não deveria estar."
+      intro="A integridade do que publicamos sustenta a confiança do leitor. Por isso, regras claras sobre uso, citação, reprodução e denúncias, para autores, parceiros e quem encontrar nosso material onde não deveria estar."
       lastUpdated={LAST_UPDATED}
       sections={sections}
       contactSubject="Denúncia de direitos autorais"

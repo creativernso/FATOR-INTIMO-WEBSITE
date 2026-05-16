@@ -27,7 +27,7 @@ function AnimatedClock({ size = 24 }: { size?: number }) {
       aria-hidden="true"
     >
       <circle cx="12" cy="12" r="10" />
-      {/* Hour hand — rotates slowly */}
+      {/* Hour hand, rotates slowly */}
       <line
         x1="12"
         y1="12"
@@ -35,7 +35,7 @@ function AnimatedClock({ size = 24 }: { size?: number }) {
         y2="6"
         className="fi-clock-hand-hour"
       />
-      {/* Minute hand — rotates fast */}
+      {/* Minute hand, rotates fast */}
       <line
         x1="12"
         y1="12"

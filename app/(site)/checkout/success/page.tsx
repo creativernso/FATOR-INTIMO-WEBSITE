@@ -9,7 +9,7 @@ import PurchaseEvent from './PurchaseEvent';
 
 export const dynamic = 'force-dynamic';
 
-// Private confirmation page — must never be indexed
+// Private confirmation page, must never be indexed
 export const metadata: Metadata = {
   title: 'Compra Confirmada',
   description: 'Sua compra foi confirmada.',
@@ -90,7 +90,7 @@ export default async function SuccessPage({
             )}
           </div>
 
-          {/* Download section — only show when paid */}
+          {/* Download section, only show when paid */}
           {isPaid && (
             <div className="border-t border-white/5 p-8">
               <DownloadButton sessionId={session_id} />

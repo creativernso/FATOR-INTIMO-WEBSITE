@@ -97,7 +97,7 @@ export default function AdminBadgesProvider({ children }: { children: ReactNode 
 
   // Shrink "seen" if the server count drops below it (e.g. admin approved items).
   // Crucially we only run this after BOTH the localStorage hydrate AND the first
-  // server fetch — otherwise the initial rawCounts=ZERO would wipe out the
+  // server fetch, otherwise the initial rawCounts=ZERO would wipe out the
   // freshly-loaded localStorage values and the badge would reappear on every
   // page navigation.
   useEffect(() => {
@@ -122,7 +122,7 @@ export default function AdminBadgesProvider({ children }: { children: ReactNode 
     });
   }, [rawCounts, hasHydrated, hasFetched]);
 
-  // Stable dismiss — always reads the latest rawCounts via the ref so this
+  // Stable dismiss, always reads the latest rawCounts via the ref so this
   // function never needs to be recreated (and never causes layout useEffects
   // to re-run on every poll).
   const dismiss = useCallback((section: keyof BadgeCounts) => {

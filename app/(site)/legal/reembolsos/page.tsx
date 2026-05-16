@@ -19,8 +19,8 @@ const sections = [
     body: (
       <>
         <P>
-          Acreditamos no impacto do que produzimos. Por isso, todo produto digital do Fator Íntimo —
-          e-books, guias premium, materiais e cursos digitais — vem com{' '}
+          Acreditamos no impacto do que produzimos. Por isso, todo produto digital do Fator Íntimo,
+          e-books, guias premium, materiais e cursos digitais, vem com{' '}
           <Strong>garantia incondicional de 7 dias</Strong>, em conformidade com o art. 49 do Código de
           Defesa do Consumidor.
         </P>
@@ -70,7 +70,7 @@ const sections = [
           </LI>
           <LI>Inclua o nome usado na compra, o e-mail de contato e o nome do produto adquirido.</LI>
           <LI>
-            Você pode, opcionalmente, contar o que não atendeu à expectativa — isso ajuda a melhorar o
+            Você pode, opcionalmente, contar o que não atendeu à expectativa, isso ajuda a melhorar o
             material, mas não é obrigatório.
           </LI>
         </UL>
@@ -116,8 +116,8 @@ const sections = [
       <>
         <P>
           A garantia de 7 dias existe para proteger quem realmente experimenta o material com boa-fé. Em
-          casos de uso indevido — múltiplas compras seguidas de reembolso, redistribuição não autorizada,
-          fraude no pagamento ou outras formas evidentes de abuso — reservamo-nos o direito de:
+          casos de uso indevido, múltiplas compras seguidas de reembolso, redistribuição não autorizada,
+          fraude no pagamento ou outras formas evidentes de abuso, reservamo-nos o direito de:
         </P>
         <UL>
           <LI>Recusar o reembolso.</LI>
@@ -173,7 +173,7 @@ const sections = [
           <a href="mailto:contato@fatorintimo.com" className="text-accent hover:underline">
             contato@fatorintimo.com
           </a>{' '}
-          informando o e-mail da compra. Resolvemos rapidamente — e isso não consome seus 7 dias de
+          informando o e-mail da compra. Resolvemos rapidamente, e isso não consome seus 7 dias de
           garantia.
         </P>
       </>
@@ -202,7 +202,7 @@ export default function ReembolsosPage() {
           <span style={{ color: '#fe0050' }}>7 dias</span>
         </>
       }
-      intro="Acreditamos no que produzimos, mas o experimento real é seu. Se o material não fizer sentido nos primeiros 7 dias, devolvemos seu dinheiro — sem burocracia, sem julgamento."
+      intro="Acreditamos no que produzimos, mas o experimento real é seu. Se o material não fizer sentido nos primeiros 7 dias, devolvemos seu dinheiro, sem burocracia, sem julgamento."
       lastUpdated={LAST_UPDATED}
       sections={sections}
       contactSubject="Solicitação de reembolso"

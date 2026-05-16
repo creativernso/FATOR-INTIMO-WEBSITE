@@ -57,7 +57,7 @@ export default function TestimonialCard({ testimonial, featured }: Props) {
       {/* ── Content ───────────────────────────────── */}
       <div className="flex flex-col flex-1 px-5 pt-4 pb-6 text-center">
 
-        {/* Metadata — name · age · role */}
+        {/* Metadata, name · age · role */}
         <p className="text-[11px] text-text-muted leading-snug mb-3 tracking-wide">
           {metaParts.map((part, i) => (
             <span key={i}>

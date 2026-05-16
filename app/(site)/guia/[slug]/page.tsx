@@ -117,7 +117,7 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ sl
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-start">
 
-            {/* Left — Content */}
+            {/* Left, Content */}
             <AnimateOnScroll>
               <div>
                 {guide.tags && guide.tags.length > 0 && (
@@ -199,7 +199,7 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ sl
               </div>
             </AnimateOnScroll>
 
-            {/* Right — Cover + Form */}
+            {/* Right, Cover + Form */}
             <div className="space-y-6">
               <AnimateOnScroll delay={120}>
                 {guide.coverImage ? (

@@ -25,8 +25,8 @@ const sections = [
           definido).
         </P>
         <P>
-          Também utilizamos tecnologias similares — como pixels, web beacons, armazenamento local e
-          identificadores anônimos — para finalidades comparáveis. Por simplicidade, chamamos todas elas
+          Também utilizamos tecnologias similares, como pixels, web beacons, armazenamento local e
+          identificadores anônimos, para finalidades comparáveis. Por simplicidade, chamamos todas elas
           de “cookies” nesta política.
         </P>
       </>
@@ -56,7 +56,7 @@ const sections = [
       <>
         <H3>Estritamente necessários</H3>
         <P>
-          Indispensáveis para o funcionamento da Plataforma — autenticação, segurança, carrinho de
+          Indispensáveis para o funcionamento da Plataforma, autenticação, segurança, carrinho de
           compras, sessões e preferências básicas. Não podem ser desativados sem comprometer recursos
           essenciais.
         </P>
@@ -89,11 +89,11 @@ const sections = [
           Alguns cookies são definidos por serviços parceiros que tornam o Fator Íntimo possível:
         </P>
         <UL>
-          <LI><Strong>Stripe</Strong> — segurança e antifraude em pagamentos.</LI>
-          <LI><Strong>Google Analytics</Strong> — análise agregada de uso.</LI>
-          <LI><Strong>Meta Pixel (Facebook/Instagram)</Strong> — métricas de campanhas.</LI>
-          <LI><Strong>YouTube/Vimeo</Strong> — quando vídeos são embutidos no site.</LI>
-          <LI><Strong>Firebase/Google Cloud</Strong> — infraestrutura e autenticação.</LI>
+          <LI><Strong>Stripe</Strong>, segurança e antifraude em pagamentos.</LI>
+          <LI><Strong>Google Analytics</Strong>, análise agregada de uso.</LI>
+          <LI><Strong>Meta Pixel (Facebook/Instagram)</Strong>, métricas de campanhas.</LI>
+          <LI><Strong>YouTube/Vimeo</Strong>, quando vídeos são embutidos no site.</LI>
+          <LI><Strong>Firebase/Google Cloud</Strong>, infraestrutura e autenticação.</LI>
         </UL>
         <P>
           Esses provedores possuem políticas próprias e seguem padrões de proteção compatíveis com LGPD e
@@ -189,7 +189,7 @@ export default function CookiesPage() {
           <span style={{ color: '#fe0050' }}>cookies</span> e rastreadores
         </>
       }
-      intro="Cookies tornam a plataforma rápida, segura e personalizada — mas você decide quais aceitar. Aqui detalhamos o que utilizamos, com qual propósito e como gerenciar suas preferências."
+      intro="Cookies tornam a plataforma rápida, segura e personalizada, mas você decide quais aceitar. Aqui detalhamos o que utilizamos, com qual propósito e como gerenciar suas preferências."
       lastUpdated={LAST_UPDATED}
       sections={sections}
       contactSubject="Dúvida sobre cookies e rastreadores"

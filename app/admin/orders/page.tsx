@@ -138,7 +138,7 @@ export default function AdminOrders() {
                 <tr key={order.id} className="hover:bg-white/2 transition-colors group" style={{ borderBottom: '1px solid #333333' }}>
                   <td className="px-5 lg:px-6 py-4 lg:py-5">
                     <p className="font-medium" style={{ fontSize: fs('0.82rem', '0.95vw', '0.9rem'), color: '#e0e0e0' }}>
-                      {order.customerName || '—'}
+                      {order.customerName || '-'}
                     </p>
                     <p className="mt-0.5 truncate max-w-[180px]" style={{ fontSize: fs('0.7rem', '0.78vw', '0.75rem'), color: '#888888' }}>
                       {order.customerEmail}
@@ -146,7 +146,7 @@ export default function AdminOrders() {
                   </td>
                   <td className="px-5 lg:px-6 py-4 hidden md:table-cell">
                     <p style={{ fontSize: fs('0.78rem', '0.88vw', '0.84rem'), color: '#aaaaaa' }}>
-                      {order.productTitle || '—'}
+                      {order.productTitle || '-'}
                     </p>
                   </td>
                   <td className="px-5 lg:px-6 py-4 hidden sm:table-cell">

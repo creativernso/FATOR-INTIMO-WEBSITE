@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getAdminDb } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 
-// POST /api/reviews/[id]/helpful — increments helpfulCount atomically.
+// POST /api/reviews/[id]/helpful, increments helpfulCount atomically.
 // Client-side localStorage prevents double-clicks per visitor (good enough for
 // social proof; not anti-fraud).
 export async function POST(_: Request, { params }: { params: Promise<{ id: string }> }) {

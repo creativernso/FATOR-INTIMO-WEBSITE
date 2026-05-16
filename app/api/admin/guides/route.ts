@@ -78,7 +78,7 @@ export async function PATCH(req: NextRequest) {
   const body = await req.json();
   if (!body.id) return NextResponse.json({ error: 'id obrigatório.' }, { status: 400 });
 
-  // Detect transition from draft to published — that's when we broadcast
+  // Detect transition from draft to published, that's when we broadcast
   const previous = body.slug ? await getGuideBySlug(body.slug) : null;
   const wasPublished = !!previous?.published;
 

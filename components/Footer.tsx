@@ -173,7 +173,7 @@ export default async function Footer() {
           </div>
         </div>
 
-        {/* ───────────────── DESKTOP (lg+) — existing grid ───────────────── */}
+        {/* ───────────────── DESKTOP (lg+), existing grid ───────────────── */}
         <div className="hidden lg:block">
           <div className="grid grid-cols-12 gap-12">
 

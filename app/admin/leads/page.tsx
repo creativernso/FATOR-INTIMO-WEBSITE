@@ -231,7 +231,7 @@ export default function AdminLeads() {
                           {lead.whatsapp}
                         </span>
                       </div>
-                    ) : '—'}
+                    ) : '-'}
                   </td>
                   <td className="px-5 lg:px-6 py-4 hidden md:table-cell">
                     {lead.guideSlug ? (
@@ -260,7 +260,7 @@ export default function AdminLeads() {
                         ))}
                       </div>
                     ) : (
-                      <span style={{ fontSize: '0.7rem', color: '#555555' }}>—</span>
+                      <span style={{ fontSize: '0.7rem', color: '#555555' }}>-</span>
                     )}
                   </td>
                   <td className="px-5 lg:px-6 py-4 hidden lg:table-cell" style={{ fontSize: fs('0.72rem', '0.8vw', '0.76rem'), color: '#888888' }}>

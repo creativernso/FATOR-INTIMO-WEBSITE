@@ -460,13 +460,13 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         {[
           {
             label: 'Conversão de leads',
-            value: leads.length > 0 ? `${((orders.length / leads.length) * 100).toFixed(1)}%` : '—',
+            value: leads.length > 0 ? `${((orders.length / leads.length) * 100).toFixed(1)}%` : '-',
             sub: `${orders.length} vendas de ${leads.length} leads`,
             color: '#a855f7',
           },
           {
             label: 'Leads com email',
-            value: leads.length > 0 ? `${Math.round((emailLeads / leads.length) * 100)}%` : '—',
+            value: leads.length > 0 ? `${Math.round((emailLeads / leads.length) * 100)}%` : '-',
             sub: `${emailLeads} de ${leads.length} têm email`,
             color: '#3b82f6',
           },

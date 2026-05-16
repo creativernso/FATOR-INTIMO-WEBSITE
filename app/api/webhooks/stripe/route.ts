@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
         console.error('[webhook] failed to send email:', err);
       }
     } else {
-      console.warn('[webhook] email skipped — resend:', !!resend, 'email:', email, 'product:', !!product);
+      console.warn('[webhook] email skipped, resend:', !!resend, 'email:', email, 'product:', !!product);
     }
   }
 

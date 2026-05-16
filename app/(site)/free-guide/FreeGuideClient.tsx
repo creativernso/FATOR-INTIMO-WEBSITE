@@ -53,7 +53,7 @@ export default function FreeGuideClient({ config }: Props) {
   return (
     <>
       <section className="min-h-screen pt-24 pb-20 px-6 relative flex items-center overflow-hidden">
-        {/* Background glow — desktop only, softer */}
+        {/* Background glow, desktop only, softer */}
         <div
           className="hidden md:block absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[400px] pointer-events-none rounded-full"
           style={{ background: 'radial-gradient(ellipse, rgba(254,0,80,0.08) 0%, transparent 70%)' }}
@@ -108,7 +108,7 @@ export default function FreeGuideClient({ config }: Props) {
               </div>
             </AnimateOnScroll>
 
-            {/* Right — Form */}
+            {/* Right, Form */}
             <AnimateOnScroll direction="right">
               <div className="relative rounded-3xl border border-white/8 bg-surface overflow-hidden shadow-2xl shadow-black/30">
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />

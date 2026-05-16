@@ -12,7 +12,7 @@ import { getOrders, markOrderReviewRequestSent } from '@/lib/orders';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { campaignHtml, campaignText } from '@/lib/email-template';
 
-// Vercel cron — runs daily at 09:00 UTC
+// Vercel cron, runs daily at 09:00 UTC
 // Configure in vercel.json: { "crons": [{ "path": "/api/cron/automations", "schedule": "0 9 * * *" }] }
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
@@ -97,7 +97,7 @@ export async function GET(req: NextRequest) {
     results[auto.name] = sent;
   }
 
-  // ── Review request emails — products ────────────────────────────────────
+  // ── Review request emails, products ────────────────────────────────────
   let productReviewRequestsSent = 0;
   if (settings.productEnabled) {
     try {
@@ -136,7 +136,7 @@ export async function GET(req: NextRequest) {
           await markOrderReviewRequestSent(order.id);
           productReviewRequestsSent++;
         } catch {
-          // silent — retried next day
+          // silent, retried next day
         }
         await new Promise((r) => setTimeout(r, 100));
       }
@@ -145,7 +145,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // ── Review request emails — guides ──────────────────────────────────────
+  // ── Review request emails, guides ──────────────────────────────────────
   let guideReviewRequestsSent = 0;
   if (settings.guideEnabled) {
     try {
@@ -185,7 +185,7 @@ export async function GET(req: NextRequest) {
           await markLeadReviewRequestSent(lead.id);
           guideReviewRequestsSent++;
         } catch {
-          // silent — retried next day
+          // silent, retried next day
         }
         await new Promise((r) => setTimeout(r, 100));
       }

@@ -16,7 +16,7 @@ export default function ProductCard({ product }: Props) {
   return (
     <div className="group rounded-2xl border border-white/5 bg-surface p-3 transition-all duration-500 hover:border-accent/20">
 
-      {/* Cover — portrait */}
+      {/* Cover, portrait */}
       <Link href={`/products/${product.slug}`} className="block relative aspect-[3/4] rounded-lg overflow-hidden mb-4 bg-surface">
         <Image
           src={product.coverImage}

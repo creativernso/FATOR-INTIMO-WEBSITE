@@ -29,7 +29,7 @@ export function getFirebaseAuth(): Auth {
   return _auth;
 }
 
-// Legacy export for existing callers — only safe to use in browser context
+// Legacy export for existing callers, only safe to use in browser context
 export const auth = typeof window !== 'undefined'
   ? (() => { try { return getFirebaseAuth(); } catch { return null as unknown as Auth; } })()
   : null as unknown as Auth;

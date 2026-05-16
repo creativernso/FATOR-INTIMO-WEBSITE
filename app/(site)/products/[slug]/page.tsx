@@ -50,7 +50,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const product = allProducts.find((p) => p.slug === slug);
   if (!product) notFound();
 
-  // Related products — same category first, then fill with featured/others
+  // Related products, same category first, then fill with featured/others
   const relatedProducts = (() => {
     const sameCategory = allProducts.filter((p) => p.id !== product.id && p.category === product.category);
     const others = allProducts.filter((p) => p.id !== product.id && p.category !== product.category);
@@ -199,7 +199,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
               <p className="text-text-secondary text-base leading-relaxed">{product.description}</p>
 
-              {/* Price + Countdown + Buy — single bordered block */}
+              {/* Price + Countdown + Buy, single bordered block */}
               <div className="flex flex-col gap-4">
                 <div className="flex flex-nowrap items-baseline justify-center sm:justify-start gap-2.5 sm:gap-5 pb-2">
                   {product.originalPrice && (
@@ -246,7 +246,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 </div>
               </div>
 
-              {/* Trust bar — single line on mobile, slightly shrunken chips */}
+              {/* Trust bar, single line on mobile, slightly shrunken chips */}
               <div className="flex flex-nowrap items-center justify-between sm:justify-start gap-1.5 sm:gap-3 sm:flex-wrap">
                 {/* Visa */}
                 <div className="h-7 sm:h-8 px-2 sm:px-3 rounded-lg border border-white/10 bg-white flex items-center justify-center flex-shrink-0">
@@ -396,7 +396,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         </section>
       )}
 
-      {/* ── REVIEWS ── (replaces the static testimonials block — now fully interactive) */}
+      {/* ── REVIEWS ── (replaces the static testimonials block, now fully interactive) */}
       <ReviewSection productSlug={product.slug} productTitle={product.title} />
 
       {/* ── FAQ ── */}

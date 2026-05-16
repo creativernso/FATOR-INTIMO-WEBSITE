@@ -41,7 +41,7 @@ const sections = [
             apresenta.
           </LI>
           <LI>
-            <Strong>Vulnerabilidade com consciência.</Strong> Compartilhar dói às vezes — para você e
+            <Strong>Vulnerabilidade com consciência.</Strong> Compartilhar dói às vezes, para você e
             para quem lê. Trate histórias alheias com o mesmo cuidado que gostaria que tratassem a sua.
           </LI>
           <LI>
@@ -66,8 +66,8 @@ const sections = [
       <>
         <H3>Assédio e ataques pessoais</H3>
         <P>
-          Insultos, intimidação, perseguição, ridicularização, ameaças veladas ou abertas — em qualquer
-          intensidade — são removidos sem debate.
+          Insultos, intimidação, perseguição, ridicularização, ameaças veladas ou abertas, em qualquer
+          intensidade, são removidos sem debate.
         </P>
         <H3>Discurso de ódio e discriminação</H3>
         <P>
@@ -187,7 +187,7 @@ const sections = [
           <LI>Acolha com empatia, sem minimizar a dor.</LI>
           <LI>Indique contatos de apoio profissional (CVV 188 no Brasil, serviço de emergência local).</LI>
           <LI>
-            Sinalize o conteúdo à equipe de moderação — podemos oferecer suporte, recursos e, quando
+            Sinalize o conteúdo à equipe de moderação, podemos oferecer suporte, recursos e, quando
             possível, encaminhar contatos institucionais.
           </LI>
         </UL>
@@ -240,7 +240,7 @@ export default function DiretrizesComunidadePage() {
           <span style={{ color: '#fe0050' }}>reais</span>, não para barulho
         </>
       }
-      intro="A Comunidade Íntima é construída sobre respeito, profundidade emocional e maturidade. Estas diretrizes existem para preservar isso — com firmeza onde for preciso."
+      intro="A Comunidade Íntima é construída sobre respeito, profundidade emocional e maturidade. Estas diretrizes existem para preservar isso, com firmeza onde for preciso."
       lastUpdated={LAST_UPDATED}
       sections={sections}
       contactSubject="Denúncia ou dúvida sobre a comunidade"

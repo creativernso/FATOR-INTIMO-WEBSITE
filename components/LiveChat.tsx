@@ -44,7 +44,7 @@ export default function LiveChat() {
     setVisitorId(getVisitorId());
   }, []);
 
-  // Load chat settings (via Firestore client doc — fall back silently if denied)
+  // Load chat settings (via Firestore client doc, fall back silently if denied)
   useEffect(() => {
     fetch('/api/chat/settings-public').then((r) => r.json()).then((data) => {
       if (data?.welcomeMessage) setSettings({ welcomeMessage: data.welcomeMessage, quickReplies: data.quickReplies || [] });

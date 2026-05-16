@@ -19,8 +19,8 @@ const sections = [
     body: (
       <>
         <P>
-          O conteúdo publicado pelo <Strong>Fator Íntimo</Strong> — artigos, guias, e-books, vídeos,
-          newsletters, comunicações e interações em comunidade — tem caráter exclusivamente{' '}
+          O conteúdo publicado pelo <Strong>Fator Íntimo</Strong>, artigos, guias, e-books, vídeos,
+          newsletters, comunicações e interações em comunidade, tem caráter exclusivamente{' '}
           <Strong>informativo, educacional e reflexivo</Strong>. Trata-se de leitura de apoio para quem
           deseja compreender melhor relacionamentos, emoções, comportamento humano e dinâmicas afetivas.
         </P>
@@ -70,7 +70,7 @@ const sections = [
         <P>
           Os textos e materiais refletem leituras, interpretações e referências do time editorial do
           Fator Íntimo. Tratamos temas complexos por meio de generalizações úteis, modelos conceituais e
-          exemplos didáticos. Eles existem para iluminar padrões — não para descrever exatamente o que
+          exemplos didáticos. Eles existem para iluminar padrões, não para descrever exatamente o que
           acontece em uma vida específica.
         </P>
         <P>
@@ -133,8 +133,8 @@ const sections = [
     body: (
       <>
         <P>
-          Quando recomendamos produtos próprios ou de parceiros — em e-mails, conteúdos editoriais ou
-          materiais pagos — fazemos isso por avaliarmos seu valor. Caso uma indicação seja patrocinada ou
+          Quando recomendamos produtos próprios ou de parceiros, em e-mails, conteúdos editoriais ou
+          materiais pagos, fazemos isso por avaliarmos seu valor. Caso uma indicação seja patrocinada ou
           envolva comissão de afiliado, isso será sinalizado de forma transparente.
         </P>
       </>
@@ -151,14 +151,14 @@ const sections = [
         </P>
         <UL>
           <LI>
-            <Strong>CVV (Centro de Valorização da Vida) — Brasil:</Strong> ligue 188 ou acesse cvv.org.br.
+            <Strong>CVV (Centro de Valorização da Vida), Brasil:</Strong> ligue 188 ou acesse cvv.org.br.
           </LI>
           <LI>
-            <Strong>Ligue 180 — Atendimento à Mulher (Brasil):</Strong> denúncias e orientação em casos de
+            <Strong>Ligue 180, Atendimento à Mulher (Brasil):</Strong> denúncias e orientação em casos de
             violência.
           </LI>
           <LI>
-            <Strong>SAMU — Brasil:</Strong> ligue 192 em emergências médicas.
+            <Strong>SAMU, Brasil:</Strong> ligue 192 em emergências médicas.
           </LI>
           <LI>
             <Strong>Fora do Brasil:</Strong> contate o serviço de emergência local ou linhas oficiais de
@@ -190,7 +190,7 @@ export default function AvisoLegalPage() {
           <span style={{ color: '#fe0050' }}>educacional</span>, não terapêutico
         </>
       }
-      intro="Nosso conteúdo é leitura de apoio, não substituto para psicoterapia ou aconselhamento profissional. Este aviso deixa claros os limites — e onde buscar ajuda real quando ela for necessária."
+      intro="Nosso conteúdo é leitura de apoio, não substituto para psicoterapia ou aconselhamento profissional. Este aviso deixa claros os limites, e onde buscar ajuda real quando ela for necessária."
       lastUpdated={LAST_UPDATED}
       sections={sections}
       contactSubject="Dúvida sobre o Aviso Legal"

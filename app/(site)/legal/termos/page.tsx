@@ -200,8 +200,8 @@ const sections = [
     body: (
       <>
         <P>
-          Todo conteúdo produzido pelo Fator Íntimo — artigos, e-books, guias, vídeos, ilustrações,
-          marca, identidade visual, código, design e estrutura editorial — é protegido pela legislação de
+          Todo conteúdo produzido pelo Fator Íntimo, artigos, e-books, guias, vídeos, ilustrações,
+          marca, identidade visual, código, design e estrutura editorial, é protegido pela legislação de
           direitos autorais e marcas. O uso não autorizado pode acarretar responsabilização civil e
           criminal.
         </P>
@@ -320,7 +320,7 @@ export default function TermosPage() {
           <span style={{ color: '#fe0050' }}>Fator Íntimo</span>
         </>
       }
-      intro="Estes termos definem direitos, deveres e expectativas entre você e o Fator Íntimo. Escritos para ser lidos por gente, não só por advogados — mas sem perder o rigor que esse tipo de documento exige."
+      intro="Estes termos definem direitos, deveres e expectativas entre você e o Fator Íntimo. Escritos para ser lidos por gente, não só por advogados, mas sem perder o rigor que esse tipo de documento exige."
       lastUpdated={LAST_UPDATED}
       sections={sections}
       contactSubject="Dúvida sobre Termos & Condições"

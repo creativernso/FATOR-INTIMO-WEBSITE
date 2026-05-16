@@ -11,8 +11,8 @@ async function verifyAdmin() {
   catch { return false; }
 }
 
-// POST /api/reviews/[id]/reply — admin replies to a review.
-// Body: { text } — empty string removes the reply.
+// POST /api/reviews/[id]/reply, admin replies to a review.
+// Body: { text }, empty string removes the reply.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!(await verifyAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const { id } = await params;

@@ -17,7 +17,7 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
       // Block AI training crawlers (preserves your content as a competitive
-      // moat — remove these blocks if you want to be indexed by them)
+      // moat, remove these blocks if you want to be indexed by them)
       { userAgent: 'GPTBot', disallow: '/' },
       { userAgent: 'ChatGPT-User', disallow: '/' },
       { userAgent: 'CCBot', disallow: '/' },

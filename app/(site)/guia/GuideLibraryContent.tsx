@@ -118,7 +118,7 @@ export default function GuideLibraryContent({ guides }: Props) {
         <div className="max-w-6xl mx-auto py-2.5 sm:py-4 border-b border-white/[0.04]">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-4">
 
-            {/* Tag filter — horizontal scroll on mobile, wrap on desktop */}
+            {/* Tag filter, horizontal scroll on mobile, wrap on desktop */}
             <div
               className="flex items-center gap-2 overflow-x-auto sm:overflow-visible sm:flex-wrap -mx-6 px-6 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
               style={{ scrollbarWidth: 'none' }}
@@ -138,7 +138,7 @@ export default function GuideLibraryContent({ guides }: Props) {
               ))}
             </div>
 
-            {/* Sort — compact on mobile, centered; right-aligned on desktop */}
+            {/* Sort, compact on mobile, centered; right-aligned on desktop */}
             <div className="flex items-center gap-1 bg-white/[0.03] border border-white/[0.05] rounded-xl p-1 flex-shrink-0 self-center sm:self-auto">
               {[
                 { id: 'recentes' as SortMode, icon: Clock, label: t('library.sort_recent') },
@@ -214,7 +214,7 @@ function GuidePortraitCard({ guide, large = false }: { guide: Guide; large?: boo
     <Link href={`/guia/${guide.slug}`} className="group block h-full">
       <div className="relative overflow-hidden rounded-2xl border border-white/[0.05] bg-surface transition-all duration-300 group-hover:border-accent/25 group-hover:shadow-xl group-hover:shadow-accent/6 flex flex-col h-full">
 
-        {/* Portrait cover — 2:3 ratio */}
+        {/* Portrait cover, 2:3 ratio */}
         <div
           className="relative w-full flex-shrink-0 overflow-hidden"
           style={{ aspectRatio: '2/3' }}
@@ -240,7 +240,7 @@ function GuidePortraitCard({ guide, large = false }: { guide: Guide; large?: boo
             </div>
           )}
 
-          {/* Tag pill — top left */}
+          {/* Tag pill, top left */}
           {(guide.category || (guide.tags ?? []).length > 0) && (
             <div className="absolute top-3 left-3">
               <span className="text-[9px] bg-black/60 backdrop-blur-sm text-white/70 border border-white/[0.06] rounded-full px-2 py-0.5">
@@ -249,7 +249,7 @@ function GuidePortraitCard({ guide, large = false }: { guide: Guide; large?: boo
             </div>
           )}
 
-          {/* Download count — top right */}
+          {/* Download count, top right */}
           {(guide.downloadCount ?? 0) > 0 && (
             <div className="absolute top-3 right-3">
               <span className="text-[9px] bg-black/60 backdrop-blur-sm text-white/60 border border-white/[0.06] rounded-full px-2 py-0.5 flex items-center gap-1">
@@ -258,7 +258,7 @@ function GuidePortraitCard({ guide, large = false }: { guide: Guide; large?: boo
             </div>
           )}
 
-          {/* Title overlay — bottom of cover */}
+          {/* Title overlay, bottom of cover */}
           <div className="absolute bottom-0 left-0 right-0 p-4">
             <h2 className={`font-heading font-light text-white leading-snug ${large ? 'text-lg sm:text-xl' : 'text-sm sm:text-base'}`}>
               {guide.title}

@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
         );
       }
     } catch {
-      // ignore — fall back to non-verified
+      // ignore, fall back to non-verified
     }
   }
 

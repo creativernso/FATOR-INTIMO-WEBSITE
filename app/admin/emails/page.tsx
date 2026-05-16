@@ -54,7 +54,7 @@ function statusBadge(status: EmailCampaign['status']) {
 }
 
 function timeAgo(iso: string) {
-  if (!iso) return '—';
+  if (!iso) return '-';
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
   if (diff < 60) return 'agora';
   if (diff < 3600) return `${Math.floor(diff / 60)}min atrás`;

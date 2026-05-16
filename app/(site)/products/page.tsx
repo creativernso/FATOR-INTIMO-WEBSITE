@@ -79,7 +79,7 @@ export default async function ProductsPage() {
                 return (
                   <AnimateOnScroll key={product.id} delay={i * 60}>
                     <div className="group rounded-2xl border border-white/5 bg-surface p-3 transition-all duration-500 hover:border-accent/20 flex flex-col h-full">
-                      {/* Cover — portrait, clickable */}
+                      {/* Cover, portrait, clickable */}
                       <Link href={`/products/${product.slug}`} className="block relative aspect-[3/4] rounded-lg overflow-hidden mb-4 bg-surface">
                         <Image
                           src={product.coverImage}
@@ -107,7 +107,7 @@ export default async function ProductsPage() {
                           {product.title}
                         </h2>
 
-                        {/* Price + CTA stack vertically — never overflow */}
+                        {/* Price + CTA stack vertically, never overflow */}
                         <div className="mt-auto flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                           <div className="flex items-baseline gap-2 flex-wrap">
                             {product.originalPrice && (

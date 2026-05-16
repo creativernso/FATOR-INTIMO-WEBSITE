@@ -13,7 +13,7 @@
 /* ─── Dark theme (default) ─── */
 :root,
 [data-theme="dark"] {
-  /* Tailwind color channels — RGB without rgb() so opacity modifiers work */
+  /* Tailwind color channels, RGB without rgb() so opacity modifiers work */
   --bg:           6 6 6;
   --surface:      13 11 9;
   --surface-2:    20 16 12;
@@ -331,7 +331,7 @@ h1, h2, h3, h4, h5 {
 /* Select options */
 [data-theme="light"] select.admin-input option { background: #ffffff; color: #111111; }
 
-/* Admin chrome (sidebar + header) — dark: solid black, light: solid white */
+/* Admin chrome (sidebar + header), dark: solid black, light: solid white */
 .admin-chrome {
   background: #000000;
 }
