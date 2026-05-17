@@ -4,7 +4,7 @@ import { resend, FROM_EMAIL, sendTransactional } from '@/lib/resend';
 import { saveOrder } from '@/lib/orders';
 import { getProducts, createNotification, getEmailAutomations } from '@/lib/db';
 import { purchaseConfirmationHtml, purchaseConfirmationText, campaignHtml, campaignText } from '@/lib/email-template';
-import { alertNewOrder } from '@/lib/admin-notifications';
+import { alertNewOrder, alertStripeWebhookFailure } from '@/lib/admin-notifications';
 import { v4 as uuid } from 'uuid';
 
 export async function POST(req: NextRequest) {
@@ -18,10 +18,21 @@ export async function POST(req: NextRequest) {
   if (webhookSecret) {
     try {
       event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
-    } catch {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'unknown';
+      console.error('[webhook] signature verification failed:', msg);
+      alertStripeWebhookFailure(
+        'invalid_signature',
+        `STRIPE_WEBHOOK_SECRET na Vercel não corresponde ao signing secret do endpoint na Stripe. Erro original: ${msg}`,
+      );
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
   } else {
+    console.warn('[webhook] STRIPE_WEBHOOK_SECRET not set — running without signature verification');
+    alertStripeWebhookFailure(
+      'missing_secret',
+      'A variável STRIPE_WEBHOOK_SECRET não está definida na Vercel. O webhook está rodando sem verificação de assinatura — qualquer um pode forjar pedidos.',
+    );
     event = JSON.parse(body);
   }
 
@@ -59,7 +70,12 @@ export async function POST(req: NextRequest) {
       );
       alertNewOrder(product?.title ?? 'produto', session.amount_total ?? 0, email);
     } catch (err) {
+      const msg = err instanceof Error ? err.message : 'unknown';
       console.error('[webhook] failed to save order:', err);
+      alertStripeWebhookFailure(
+        'save_order_failed',
+        `Não foi possível salvar o pedido para a sessão ${session.id} (cliente ${email}). Erro: ${msg}`,
+      );
     }
 
     // Trigger purchase automations immediately

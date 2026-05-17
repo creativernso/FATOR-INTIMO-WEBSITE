@@ -208,3 +208,31 @@ export function alertNewChatMessage(visitorId: string, firstLineOfMessage: strin
     meta: { Visitante: visitorId.slice(0, 24), Mensagem: firstLineOfMessage.slice(0, 100) },
   });
 }
+
+// ── Stripe webhook health watchdog ────────────────────────────────────────────
+// Fired when checkout.session.completed delivery fails for any reason — wrong
+// signing secret, exception thrown by saveOrder, etc. Throttled per failure
+// reason so a misconfigured secret (which Stripe retries dozens of times)
+// only produces ONE inbox alert per hour, not dozens.
+const WEBHOOK_ALERT_COOLDOWN = 60 * 60 * 1000; // 1 hour
+const lastWebhookAlertAt = new Map<string, number>();
+
+export function alertStripeWebhookFailure(reason: string, details: string) {
+  const now = Date.now();
+  const last = lastWebhookAlertAt.get(reason) ?? 0;
+  if (now - last < WEBHOOK_ALERT_COOLDOWN) return Promise.resolve();
+  lastWebhookAlertAt.set(reason, now);
+
+  return sendAdminAlert({
+    subject: '🚨 Stripe webhook falhou — pedidos não estão sendo processados',
+    title: 'Webhook Stripe com erro',
+    body:
+      'Um ou mais eventos checkout.session.completed da Stripe não puderam ser processados. ' +
+      'Pagamentos podem estar sendo recebidos sem que o pedido seja salvo e sem que o ' +
+      'cliente receba o e-mail de acesso. Verifique o STRIPE_WEBHOOK_SECRET na Vercel e ' +
+      'reenvie os eventos falhados no painel da Stripe.',
+    ctaLabel: 'Abrir Stripe Webhooks',
+    ctaUrl: 'https://dashboard.stripe.com/webhooks',
+    meta: { Motivo: reason, Detalhes: details.slice(0, 200) },
+  });
+}
