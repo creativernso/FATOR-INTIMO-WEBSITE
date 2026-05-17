@@ -4,6 +4,7 @@ import { Lead } from '@/lib/types';
 import { resend, sendTransactional } from '@/lib/resend';
 import { guideDeliveryHtml, guideDeliveryText } from '@/lib/email-template';
 import { alertGuideDownload } from '@/lib/admin-notifications';
+import { sendMetaEvent, extractFbCookies } from '@/lib/meta-capi';
 import { v4 as uuid } from 'uuid';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
@@ -65,5 +66,41 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
   await incrementGuideDownloads(guide.id);
   alertGuideDownload(lead.name, guide.title, lead.email);
 
-  return NextResponse.json({ ok: true, downloadUrl }, { status: 201 });
+  // Fire Meta CAPI Lead event server-side. Same event_id as the client-side
+  // fbq Lead (returned in the metaEventId field below) so Meta dedupes.
+  try {
+    const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || undefined;
+    const ua = req.headers.get('user-agent') ?? undefined;
+    const { fbp, fbc } = extractFbCookies(req.headers.get('cookie'));
+    await sendMetaEvent({
+      eventName: 'Lead',
+      eventId: `lead-${lead.id}`,
+      userData: {
+        email: lead.email,
+        phone: lead.whatsapp,
+        fullName: lead.name,
+        externalId: lead.id,
+        ip,
+        userAgent: ua,
+        fbp,
+        fbc,
+      },
+      customData: {
+        content_name: guide.title,
+        content_category: 'guide',
+        content_ids: [slug],
+        currency: 'BRL',
+        value: 0,
+      },
+      eventSourceUrl: req.headers.get('referer') ?? undefined,
+      actionSource: 'website',
+    });
+  } catch (err) {
+    console.error('[guide subscribe] Meta CAPI Lead failed:', err);
+  }
+
+  return NextResponse.json(
+    { ok: true, downloadUrl, metaEventId: `lead-${lead.id}` },
+    { status: 201 },
+  );
 }

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Download, Users, Check } from 'lucide-react';
+import { trackLead } from '@/lib/fbq';
 
 interface Props {
   slug: string;
@@ -46,6 +47,14 @@ export default function GuideSubscribeForm({
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Ocorreu um erro. Tente novamente.'); return; }
+      // Fire client-side Lead with the same event_id that the server used,
+      // so Meta deduplicates Browser + Server events.
+      trackLead({
+        content_name: 'Guide Download',
+        value: 0,
+        currency: 'BRL',
+        eventID: data.metaEventId,
+      });
       if (data.downloadUrl) setDownloadUrl(data.downloadUrl);
       setStep('success');
     } catch {
