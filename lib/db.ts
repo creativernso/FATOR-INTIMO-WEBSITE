@@ -63,6 +63,18 @@ export const saveLeads = (leads: Lead[]): Promise<void> => replaceCollection('le
 export const upsertLead = (lead: Lead): Promise<void> => upsertDoc('leads', lead);
 export const deleteLead = (id: string): Promise<void> => deleteDoc('leads', id);
 
+/** Returns the first lead matching an email (case-insensitive), or null. */
+export async function getLeadByEmail(email: string): Promise<Lead | null> {
+  if (!email) return null;
+  const normalized = email.trim().toLowerCase();
+  const snap = await db().collection('leads').get();
+  for (const doc of snap.docs) {
+    const data = doc.data() as Lead;
+    if (data.email && data.email.trim().toLowerCase() === normalized) return data;
+  }
+  return null;
+}
+
 export async function markLeadReviewRequestSent(leadId: string): Promise<void> {
   await db().collection('leads').doc(leadId).update({
     reviewRequestSentAt: new Date().toISOString(),

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { resend, FROM_EMAIL, sendTransactional } from '@/lib/resend';
 import { saveOrder } from '@/lib/orders';
-import { getProducts, createNotification, getEmailAutomations } from '@/lib/db';
+import { getProducts, createNotification, getEmailAutomations, upsertLead, getLeadByEmail } from '@/lib/db';
 import { purchaseConfirmationHtml, purchaseConfirmationText, campaignHtml, campaignText } from '@/lib/email-template';
 import { alertNewOrder, alertStripeWebhookFailure } from '@/lib/admin-notifications';
 import { v4 as uuid } from 'uuid';
@@ -69,6 +69,33 @@ export async function POST(req: NextRequest) {
         { name, email, productTitle: product?.title ?? '', amount }
       );
       alertNewOrder(product?.title ?? 'produto', session.amount_total ?? 0, email);
+
+      // Add (or enrich) the buyer in the leads collection so they receive
+      // newsletters, campaigns and post-purchase automations, exactly like
+      // someone who downloaded a free guide.
+      if (email) {
+        try {
+          const existing = await getLeadByEmail(email);
+          const tags = new Set(existing?.tags ?? []);
+          tags.add('buyer');
+          if (product?.slug) tags.add(`product:${product.slug}`);
+          await upsertLead({
+            id: existing?.id ?? uuid(),
+            email,
+            name: name || existing?.name || '',
+            whatsapp: existing?.whatsapp,
+            source: existing?.source ?? `purchase:${product?.slug ?? 'product'}`,
+            guideSlug: existing?.guideSlug,
+            guideName: existing?.guideName,
+            tags: Array.from(tags),
+            createdAt: existing?.createdAt ?? new Date().toISOString(),
+            guideDownloaded: existing?.guideDownloaded,
+            reviewRequestSentAt: existing?.reviewRequestSentAt,
+          });
+        } catch (err) {
+          console.error('[webhook] failed to upsert lead for buyer:', err);
+        }
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'unknown';
       console.error('[webhook] failed to save order:', err);
