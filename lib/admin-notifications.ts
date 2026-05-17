@@ -1,6 +1,6 @@
 import { resend, FROM_EMAIL } from './resend';
 
-const ADMIN_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.RESEND_FROM_EMAIL || 'rafamoreira.asf@gmail.com';
+const ADMIN_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || 'creativernso@gmail.com';
 
 interface AdminAlertData {
   subject: string;
