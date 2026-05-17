@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getGuideBySlug, upsertLead, createNotification, incrementGuideDownloads } from '@/lib/db';
 import { Lead } from '@/lib/types';
-import { resend, FROM_EMAIL } from '@/lib/resend';
+import { resend, sendTransactional } from '@/lib/resend';
 import { guideDeliveryHtml, guideDeliveryText } from '@/lib/email-template';
 import { alertGuideDownload } from '@/lib/admin-notifications';
 import { v4 as uuid } from 'uuid';
@@ -46,8 +46,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
       downloadUrl = `${baseUrl}/api/guides/${slug}/download`;
     }
 
-    await resend.emails.send({
-      from: FROM_EMAIL,
+    await sendTransactional({
       to: lead.email,
       subject: `Seu guia chegou: ${guide.title}`,
       html: guideDeliveryHtml({
@@ -57,6 +56,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
         guideSubtitle: guide.subtitle,
       }),
       text: guideDeliveryText({ name: lead.name, downloadUrl, guideTitle: guide.title }),
+      tag: `guide-${slug}-${lead.id}`,
     });
 
     await upsertLead({ ...lead, guideDownloaded: true });

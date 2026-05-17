@@ -22,13 +22,14 @@ export async function GET() {
     const db = getAdminDb();
     const since48h = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
 
-    const [testimonialsSnap, communityPostsSnap, commentsSnap, leadsSnap, chatSessionsSnap] =
+    const [testimonialsSnap, communityPostsSnap, commentsSnap, leadsSnap, chatSessionsSnap, ordersSnap] =
       await Promise.all([
         db.collection('testimonials').where('status', '==', 'pending').count().get(),
         db.collection('community_posts').where('status', '==', 'pending').count().get(),
         db.collection('comments').where('approved', '==', false).count().get(),
         db.collection('leads').where('createdAt', '>=', since48h).count().get(),
         db.collection('chatSessions').count().get(),
+        db.collection('orders').where('createdAt', '>=', since48h).count().get(),
       ]);
 
     return NextResponse.json({
@@ -37,9 +38,10 @@ export async function GET() {
       comments: commentsSnap.data().count,
       leads: leadsSnap.data().count,
       chat: chatSessionsSnap.data().count,
+      orders: ordersSnap.data().count,
     });
   } catch (err) {
     console.error('[admin/badges] error:', err);
-    return NextResponse.json({ testimonials: 0, comunidade: 0, comments: 0, leads: 0, chat: 0 });
+    return NextResponse.json({ testimonials: 0, comunidade: 0, comments: 0, leads: 0, chat: 0, orders: 0 });
   }
 }

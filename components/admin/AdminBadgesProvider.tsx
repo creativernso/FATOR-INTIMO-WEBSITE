@@ -8,6 +8,7 @@ interface BadgeCounts {
   comments: number;
   leads: number;
   chat: number;
+  orders: number;
 }
 
 interface BadgesContextValue {
@@ -16,7 +17,7 @@ interface BadgesContextValue {
   dismiss: (section: keyof BadgeCounts) => void;
 }
 
-const ZERO: BadgeCounts = { testimonials: 0, comunidade: 0, comments: 0, leads: 0, chat: 0 };
+const ZERO: BadgeCounts = { testimonials: 0, comunidade: 0, comments: 0, leads: 0, chat: 0, orders: 0 };
 
 const BadgesContext = createContext<BadgesContextValue>({
   badges: ZERO,
@@ -55,6 +56,7 @@ function computeEffective(raw: BadgeCounts, seen: BadgeCounts): BadgeCounts {
     comments:     Math.max(0, raw.comments     - seen.comments),
     leads:        Math.max(0, raw.leads        - seen.leads),
     chat:         Math.max(0, raw.chat         - seen.chat),
+    orders:       Math.max(0, raw.orders       - seen.orders),
   };
 }
 
@@ -109,13 +111,15 @@ export default function AdminBadgesProvider({ children }: { children: ReactNode 
         comments:     Math.min(s.comments,     rawCounts.comments),
         leads:        Math.min(s.leads,        rawCounts.leads),
         chat:         Math.min(s.chat,         rawCounts.chat),
+        orders:       Math.min(s.orders,       rawCounts.orders),
       };
       const changed =
         next.testimonials !== s.testimonials ||
         next.comunidade   !== s.comunidade   ||
         next.comments     !== s.comments     ||
         next.leads        !== s.leads        ||
-        next.chat         !== s.chat;
+        next.chat         !== s.chat         ||
+        next.orders       !== s.orders;
       if (!changed) return s;
       saveSeen(next);
       return next;

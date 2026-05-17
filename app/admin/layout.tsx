@@ -43,7 +43,7 @@ const navItems = [
   { href: '/admin/chat', label: 'Live Chat', icon: MessageCircle },
 ];
 
-type BadgeSection = 'testimonials' | 'comunidade' | 'comments' | 'leads' | 'chat';
+type BadgeSection = 'testimonials' | 'comunidade' | 'comments' | 'leads' | 'chat' | 'orders';
 
 const PATH_TO_SECTION: Record<string, BadgeSection> = {
   '/admin/testimonials': 'testimonials',
@@ -51,6 +51,7 @@ const PATH_TO_SECTION: Record<string, BadgeSection> = {
   '/admin/comments':     'comments',
   '/admin/leads':        'leads',
   '/admin/chat':         'chat',
+  '/admin/orders':       'orders',
 };
 
 function AdminLayoutInner({ children }: { children: React.ReactNode }) {
@@ -77,6 +78,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     '/admin/comments': badges.comments,
     '/admin/leads': badges.leads,
     '/admin/chat': badges.chat,
+    '/admin/orders': badges.orders,
   };
 
   const currentPage = navItems.find((item) =>

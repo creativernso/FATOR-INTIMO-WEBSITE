@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLeads, upsertLead, getGuideConfig, createNotification, getEmailAutomations } from '@/lib/db';
-import { resend, FROM_EMAIL } from '@/lib/resend';
+import { resend, FROM_EMAIL, sendTransactional } from '@/lib/resend';
 import { guideDeliveryHtml, guideDeliveryText, campaignHtml, campaignText } from '@/lib/email-template';
 import { alertNewLead } from '@/lib/admin-notifications';
 import { v4 as uuid } from 'uuid';
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     } catch {}
   }
 
-  // Auto-send guide delivery email if email provided
+  // Auto-send guide delivery email if email provided (transactional)
   if (resend && newLead.email) {
     try {
       const config = await getGuideConfig();
@@ -55,12 +55,12 @@ export async function POST(req: NextRequest) {
         ? `${baseUrl}/api/guide-download`
         : undefined;
 
-      await resend.emails.send({
-        from: FROM_EMAIL,
+      await sendTransactional({
         to: newLead.email,
-        subject: 'Seu guia gratuito chegou.',
+        subject: `Seu guia chegou: ${config.title}`,
         html: guideDeliveryHtml({ name: newLead.name, downloadUrl, guideTitle: config.title }),
         text: guideDeliveryText({ name: newLead.name, downloadUrl, guideTitle: config.title }),
+        tag: `guide-free-${newLead.id}`,
       });
       await upsertLead({ ...newLead, guideDownloaded: true });
     } catch (err) {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
-import { resend, FROM_EMAIL } from '@/lib/resend';
+import { resend, FROM_EMAIL, sendTransactional } from '@/lib/resend';
 import { saveOrder } from '@/lib/orders';
 import { getProducts, createNotification, getEmailAutomations } from '@/lib/db';
 import { purchaseConfirmationHtml, purchaseConfirmationText, campaignHtml, campaignText } from '@/lib/email-template';
@@ -80,31 +80,27 @@ export async function POST(req: NextRequest) {
       } catch {}
     }
 
-    // Send confirmation email
+    // Send confirmation email (transactional — Primary inbox optimized)
     if (resend && email && product) {
-      try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
-        const secureDownloadUrl = `${baseUrl}/api/download?session_id=${session.id}&redirect=1`;
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+      const secureDownloadUrl = `${baseUrl}/api/download?session_id=${session.id}&redirect=1`;
 
-        await resend.emails.send({
-          from: FROM_EMAIL,
-          to: email,
-          subject: 'Seu acesso chegou.',
-          html: purchaseConfirmationHtml({
-            productTitle: product.title,
-            customerName: name,
-            downloadUrl: secureDownloadUrl,
-          }),
-          text: purchaseConfirmationText({
-            productTitle: product.title,
-            customerName: name,
-            downloadUrl: secureDownloadUrl,
-          }),
-        });
-        console.log('[webhook] email sent to:', email);
-      } catch (err) {
-        console.error('[webhook] failed to send email:', err);
-      }
+      await sendTransactional({
+        to: email,
+        subject: `Pedido confirmado: ${product.title}`,
+        html: purchaseConfirmationHtml({
+          productTitle: product.title,
+          customerName: name,
+          downloadUrl: secureDownloadUrl,
+        }),
+        text: purchaseConfirmationText({
+          productTitle: product.title,
+          customerName: name,
+          downloadUrl: secureDownloadUrl,
+        }),
+        tag: `order-${session.id}`,
+      });
+      console.log('[webhook] email sent to:', email);
     } else {
       console.warn('[webhook] email skipped, resend:', !!resend, 'email:', email, 'product:', !!product);
     }
