@@ -3,6 +3,7 @@ import { getLeads, upsertLead, getGuideConfig, createNotification, getEmailAutom
 import { resend, FROM_EMAIL, sendTransactional } from '@/lib/resend';
 import { guideDeliveryHtml, guideDeliveryText, campaignHtml, campaignText } from '@/lib/email-template';
 import { alertNewLead } from '@/lib/admin-notifications';
+import { sendMetaEvent, extractFbCookies } from '@/lib/meta-capi';
 import { v4 as uuid } from 'uuid';
 
 export async function GET() {
@@ -28,6 +29,38 @@ export async function POST(req: NextRequest) {
     { name: newLead.name, email: newLead.email ?? '', source: newLead.source }
   );
   alertNewLead(newLead.name, newLead.email, newLead.source);
+
+  // Fire Meta CAPI Lead event server-side. The client-side fbq Lead fires
+  // with the same event_id (returned in the response) so Meta dedupes.
+  try {
+    const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || undefined;
+    const ua = req.headers.get('user-agent') ?? undefined;
+    const { fbp, fbc } = extractFbCookies(req.headers.get('cookie'));
+    await sendMetaEvent({
+      eventName: 'Lead',
+      eventId: `lead-${newLead.id}`,
+      userData: {
+        email: newLead.email,
+        phone: newLead.whatsapp,
+        fullName: newLead.name,
+        externalId: newLead.id,
+        ip,
+        userAgent: ua,
+        fbp,
+        fbc,
+      },
+      customData: {
+        content_name: 'Free Guide Download',
+        content_category: 'guide',
+        currency: 'BRL',
+        value: 0,
+      },
+      eventSourceUrl: req.headers.get('referer') ?? undefined,
+      actionSource: 'website',
+    });
+  } catch (err) {
+    console.error('[leads] Meta CAPI Lead failed:', err);
+  }
 
   // Trigger immediate (delayDays=0) signup automations
   if (resend && newLead.email) {
@@ -68,5 +101,8 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json(newLead, { status: 201 });
+  return NextResponse.json(
+    { ...newLead, metaEventId: `lead-${newLead.id}` },
+    { status: 201 },
+  );
 }

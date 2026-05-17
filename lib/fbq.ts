@@ -23,12 +23,27 @@ export function fbq(...args: any[]): void {
   }
 }
 
+/**
+ * Fires a Meta event and, when `eventID` is provided, attaches it as the
+ * 4th argument so Meta can deduplicate with a matching server-side CAPI
+ * call. Pattern from Meta docs: fbq('track', 'X', data, { eventID }).
+ */
+function track<T extends Record<string, unknown>>(
+  name: string,
+  params?: T & { eventID?: string },
+) {
+  if (!params) return fbq('track', name);
+  const { eventID, ...data } = params;
+  if (eventID) return fbq('track', name, data, { eventID });
+  return fbq('track', name, data);
+}
+
 export const trackPageView = () => fbq('track', 'PageView');
-export const trackViewContent = (params?: { content_ids?: string[]; content_name?: string; content_type?: string; value?: number; currency?: string }) =>
-  fbq('track', 'ViewContent', params);
-export const trackLead = (params?: { content_name?: string; value?: number; currency?: string }) =>
-  fbq('track', 'Lead', params);
-export const trackInitiateCheckout = (params?: { content_ids?: string[]; value?: number; currency?: string }) =>
-  fbq('track', 'InitiateCheckout', params);
-export const trackPurchase = (params?: { content_ids?: string[]; content_name?: string; value: number; currency?: string }) =>
-  fbq('track', 'Purchase', { currency: 'BRL', ...params });
+export const trackViewContent = (params?: { content_ids?: string[]; content_name?: string; content_type?: string; value?: number; currency?: string; eventID?: string }) =>
+  track('ViewContent', params);
+export const trackLead = (params?: { content_name?: string; value?: number; currency?: string; eventID?: string }) =>
+  track('Lead', params);
+export const trackInitiateCheckout = (params?: { content_ids?: string[]; value?: number; currency?: string; eventID?: string }) =>
+  track('InitiateCheckout', params);
+export const trackPurchase = (params?: { content_ids?: string[]; content_name?: string; value: number; currency?: string; eventID?: string }) =>
+  track('Purchase', { currency: 'BRL', ...params });

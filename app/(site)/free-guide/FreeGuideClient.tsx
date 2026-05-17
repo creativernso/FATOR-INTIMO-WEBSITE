@@ -38,7 +38,16 @@ export default function FreeGuideClient({ config }: Props) {
         }),
       });
       if (res.ok) {
-        trackLead({ content_name: 'Free Guide', value: 0, currency: 'BRL' });
+        // Pull the metaEventId from the API response so the client-side
+        // pixel Lead fires with the same event_id as the server-side CAPI
+        // call, and Meta deduplicates them.
+        const data = await res.json().catch(() => null);
+        trackLead({
+          content_name: 'Free Guide',
+          value: 0,
+          currency: 'BRL',
+          eventID: data?.metaEventId,
+        });
         setStep('success');
       } else {
         setError('Erro ao enviar. Tente novamente.');

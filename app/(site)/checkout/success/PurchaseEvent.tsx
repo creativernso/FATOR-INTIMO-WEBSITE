@@ -26,6 +26,8 @@ export default function PurchaseEvent({ sessionId, productId, productName, value
       content_name: productName,
       value,
       currency: 'BRL',
+      // Same event_id as the server-side CAPI Purchase call so Meta dedupes.
+      eventID: `purchase-${sessionId}`,
     });
   }, [sessionId, productId, productName, value]);
   return null;

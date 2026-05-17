@@ -5,6 +5,7 @@ import { saveOrder } from '@/lib/orders';
 import { getProducts, createNotification, getEmailAutomations, upsertLead, getLeadByEmail } from '@/lib/db';
 import { purchaseConfirmationHtml, purchaseConfirmationText, campaignHtml, campaignText } from '@/lib/email-template';
 import { alertNewOrder, alertStripeWebhookFailure } from '@/lib/admin-notifications';
+import { sendMetaEvent } from '@/lib/meta-capi';
 import { v4 as uuid } from 'uuid';
 
 export async function POST(req: NextRequest) {
@@ -69,6 +70,37 @@ export async function POST(req: NextRequest) {
         { name, email, productTitle: product?.title ?? '', amount }
       );
       alertNewOrder(product?.title ?? 'produto', session.amount_total ?? 0, email);
+
+      // Fire the Purchase event to Meta CAPI server-side. The client-side
+      // pixel also fires on the success page with the same event_id, so
+      // Meta will deduplicate. This catches every paid order even if the
+      // user's browser has an ad-blocker or never reaches /checkout/success.
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+        await sendMetaEvent({
+          eventName: 'Purchase',
+          eventId: `purchase-${session.id}`,
+          userData: {
+            email,
+            fullName: name,
+            externalId: session.id,
+          },
+          customData: {
+            currency: 'BRL',
+            value: (session.amount_total ?? 0) / 100,
+            content_ids: product?.id ? [product.id] : [],
+            content_name: product?.title,
+            content_type: 'product',
+            content_category: product?.category,
+            num_items: 1,
+            order_id: session.id,
+          },
+          eventSourceUrl: product?.slug ? `${baseUrl}/products/${product.slug}` : baseUrl,
+          actionSource: 'website',
+        });
+      } catch (err) {
+        console.error('[webhook] Meta CAPI Purchase failed:', err);
+      }
 
       // Add (or enrich) the buyer in the leads collection so they receive
       // newsletters, campaigns and post-purchase automations, exactly like
