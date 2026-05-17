@@ -111,6 +111,19 @@ export async function sendMetaEvent(args: {
   };
   if (TEST_EVENT_CODE) payload.test_event_code = TEST_EVENT_CODE;
 
+  console.log(
+    '[meta-capi] sending event',
+    JSON.stringify({
+      eventName: args.eventName,
+      eventId: args.eventId,
+      pixelId: PIXEL_ID,
+      tokenPrefix: ACCESS_TOKEN.slice(0, 8),
+      tokenLength: ACCESS_TOKEN.length,
+      testEventCode: TEST_EVENT_CODE || '<none>',
+      apiVersion: API_VERSION,
+    }),
+  );
+
   try {
     const res = await fetch(
       `https://graph.facebook.com/${API_VERSION}/${PIXEL_ID}/events?access_token=${ACCESS_TOKEN}`,
@@ -120,9 +133,11 @@ export async function sendMetaEvent(args: {
         body: JSON.stringify(payload),
       },
     );
+    const text = await res.text().catch(() => '<no body>');
     if (!res.ok) {
-      const text = await res.text().catch(() => '<no body>');
-      console.error('[meta-capi] Meta rejected event', res.status, text.slice(0, 400));
+      console.error('[meta-capi] Meta rejected event', res.status, text.slice(0, 600));
+    } else {
+      console.log('[meta-capi] Meta accepted event', res.status, text.slice(0, 300));
     }
   } catch (err) {
     console.error('[meta-capi] send failed:', err);
