@@ -8,7 +8,7 @@ import {
   getLeads,
 } from '@/lib/db';
 import { getOrders } from '@/lib/orders';
-import { alertNewTestimonial } from '@/lib/admin-notifications';
+import { alertNewReview } from '@/lib/admin-notifications';
 import type { Testimonial } from '@/lib/types';
 import { v4 as uuid } from 'uuid';
 
@@ -147,7 +147,7 @@ export async function POST(req: NextRequest) {
     `${review.name} avaliou "${target.label}" com ${rating}★.`,
     { name: review.name, target: target.label },
   );
-  alertNewTestimonial(review.name);
+  alertNewReview(review.name, target.label, rating, verifiedPurchase);
 
   return NextResponse.json({ ok: true, verifiedPurchase, status: review.status }, { status: 201 });
 }

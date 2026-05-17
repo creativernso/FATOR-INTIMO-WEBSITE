@@ -4,6 +4,7 @@ import { getCommunityUser, upsertCommunityUser, createNotification } from '@/lib
 import { CommunityUser } from '@/lib/types';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { communityWelcomeHtml, communityWelcomeText } from '@/lib/email-template';
+import { alertNewCommunityMember } from '@/lib/admin-notifications';
 
 async function verifyToken(req: NextRequest) {
   const auth = req.headers.get('authorization');
@@ -47,6 +48,7 @@ export async function POST(req: NextRequest) {
     `${user.name} entrou na Comunidade Íntima.`,
     { name: user.name }
   );
+  alertNewCommunityMember(user.name, user.email);
 
   if (resend && userEmail) {
     resend.emails.send({

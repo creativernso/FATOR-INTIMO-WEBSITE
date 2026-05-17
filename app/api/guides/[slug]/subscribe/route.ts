@@ -3,6 +3,7 @@ import { getGuideBySlug, upsertLead, createNotification, incrementGuideDownloads
 import { Lead } from '@/lib/types';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { guideDeliveryHtml, guideDeliveryText } from '@/lib/email-template';
+import { alertGuideDownload } from '@/lib/admin-notifications';
 import { v4 as uuid } from 'uuid';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
@@ -62,6 +63,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
   }
 
   await incrementGuideDownloads(guide.id);
+  alertGuideDownload(lead.name, guide.title, lead.email);
 
   return NextResponse.json({ ok: true, downloadUrl }, { status: 201 });
 }

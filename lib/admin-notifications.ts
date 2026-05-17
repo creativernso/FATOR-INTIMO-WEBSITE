@@ -77,6 +77,50 @@ export function alertNewLead(name: string, email?: string, source?: string) {
   });
 }
 
+export function alertGuideDownload(name: string, guideTitle: string, email?: string) {
+  return sendAdminAlert({
+    subject: `Novo download: ${guideTitle}`,
+    title: 'Novo download de guia',
+    body: `${name} baixou "${guideTitle}".`,
+    ctaLabel: 'Ver leads',
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/leads`,
+    meta: { Nome: name, Email: email || '-', Guia: guideTitle },
+  });
+}
+
+export function alertNewReview(
+  name: string,
+  target: string,
+  rating: number,
+  verifiedPurchase: boolean,
+) {
+  const stars = '★'.repeat(rating) + '☆'.repeat(Math.max(0, 5 - rating));
+  return sendAdminAlert({
+    subject: `Nova avaliação ${rating}★ em "${target}"`,
+    title: verifiedPurchase ? 'Nova avaliação verificada' : 'Nova avaliação aguardando aprovação',
+    body: `${name} avaliou "${target}" com ${rating} estrelas.`,
+    ctaLabel: 'Revisar avaliação',
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/testimonials`,
+    meta: {
+      Autor: name,
+      Item: target,
+      Nota: stars,
+      Verificado: verifiedPurchase ? 'Sim' : 'Não',
+    },
+  });
+}
+
+export function alertNewCommunityMember(name: string, email?: string) {
+  return sendAdminAlert({
+    subject: 'Novo membro na Comunidade Íntima',
+    title: 'Novo membro na Comunidade',
+    body: `${name} acabou de entrar na Comunidade Íntima.`,
+    ctaLabel: 'Ver membros',
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/comunidade`,
+    meta: { Nome: name, Email: email || '-' },
+  });
+}
+
 export function alertNewTestimonial(name: string) {
   return sendAdminAlert({
     subject: 'Novo depoimento aguardando aprovação',

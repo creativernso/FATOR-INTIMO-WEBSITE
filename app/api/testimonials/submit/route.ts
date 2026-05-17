@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { upsertTestimonial, createNotification } from '@/lib/db';
+import { alertNewTestimonial } from '@/lib/admin-notifications';
 import { v4 as uuid } from 'uuid';
 
 export async function POST(req: NextRequest) {
@@ -31,12 +32,14 @@ export async function POST(req: NextRequest) {
     submittedAt: new Date().toISOString(),
   });
 
+  const displayName = anonymous ? 'Anônimo' : name?.trim() || 'Alguém';
   await createNotification(
     'testimonial',
     'Novo depoimento enviado',
-    `${anonymous ? 'Anônimo' : name?.trim() || 'Alguém'} enviou um depoimento para aprovação.`,
-    { name: anonymous ? 'Anônimo' : name?.trim() || '' }
+    `${displayName} enviou um depoimento para aprovação.`,
+    { name: displayName }
   );
+  alertNewTestimonial(displayName);
 
   return NextResponse.json({ ok: true });
 }
