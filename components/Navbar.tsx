@@ -53,7 +53,7 @@ export default function Navbar() {
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
-  const glassNav = scrolled || theme === 'light';
+  const glassNav = true;
 
   return (
     <>
