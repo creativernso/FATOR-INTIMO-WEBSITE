@@ -66,7 +66,6 @@ export default async function BlogPage() {
                           priority
                           className="object-cover transition-transform duration-700 group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/50 to-transparent" />
                         <div className="absolute top-5 left-5 flex items-center gap-2">
                           <span className="text-xs text-white bg-accent px-3 py-1 rounded-full font-medium">
                             {t('blog.featured_label')}

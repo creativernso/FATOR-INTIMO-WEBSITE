@@ -158,7 +158,6 @@ export default async function BlogPost({ params }: Props) {
               className="object-cover"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/30" />
           </div>
 
           {/* Content */}
