@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, Youtube, Instagram, Facebook } from 'lucide-react';
 import LogoImage from './LogoImage';
+import ThemeToggle from './ThemeToggle';
 
 function TikTokIcon({ size = 16 }: { size?: number }) {
   return (
@@ -63,7 +64,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={`text-sm tracking-wide transition-colors duration-200 whitespace-nowrap ${
-                  pathname === link.href ? 'text-accent' : 'text-white hover:text-accent'
+                  pathname === link.href ? 'text-accent' : 'text-text-primary hover:text-accent'
                 }`}
               >
                 {link.label}
@@ -80,11 +81,12 @@ export default function Navbar() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={s.label}
-                className="text-white/80 hover:text-accent transition-colors"
+                className="text-text-secondary hover:text-accent transition-colors"
               >
                 <s.icon size={15} />
               </a>
             ))}
+            <ThemeToggle />
             <Link
               href="/comunidade"
               className="ml-1 text-sm px-5 py-2 rounded-full bg-accent hover:bg-accent-hover text-white font-medium transition-all hover:shadow-lg hover:shadow-accent/20 whitespace-nowrap"
@@ -109,7 +111,7 @@ export default function Navbar() {
         className={`fixed inset-0 z-40 lg:hidden transition-all duration-400 ${
           mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
-        style={{ background: 'rgba(0,0,0,0.98)', backdropFilter: 'blur(20px)' }}
+        style={{ background: 'var(--mobile-menu-bg)', backdropFilter: 'blur(20px)' }}
       >
         <div className="flex flex-col items-center justify-center h-full gap-7">
           {navLinks.map((link, i) => (
@@ -137,12 +139,13 @@ export default function Navbar() {
                 href={s.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white/80 hover:text-accent transition-colors"
+                className="text-text-secondary hover:text-accent transition-colors"
               >
                 <s.icon size={20} />
               </a>
             ))}
           </div>
+          <ThemeToggle />
         </div>
       </div>
     </>
