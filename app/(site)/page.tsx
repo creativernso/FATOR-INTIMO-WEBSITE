@@ -416,7 +416,33 @@ export default async function Home() {
             </AnimateOnScroll>
 
             <AnimateOnScroll direction="right">
-              <div className="space-y-5">
+              {/* Mobile: sticky stack */}
+              <div className="flex flex-col lg:hidden">
+                {principles.map((p, i) => (
+                  <div
+                    key={i}
+                    className="sticky"
+                    style={{ top: `${68 + i * 14}px`, zIndex: 10 + i }}
+                  >
+                    <div
+                      className="flex gap-5 p-5 rounded-xl border border-white/5 bg-surface mb-3 shadow-[0_6px_28px_rgba(0,0,0,0.35)]"
+                      style={{
+                        transform: `scale(${1 - (principles.length - 1 - i) * 0.018})`,
+                        transformOrigin: 'top center',
+                      }}
+                    >
+                      <span className="font-heading text-3xl text-accent/20 font-light flex-shrink-0 leading-none">{p.number}</span>
+                      <div>
+                        <h3 className="font-heading text-lg font-medium text-text-primary mb-1">{p.title}</h3>
+                        <p className="text-text-secondary text-sm leading-relaxed">{p.desc}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop: stacked list */}
+              <div className="hidden lg:block space-y-5">
                 {principles.map((p, i) => (
                   <div key={i} className="flex gap-5 p-5 rounded-xl border border-white/5 bg-surface">
                     <span className="font-heading text-3xl text-accent/20 font-light flex-shrink-0 leading-none">{p.number}</span>
@@ -451,7 +477,29 @@ export default async function Home() {
               </div>
             </AnimateOnScroll>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Mobile: sticky stack */}
+            <div className="flex flex-col md:hidden">
+              {posts.map((post, i) => (
+                <div
+                  key={post.id}
+                  className="sticky"
+                  style={{ top: `${68 + i * 14}px`, zIndex: 10 + i }}
+                >
+                  <div
+                    className="mb-3 shadow-[0_6px_28px_rgba(0,0,0,0.35)]"
+                    style={{
+                      transform: `scale(${1 - (posts.length - 1 - i) * 0.018})`,
+                      transformOrigin: 'top center',
+                    }}
+                  >
+                    <BlogCard post={post} featured />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop: grid */}
+            <div className="hidden md:grid md:grid-cols-3 gap-6">
               {posts.map((post, i) => (
                 <AnimateOnScroll key={post.id} delay={i * 100}>
                   <BlogCard post={post} featured />
