@@ -124,7 +124,7 @@ export default async function Home() {
 
       {/* ── TESTIMONIALS SLIDER ── */}
       {testimonials.length > 0 && (
-        <section className="py-24 px-6 overflow-hidden">
+        <section className="py-10 md:py-24 px-6 overflow-hidden">
           <div className="max-w-5xl mx-auto">
             <AnimateOnScroll>
               <div className="text-center mb-14">
@@ -151,7 +151,7 @@ export default async function Home() {
 
       {/* ── YOUTUBE ── */}
       {ytVideos.length > 0 && (
-        <section className="pt-10 pb-28 md:py-28 px-6 border-t border-white/5">
+        <section className="pt-6 pb-12 md:py-28 px-6 border-t border-white/5">
           <div className="max-w-5xl mx-auto">
             <AnimateOnScroll>
               <div className="flex items-end justify-between mb-12">
@@ -206,7 +206,7 @@ export default async function Home() {
 
       {/* ── GUIDES CAROUSEL ── */}
       {guides.length > 0 && (
-        <section className="py-28 px-6 border-t border-white/5">
+        <section className="py-12 md:py-28 px-6 border-t border-white/5">
           <div className="max-w-5xl mx-auto">
             <AnimateOnScroll>
               <div className="flex items-end justify-between mb-12">
@@ -262,7 +262,7 @@ export default async function Home() {
       )}
 
       {/* ── COMMUNITY PREVIEW ── */}
-      <section className="py-28 px-6 border-t border-white/5">
+      <section className="py-12 md:py-28 px-6 border-t border-white/5">
         <div className="max-w-5xl mx-auto">
           <AnimateOnScroll>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -339,7 +339,7 @@ export default async function Home() {
       </section>
 
       {/* ── TOPICS ── */}
-      <section className="py-28 px-6 border-t border-white/5">
+      <section className="py-12 md:py-28 px-6 border-t border-white/5">
         <div className="max-w-5xl mx-auto">
           <AnimateOnScroll>
             <div className="text-center mb-16">
@@ -392,7 +392,7 @@ export default async function Home() {
       </section>
 
       {/* ── SOLUTION ── */}
-      <section className="py-28 px-6 border-t border-white/5 relative overflow-hidden">
+      <section className="py-12 md:py-28 px-6 border-t border-white/5 relative overflow-hidden">
         <div className="absolute right-0 top-1/2 -translate-y-1/2 w-96 h-96 rounded-full opacity-5 pointer-events-none"
           style={{ background: 'radial-gradient(ellipse, #fe0050 0%, transparent 70%)' }} />
         <div className="max-w-5xl mx-auto">
@@ -460,7 +460,7 @@ export default async function Home() {
 
       {/* ── BLOG POSTS ── */}
       {posts.length > 0 && (
-        <section className="py-28 px-6 border-t border-white/5">
+        <section className="py-12 md:py-28 px-6 border-t border-white/5">
           <div className="max-w-5xl mx-auto">
             <AnimateOnScroll>
               <div className="flex items-end justify-between mb-12">
@@ -526,7 +526,7 @@ export default async function Home() {
 
       {/* ── PRODUCTS ── */}
       {products.length > 0 && (
-        <section className="py-28 px-6 border-t border-white/5">
+        <section className="py-12 md:py-28 px-6 border-t border-white/5">
           <div className="max-w-5xl mx-auto">
             <AnimateOnScroll>
               <div className="text-center mb-14">
@@ -561,7 +561,7 @@ export default async function Home() {
       )}
 
       {/* ── SOCIAL STRIP ── */}
-      <section className="py-16 px-6 border-t border-white/5">
+      <section className="py-8 md:py-16 px-6 border-t border-white/5">
         <div className="max-w-5xl mx-auto">
           <AnimateOnScroll>
             <div className="text-center mb-8">
@@ -595,7 +595,7 @@ export default async function Home() {
       </section>
 
       {/* ── FINAL CTA ── */}
-      <section className="py-28 px-6">
+      <section className="py-12 md:py-28 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <AnimateOnScroll>
             <div className="relative rounded-3xl border border-white/5 bg-surface overflow-hidden p-14">
