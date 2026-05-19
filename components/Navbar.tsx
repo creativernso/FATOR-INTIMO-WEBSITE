@@ -25,6 +25,7 @@ const socialLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const pathname = usePathname();
   const navLinks = [
     { href: '/', label: 'Início' },
@@ -42,12 +43,22 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    const read = () => setTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
+    read();
+    const observer = new MutationObserver(read);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => { setMobileOpen(false); }, [pathname]);
+
+  const glassNav = scrolled || theme === 'light';
 
   return (
     <>
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled ? 'glass-dark border-b border-white/5 py-3' : 'bg-transparent py-4'
+        glassNav ? 'glass-dark border-b border-white/5 py-3' : 'bg-transparent py-4'
       }`}>
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between gap-8">
 

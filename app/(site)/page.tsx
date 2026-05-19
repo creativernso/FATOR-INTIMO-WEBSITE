@@ -96,7 +96,7 @@ export default async function Home() {
 
         <div className="relative z-10 max-w-6xl mx-auto w-full px-6 text-center sm:text-left">
           <AnimateOnScroll delay={0}>
-            <h1 className="font-heading font-light text-text-primary mb-8" style={{ fontSize: 'clamp(2rem, 4.5vw, 3.5rem)', lineHeight: '1.1' }}>
+            <h1 className="font-heading font-light text-white mb-8" style={{ fontSize: 'clamp(2rem, 4.5vw, 3.5rem)', lineHeight: '1.1' }}>
               {t('home.hero.heading1')}
               <br />
               <TypewriterText text={t('home.hero.heading2')} style={{ color: '#fe0050' }} startDelay={700} />
