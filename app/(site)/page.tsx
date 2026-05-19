@@ -353,7 +353,31 @@ export default async function Home() {
             </div>
           </AnimateOnScroll>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Mobile: sticky stack */}
+          <div className="flex flex-col sm:hidden">
+            {topics.map((topic, i) => (
+              <div
+                key={i}
+                className="sticky"
+                style={{ top: `${68 + i * 14}px`, zIndex: 10 + i }}
+              >
+                <div
+                  className="p-6 rounded-2xl border border-white/5 bg-surface transition-all duration-300 group mb-3 shadow-[0_6px_28px_rgba(0,0,0,0.35)]"
+                  style={{
+                    transform: `scale(${1 - (topics.length - 1 - i) * 0.018})`,
+                    transformOrigin: 'top center',
+                  }}
+                >
+                  <span className="text-2xl text-accent/40 mb-4 block">{topic.icon}</span>
+                  <h3 className="font-heading text-lg font-medium text-text-primary mb-2">{topic.title}</h3>
+                  <p className="text-text-secondary text-sm leading-relaxed">{topic.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop: grid */}
+          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {topics.map((topic, i) => (
               <AnimateOnScroll key={i} delay={i * 60} direction="up">
                 <div className="p-6 rounded-2xl border border-white/5 bg-surface hover:border-accent/15 transition-all duration-300 group">
