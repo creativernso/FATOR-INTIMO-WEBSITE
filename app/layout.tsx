@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { LocaleProvider } from '@/components/LocaleProvider';
@@ -121,6 +122,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <head>
         <meta name="google-adsense-account" content="ca-pub-4821949064173943" />
         {/* Preconnect to font hosts so the first request doesn't wait on DNS */}
+        {/* AdSense preconnect */}
+        <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
+        <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://storage.googleapis.com" />
@@ -145,6 +149,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {children}
           </LocaleProvider>
         </ThemeProvider>
+        {/* Google AdSense auto-ads */}
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4821949064173943"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
