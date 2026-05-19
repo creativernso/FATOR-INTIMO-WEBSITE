@@ -107,7 +107,19 @@ export default async function BlogPage() {
                       {t('blog.featured_label')}
                     </h2>
                   </AnimateOnScroll>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14">
+                  {/* Mobile: sticky stack */}
+                  <div className="flex flex-col md:hidden mb-14">
+                    {featured.map((post, i) => (
+                      <div key={post.id} className="sticky" style={{ top: `${68 + i * 14}px`, zIndex: 10 + i }}>
+                        <div className="mb-3"
+                          style={{ transform: `scale(${1 - (featured.length - 1 - i) * 0.018})`, transformOrigin: 'top center' }}>
+                          <BlogCard post={post} featured />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Desktop: grid */}
+                  <div className="hidden md:grid md:grid-cols-3 gap-6 mb-14">
                     {featured.map((post, i) => (
                       <AnimateOnScroll key={post.id} delay={i * 80}>
                         <BlogCard post={post} featured />
@@ -126,7 +138,19 @@ export default async function BlogPage() {
                       {t('blog.see_all')}
                     </h2>
                   </AnimateOnScroll>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12">
+                  {/* Mobile: sticky stack */}
+                  <div className="flex flex-col md:hidden">
+                    {rest.map((post, i) => (
+                      <div key={post.id} className="sticky" style={{ top: `${68 + i * 14}px`, zIndex: 10 + i }}>
+                        <div className="mb-3"
+                          style={{ transform: `scale(${1 - (rest.length - 1 - i) * 0.012})`, transformOrigin: 'top center' }}>
+                          <BlogCard post={post} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Desktop: grid */}
+                  <div className="hidden md:grid md:grid-cols-2 gap-x-12">
                     {rest.map((post, i) => (
                       <AnimateOnScroll key={post.id} delay={i * 50}>
                         <BlogCard post={post} />

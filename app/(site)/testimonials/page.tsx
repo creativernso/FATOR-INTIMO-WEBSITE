@@ -96,8 +96,19 @@ export default async function TestimonialsPage() {
                 </div>
               </AnimateOnScroll>
 
-              {/* All stories, unified 3-col grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Mobile: sticky stack */}
+              <div className="flex flex-col sm:hidden">
+                {testimonials.map((t, i) => (
+                  <div key={t.id} className="sticky" style={{ top: `${68 + i * 14}px`, zIndex: 10 + i }}>
+                    <div className="mb-3"
+                      style={{ transform: `scale(${1 - (testimonials.length - 1 - i) * 0.012})`, transformOrigin: 'top center' }}>
+                      <TestimonialCard testimonial={t} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Desktop: grid */}
+              <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {testimonials.map((t, i) => (
                   <AnimateOnScroll key={t.id} delay={i * 60}>
                     <TestimonialCard testimonial={t} />

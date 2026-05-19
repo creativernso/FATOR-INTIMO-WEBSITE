@@ -92,16 +92,29 @@ export default async function AboutPage() {
             </AnimateOnScroll>
 
             <AnimateOnScroll direction="right">
-              <div className="space-y-3">
+              <div>
                 <p className="text-text-muted text-xs tracking-widest uppercase mb-4">{t('about.problems_label')}</p>
-                {problems.map((p, i) => (
-                  <div key={i} className="flex items-start gap-4 p-4 rounded-xl border border-white/5 bg-surface">
-                    <span className="text-accent/40 font-heading text-xl font-light flex-shrink-0 leading-tight mt-0.5">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <p className="text-text-secondary text-sm leading-relaxed">{p}</p>
-                  </div>
-                ))}
+                {/* Mobile: sticky stack */}
+                <div className="flex flex-col lg:hidden">
+                  {problems.map((p, i) => (
+                    <div key={i} className="sticky" style={{ top: `${68 + i * 14}px`, zIndex: 10 + i }}>
+                      <div className="flex items-start gap-4 p-4 rounded-xl border border-white/5 bg-surface mb-3"
+                        style={{ transform: `scale(${1 - (problems.length - 1 - i) * 0.018})`, transformOrigin: 'top center' }}>
+                        <span className="text-accent/40 font-heading text-xl font-light flex-shrink-0 leading-tight mt-0.5">{String(i + 1).padStart(2, '0')}</span>
+                        <p className="text-text-secondary text-sm leading-relaxed">{p}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* Desktop: stacked list */}
+                <div className="hidden lg:block space-y-3">
+                  {problems.map((p, i) => (
+                    <div key={i} className="flex items-start gap-4 p-4 rounded-xl border border-white/5 bg-surface">
+                      <span className="text-accent/40 font-heading text-xl font-light flex-shrink-0 leading-tight mt-0.5">{String(i + 1).padStart(2, '0')}</span>
+                      <p className="text-text-secondary text-sm leading-relaxed">{p}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </AnimateOnScroll>
           </div>
@@ -153,7 +166,23 @@ export default async function AboutPage() {
               </h2>
             </div>
           </AnimateOnScroll>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Mobile: sticky stack */}
+          <div className="flex flex-col md:hidden">
+            {pillars.map((p, i) => (
+              <div key={i} className="sticky" style={{ top: `${68 + i * 14}px`, zIndex: 10 + i }}>
+                <div className="p-6 rounded-2xl border border-white/5 bg-surface mb-3"
+                  style={{ transform: `scale(${1 - (pillars.length - 1 - i) * 0.018})`, transformOrigin: 'top center' }}>
+                  <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center mb-4">
+                    <p.Icon size={22} className="text-accent" strokeWidth={1.75} />
+                  </div>
+                  <h3 className="font-heading text-xl font-medium text-text-primary mb-2">{p.title}</h3>
+                  <p className="text-text-secondary text-sm leading-relaxed">{p.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Desktop: grid */}
+          <div className="hidden md:grid md:grid-cols-2 gap-5">
             {pillars.map((p, i) => (
               <AnimateOnScroll key={i} delay={i * 80}>
                 <div className="p-6 rounded-2xl border border-white/5 bg-surface hover:border-accent/15 transition-all duration-300">
@@ -180,7 +209,23 @@ export default async function AboutPage() {
               </h2>
             </div>
           </AnimateOnScroll>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          {/* Mobile: sticky stack */}
+          <div className="flex flex-col md:hidden">
+            {values.map((v, i) => (
+              <div key={i} className="sticky" style={{ top: `${68 + i * 14}px`, zIndex: 10 + i }}>
+                <div className="p-6 rounded-2xl border border-white/5 bg-surface text-center mb-3"
+                  style={{ transform: `scale(${1 - (values.length - 1 - i) * 0.018})`, transformOrigin: 'top center' }}>
+                  <div className="w-10 h-10 rounded-full border border-accent/20 bg-accent/5 flex items-center justify-center mx-auto mb-4">
+                    <v.icon size={16} className="text-accent" />
+                  </div>
+                  <h3 className="font-heading text-lg font-medium text-text-primary mb-2">{v.title}</h3>
+                  <p className="text-text-secondary text-xs leading-relaxed">{v.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Desktop: grid */}
+          <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-5">
             {values.map((v, i) => (
               <AnimateOnScroll key={i} delay={i * 70}>
                 <div className="p-6 rounded-2xl border border-white/5 bg-surface text-center">

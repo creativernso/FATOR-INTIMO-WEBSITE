@@ -321,7 +321,22 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 Para quem é este <span style={{ color: '#fe0050' }}>ebook?</span>
               </h2>
             </AnimateOnScroll>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Mobile: sticky stack */}
+            <div className="flex flex-col sm:hidden">
+              {product.forWho.map((item, i) => (
+                <div key={i} className="sticky" style={{ top: `${68 + i * 14}px`, zIndex: 10 + i }}>
+                  <div className="flex items-start gap-3 p-4 rounded-xl border border-white/5 bg-surface mb-3"
+                    style={{ transform: `scale(${1 - (product.forWho.length - 1 - i) * 0.018})`, transformOrigin: 'top center' }}>
+                    <div className="w-5 h-5 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check size={10} className="text-accent" strokeWidth={3} />
+                    </div>
+                    <p className="text-text-secondary text-sm leading-relaxed">{item}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Desktop: grid */}
+            <div className="hidden sm:grid sm:grid-cols-2 gap-3">
               {product.forWho.map((item, i) => (
                 <AnimateOnScroll key={i} delay={i * 60}>
                   <div className="flex items-start gap-3 p-4 rounded-xl border border-white/5 bg-surface">
@@ -380,7 +395,22 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 </h2>
               </div>
             </AnimateOnScroll>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Mobile: sticky stack */}
+            <div className="flex flex-col md:hidden">
+              {product.benefits.map((benefit, i) => (
+                <div key={i} className="sticky" style={{ top: `${68 + i * 14}px`, zIndex: 10 + i }}>
+                  <div className="p-5 rounded-xl border border-white/5 bg-surface mb-3"
+                    style={{ transform: `scale(${1 - (product.benefits.length - 1 - i) * 0.018})`, transformOrigin: 'top center' }}>
+                    <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center mb-3">
+                      <Check size={14} className="text-accent" />
+                    </div>
+                    <p className="text-text-secondary text-sm leading-relaxed">{benefit}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Desktop: grid */}
+            <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {product.benefits.map((benefit, i) => (
                 <AnimateOnScroll key={i} delay={i * 60}>
                   <div className="p-5 rounded-xl border border-white/5 bg-surface hover:border-accent/15 transition-colors">
