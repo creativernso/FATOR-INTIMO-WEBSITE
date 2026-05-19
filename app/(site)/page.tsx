@@ -347,7 +347,7 @@ export default async function Home() {
               <h2 className="font-heading text-4xl md:text-5xl font-light text-text-primary mb-4">
                 {t('home.topics.heading1')} <span style={{ color: '#fe0050' }}>{t('home.topics.heading2')}</span>
               </h2>
-              <p className="text-text-secondary max-w-md mx-auto text-sm leading-relaxed">
+              <p className="text-text-secondary max-w-md md:max-w-none mx-auto text-sm leading-relaxed md:whitespace-nowrap">
                 {t('home.topics.subtext')}
               </p>
             </div>
