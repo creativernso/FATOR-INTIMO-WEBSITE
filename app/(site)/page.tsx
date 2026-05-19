@@ -7,6 +7,7 @@ import BlogCard from '@/components/BlogCard';
 import ProductCard from '@/components/ProductCard';
 import EmotionalMarquee from '@/components/EmotionalMarquee';
 import TestimonialsSlider from '@/components/TestimonialsSlider';
+import GuideScrollStrip from '@/components/GuideScrollStrip';
 import { getPosts, getProducts, getTestimonials, getMarqueePhrases, getGuides, getCommunityPosts } from '@/lib/db';
 import { getLatestVideos } from '@/lib/youtube';
 import { getLocale, createT } from '@/lib/i18n';
@@ -223,32 +224,7 @@ export default async function Home() {
               </div>
             </AnimateOnScroll>
 
-            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none -mx-6 px-6">
-              {guides.map((guide, i) => (
-                <AnimateOnScroll key={guide.id} delay={i * 60} className="flex-shrink-0">
-                  <Link href={`/guia/${guide.slug}`}
-                    className="group block w-44 md:w-52 rounded-2xl border border-white/5 bg-surface overflow-hidden hover:border-accent/20 transition-all duration-500">
-                    <div className="relative overflow-hidden" style={{ aspectRatio: '2/3' }}>
-                      {guide.coverImage ? (
-                        <img src={guide.coverImage} alt={guide.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-accent/10 to-transparent">
-                          <span className="font-heading text-4xl font-light text-accent/30">◎</span>
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                      <div className="absolute bottom-3 left-3 right-3">
-                        <span className="text-[9px] text-accent tracking-widest uppercase">{t('home.guides.free_badge')}</span>
-                        <h3 className="font-heading text-white text-xs font-medium leading-snug mt-1 line-clamp-3">
-                          {guide.title}
-                        </h3>
-                      </div>
-                    </div>
-                  </Link>
-                </AnimateOnScroll>
-              ))}
-            </div>
+            <GuideScrollStrip guides={guides} freeBadge={t('home.guides.free_badge')} />
 
             <AnimateOnScroll>
               <div className="text-center mt-8 md:hidden">
