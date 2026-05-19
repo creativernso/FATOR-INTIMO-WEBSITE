@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Props {
   height?: number;
@@ -10,6 +10,18 @@ interface Props {
 
 export default function LogoImage({ height = 36, className = '' }: Props) {
   const [error, setError] = useState(false);
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  useEffect(() => {
+    const read = () => {
+      const t = document.documentElement.getAttribute('data-theme');
+      setTheme(t === 'light' ? 'light' : 'dark');
+    };
+    read();
+    const observer = new MutationObserver(read);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, []);
 
   if (error) {
     return (
@@ -24,7 +36,7 @@ export default function LogoImage({ height = 36, className = '' }: Props) {
 
   return (
     <Image
-      src="/LOGO.png"
+      src={theme === 'light' ? '/LOGO2.png' : '/LOGO.png'}
       alt="Fator Íntimo"
       width={Math.round(height * 9.4)}
       height={height}
