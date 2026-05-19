@@ -362,7 +362,7 @@ export default async function Home() {
                 style={{ top: `${68 + i * 14}px`, zIndex: 10 + i }}
               >
                 <div
-                  className="p-6 rounded-2xl border border-white/5 bg-surface transition-all duration-300 group mb-3 shadow-[0_6px_28px_rgba(0,0,0,0.35)]"
+                  className="p-6 rounded-2xl border border-white/5 bg-surface transition-all duration-300 group mb-3 "
                   style={{
                     transform: `scale(${1 - (topics.length - 1 - i) * 0.018})`,
                     transformOrigin: 'top center',
@@ -425,7 +425,7 @@ export default async function Home() {
                     style={{ top: `${68 + i * 14}px`, zIndex: 10 + i }}
                   >
                     <div
-                      className="flex gap-5 p-5 rounded-xl border border-white/5 bg-surface mb-3 shadow-[0_6px_28px_rgba(0,0,0,0.35)]"
+                      className="flex gap-5 p-5 rounded-xl border border-white/5 bg-surface mb-3 "
                       style={{
                         transform: `scale(${1 - (principles.length - 1 - i) * 0.018})`,
                         transformOrigin: 'top center',
@@ -486,7 +486,7 @@ export default async function Home() {
                   style={{ top: `${68 + i * 14}px`, zIndex: 10 + i }}
                 >
                   <div
-                    className="mb-3 shadow-[0_6px_28px_rgba(0,0,0,0.35)]"
+                    className="mb-3 "
                     style={{
                       transform: `scale(${1 - (posts.length - 1 - i) * 0.018})`,
                       transformOrigin: 'top center',
