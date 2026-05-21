@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Check, Shield, Clock, Star, Download } from 'lucide-react';
+import { ArrowLeft, Check, Shield, Clock, Star, Download, User } from 'lucide-react';
 import { getProducts, getTestimonials } from '@/lib/db';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import BuyButton from './BuyButton';
@@ -327,9 +327,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 <div key={i} className="sticky" style={{ top: `${68 + i * 14}px`, zIndex: 10 + i }}>
                   <div className="flex items-start gap-3 p-4 rounded-xl border border-white/5 bg-surface mb-3"
                     style={{ transform: `scale(${1 - (product.forWho!.length - 1 - i) * 0.018})`, transformOrigin: 'top center' }}>
-                    <div className="w-5 h-5 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check size={10} className="text-accent" strokeWidth={3} />
-                    </div>
+                    <User size={20} className="text-accent flex-shrink-0 mt-0.5" strokeWidth={1.75} />
                     <p className="text-text-secondary text-sm leading-relaxed">{item}</p>
                   </div>
                 </div>
@@ -340,9 +338,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               {product.forWho.map((item, i) => (
                 <AnimateOnScroll key={i} delay={i * 60}>
                   <div className="flex items-start gap-3 p-4 rounded-xl border border-white/5 bg-surface">
-                    <div className="w-5 h-5 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check size={10} className="text-accent" strokeWidth={3} />
-                    </div>
+                    <User size={20} className="text-accent flex-shrink-0 mt-0.5" strokeWidth={1.75} />
                     <p className="text-text-secondary text-sm leading-relaxed">{item}</p>
                   </div>
                 </AnimateOnScroll>
