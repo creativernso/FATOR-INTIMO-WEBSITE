@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Radio, ShoppingBag, CreditCard, PartyPopper } from 'lucide-react';
+import { countryCodeToFlag, countryName } from '@/lib/geo';
 
 interface LiveOverview {
   visitorsNow: number;
@@ -9,6 +10,7 @@ interface LiveOverview {
   checkingOut: number;
   purchasedRecent: number;
   topPaths: { path: string; count: number }[];
+  topCountries: { country: string; count: number }[];
 }
 
 const POLL_INTERVAL_MS = 5000;
@@ -60,7 +62,7 @@ export function LiveView() {
         </div>
       </div>
 
-      <div className="px-6 py-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="px-6 py-5 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
           <p className="text-text-muted uppercase tracking-widest mb-2" style={{ fontSize: '10px' }}>Visitantes agora</p>
           <p className="font-body font-semibold text-green-400" style={{ fontSize: 'clamp(2.2rem, 4vw, 3rem)' }}>
@@ -82,7 +84,7 @@ export function LiveView() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-3 content-start">
           {funnel.map((f) => (
             <div key={f.label} className="rounded-xl border border-white/6 bg-white/2 px-3 py-4 flex flex-col items-center text-center">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-2" style={{ background: `${f.accent}18`, border: `1px solid ${f.accent}28` }}>
@@ -94,6 +96,24 @@ export function LiveView() {
               <p className="text-text-muted mt-1" style={{ fontSize: '10px' }}>{f.label}</p>
             </div>
           ))}
+        </div>
+
+        <div>
+          <p className="text-text-muted uppercase tracking-widest mb-2" style={{ fontSize: '10px' }}>Países agora</p>
+          {!data || data.topCountries.length === 0 ? (
+            <p className="text-text-muted text-xs mt-2">Sem dados de localização ainda.</p>
+          ) : (
+            <div className="space-y-2">
+              {data.topCountries.map((c) => (
+                <div key={c.country} className="flex items-center justify-between gap-3 text-xs">
+                  <span className="text-text-secondary truncate flex items-center gap-1.5">
+                    <span>{countryCodeToFlag(c.country)}</span> {countryName(c.country)}
+                  </span>
+                  <span className="text-text-muted flex-shrink-0">{c.count}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

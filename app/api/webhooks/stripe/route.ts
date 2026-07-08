@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    const { productId } = session.metadata ?? {};
+    const { productId, utmSource, utmMedium, utmCampaign, utmContent } = session.metadata ?? {};
     const email = session.customer_details?.email ?? '';
     const name = session.customer_details?.name ?? '';
 
@@ -60,6 +60,10 @@ export async function POST(req: NextRequest) {
         currency: session.currency ?? 'brl',
         createdAt: new Date().toISOString(),
         downloadUrl: rawDownloadUrl,
+        utmSource: utmSource || undefined,
+        utmMedium: utmMedium || undefined,
+        utmCampaign: utmCampaign || undefined,
+        utmContent: utmContent || undefined,
       });
       console.log('[webhook] order saved:', session.id);
       const amount = ((session.amount_total ?? 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });

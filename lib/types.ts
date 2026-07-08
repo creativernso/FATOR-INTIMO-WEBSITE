@@ -83,6 +83,10 @@ export interface Lead {
   createdAt: string;
   guideDownloaded?: boolean;
   reviewRequestSentAt?: string; // when the post-download review email was sent
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  utmContent?: string;
 }
 
 // Review automation + UX settings, stored at reviewSettings/default

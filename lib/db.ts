@@ -366,20 +366,35 @@ export async function saveChatSettings(settings: ChatSettings): Promise<void> {
 
 // ─── Page Views ───────────────────────────────────────────────────────────────
 
-export async function incrementPageView(path: string): Promise<void> {
+export async function incrementPageView(path: string, country?: string, campaign?: string): Promise<void> {
   const today = new Date().toISOString().split('T')[0];
   const ref = db().collection('pageviews').doc(today);
   const safePath = path.replace(/[^a-zA-Z0-9/_-]/g, '').slice(0, 80) || '/';
   const key = `paths.${safePath.replace(/\//g, '__')}`;
-  await ref.set(
-    { date: today, total: FieldValue.increment(1), [key]: FieldValue.increment(1), updatedAt: new Date().toISOString() },
-    { merge: true }
-  );
+  const update: Record<string, unknown> = {
+    date: today,
+    total: FieldValue.increment(1),
+    [key]: FieldValue.increment(1),
+    updatedAt: new Date().toISOString(),
+  };
+  if (country) update.countries = { [country]: FieldValue.increment(1) };
+  if (campaign) update.campaigns = { [campaign.replace(/[.$/[\]]/g, '_').slice(0, 60)]: FieldValue.increment(1) };
+  await ref.set(update, { merge: true });
 }
 
-export async function getPageViewTotals(days = 30): Promise<{ date: string; total: number }[]> {
+export async function getPageViewTotals(
+  days = 30
+): Promise<{ date: string; total: number; countries?: Record<string, number>; campaigns?: Record<string, number> }[]> {
   const snap = await db().collection('pageviews').orderBy('date', 'desc').limit(days).get();
-  return snap.docs.map((d) => ({ date: d.data().date as string, total: (d.data().total as number) || 0 }));
+  return snap.docs.map((d) => {
+    const data = d.data();
+    return {
+      date: data.date as string,
+      total: (data.total as number) || 0,
+      countries: data.countries as Record<string, number> | undefined,
+      campaigns: data.campaigns as Record<string, number> | undefined,
+    };
+  });
 }
 
 // ─── Live visitors ──────────────────────────────────────────────────────────
@@ -388,10 +403,26 @@ export async function getPageViewTotals(days = 30): Promise<{ date: string; tota
 const LIVE_WINDOW_MS = 90 * 1000;
 const CHECKOUT_WINDOW_MS = 30 * 60 * 1000;
 
-export async function recordVisitorHeartbeat(visitorId: string, path: string): Promise<void> {
+export interface VisitorHeartbeatMeta {
+  country?: string;
+  utmSource?: string;
+  utmCampaign?: string;
+}
+
+export async function recordVisitorHeartbeat(
+  visitorId: string,
+  path: string,
+  meta: VisitorHeartbeatMeta = {}
+): Promise<void> {
   const safePath = path.replace(/[^a-zA-Z0-9/_-]/g, '').slice(0, 120) || '/';
   await db().collection('visitors').doc(visitorId).set(
-    { path: safePath, lastSeen: FieldValue.serverTimestamp() },
+    {
+      path: safePath,
+      lastSeen: FieldValue.serverTimestamp(),
+      country: meta.country,
+      utmSource: meta.utmSource,
+      utmCampaign: meta.utmCampaign,
+    },
     { merge: true }
   );
 }
@@ -409,6 +440,7 @@ export interface LiveOverview {
   checkingOut: number;
   purchasedRecent: number;
   topPaths: { path: string; count: number }[];
+  topCountries: { country: string; count: number }[];
 }
 
 export async function getLiveOverview(): Promise<LiveOverview> {
@@ -427,8 +459,11 @@ export async function getLiveOverview(): Promise<LiveOverview> {
 
   let browsing = 0;
   const pathCounts: Record<string, number> = {};
+  const countryCounts: Record<string, number> = {};
   for (const doc of onlineSnap.docs) {
     const data = doc.data();
+    const country = data.country as string | undefined;
+    if (country) countryCounts[country] = (countryCounts[country] || 0) + 1;
     if (!checkingOutIds.has(doc.id)) {
       browsing++;
       const path = (data.path as string) || '/';
@@ -441,12 +476,18 @@ export async function getLiveOverview(): Promise<LiveOverview> {
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
+  const topCountries = Object.entries(countryCounts)
+    .map(([country, count]) => ({ country, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
   return {
     visitorsNow: onlineSnap.size,
     browsing,
     checkingOut: checkingOutIds.size,
     purchasedRecent: ordersSnap.size,
     topPaths,
+    topCountries,
   };
 }
 

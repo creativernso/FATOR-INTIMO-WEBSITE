@@ -20,6 +20,10 @@ export async function POST(req: NextRequest) {
     source: body.source || 'unknown',
     createdAt: new Date().toISOString(),
     guideDownloaded: false,
+    utmSource: body.utmSource || undefined,
+    utmMedium: body.utmMedium || undefined,
+    utmCampaign: body.utmCampaign || undefined,
+    utmContent: body.utmContent || undefined,
   };
   await upsertLead(newLead);
   await createNotification(

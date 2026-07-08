@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Pagamentos não configurados.' }, { status: 503 });
   }
 
-  const { productId, visitorId } = await req.json();
+  const { productId, visitorId, utmSource, utmMedium, utmCampaign, utmContent } = await req.json();
   const products = await getProducts();
   const product = products.find((p) => p.id === productId);
 
@@ -48,6 +48,10 @@ export async function POST(req: NextRequest) {
       metadata: {
         productId: product.id,
         productSlug: product.slug,
+        ...(typeof utmSource === 'string' && utmSource ? { utmSource } : {}),
+        ...(typeof utmMedium === 'string' && utmMedium ? { utmMedium } : {}),
+        ...(typeof utmCampaign === 'string' && utmCampaign ? { utmCampaign } : {}),
+        ...(typeof utmContent === 'string' && utmContent ? { utmContent } : {}),
       },
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/products/${product.slug}`,

@@ -6,6 +6,7 @@ import { ArrowRight, CheckCircle, X, Download } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import { GuideConfig } from '@/lib/types';
 import { trackLead } from '@/lib/fbq';
+import { getStoredUtm } from '@/lib/utm';
 
 interface Props {
   config: GuideConfig;
@@ -35,6 +36,7 @@ export default function FreeGuideClient({ config }: Props) {
           name,
           [method]: contact,
           source: 'free-guide',
+          ...getStoredUtm(),
         }),
       });
       if (res.ok) {

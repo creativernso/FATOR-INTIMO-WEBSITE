@@ -1,10 +1,11 @@
-import { TrendingUp, Users, FileText, Package, ShoppingBag, BookOpen, Heart, MessageSquare, Download, Star, Eye, ExternalLink, Activity } from 'lucide-react';
+import { TrendingUp, Users, FileText, Package, ShoppingBag, BookOpen, Heart, MessageSquare, Download, Star, Eye, ExternalLink, Activity, MapPin, Megaphone } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { getPosts, getLeads, getTestimonials, getGuides, getCommunityPosts, getPageViewTotals } from '@/lib/db';
 import { getOrders } from '@/lib/orders';
 import { AnalyticsFilterBar } from './AnalyticsFilterBar';
 import { LiveView } from './LiveView';
+import { countryCodeToFlag, countryName } from '@/lib/geo';
 
 export const dynamic = 'force-dynamic';
 
@@ -95,6 +96,47 @@ export default async function AnalyticsPage({ searchParams }: Props) {
   const chartDays = days && days <= 30 ? days : 14;
   const leadsByDay = groupByDay(filteredLeads, chartDays);
   const maxLeads = Math.max(...leadsByDay.map((d) => d.count), 1);
+
+  // Sessions by country, aggregated across the fetched pageview docs
+  const countryTotals: Record<string, number> = {};
+  for (const doc of pageViewDocs) {
+    if (!doc.countries) continue;
+    for (const [code, count] of Object.entries(doc.countries)) {
+      countryTotals[code] = (countryTotals[code] || 0) + count;
+    }
+  }
+  const topCountriesOverall = Object.entries(countryTotals)
+    .map(([country, count]) => ({ country, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+  const totalCountryViews = topCountriesOverall.reduce((s, c) => s + c.count, 0) || 1;
+
+  // Ad-campaign performance: group leads and orders by utm_campaign (falls back to utm_source, then "direct")
+  const campaignKey = (item: { utmCampaign?: string; utmSource?: string }) =>
+    item.utmCampaign || item.utmSource || 'Direto / Orgânico';
+  const campaignMap = new Map<string, { leads: number; orders: number; revenue: number }>();
+  for (const lead of filteredLeads) {
+    const key = campaignKey(lead);
+    const entry = campaignMap.get(key) ?? { leads: 0, orders: 0, revenue: 0 };
+    entry.leads++;
+    campaignMap.set(key, entry);
+  }
+  for (const order of filteredOrders) {
+    const key = campaignKey(order);
+    const entry = campaignMap.get(key) ?? { leads: 0, orders: 0, revenue: 0 };
+    entry.orders++;
+    entry.revenue += order.amountTotal;
+    campaignMap.set(key, entry);
+  }
+  const campaignPerformance = Array.from(campaignMap.entries())
+    .map(([campaign, v]) => ({
+      campaign,
+      leads: v.leads,
+      orders: v.orders,
+      revenue: v.revenue / 100,
+      conversion: v.leads > 0 ? (v.orders / v.leads) * 100 : null,
+    }))
+    .sort((a, b) => b.revenue - a.revenue || b.leads - a.leads);
 
   const stats = [
     { label: 'Page Views', value: totalPageViews.toLocaleString('pt-BR'), icon: Eye, accent: '#06b6d4', growth: null, href: '/admin/analytics' },
@@ -242,6 +284,70 @@ export default async function AnalyticsPage({ searchParams }: Props) {
               ));
             })()}
           </div>
+        </div>
+      )}
+
+      {/* Sessions by location + ad-campaign performance */}
+      {(topCountriesOverall.length > 0 || campaignPerformance.length > 0) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {topCountriesOverall.length > 0 && (
+            <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
+              <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#06b6d418', border: '1px solid #06b6d438' }}>
+                  <MapPin size={15} style={{ color: '#06b6d4' }} />
+                </div>
+                <div>
+                  <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>Sessões por país</h3>
+                  <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>No período selecionado</p>
+                </div>
+              </div>
+              <div className="px-5 py-5 space-y-2.5">
+                {topCountriesOverall.map((c) => {
+                  const pct = (c.count / totalCountryViews) * 100;
+                  return (
+                    <div key={c.country} className="flex items-center gap-3 text-xs">
+                      <span className="w-28 flex-shrink-0 flex items-center gap-1.5 text-text-secondary truncate">
+                        <span>{countryCodeToFlag(c.country)}</span> {countryName(c.country)}
+                      </span>
+                      <div className="flex-1 h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
+                        <div className="h-full rounded-full bg-cyan-400/60" style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className="text-text-muted w-14 text-right tabular-nums">{c.count.toLocaleString('pt-BR')}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {campaignPerformance.length > 0 && (
+            <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
+              <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#f59e0b18', border: '1px solid #f59e0b38' }}>
+                  <Megaphone size={15} style={{ color: '#f59e0b' }} />
+                </div>
+                <div>
+                  <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>Desempenho por campanha</h3>
+                  <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>utm_campaign / utm_source dos links de anúncio</p>
+                </div>
+              </div>
+              <div className="divide-y divide-white/[0.04]">
+                {campaignPerformance.slice(0, 8).map((c) => (
+                  <div key={c.campaign} className="px-5 py-3.5 flex items-center gap-4">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-text-secondary font-medium truncate" style={{ fontSize: 'clamp(0.8rem, 0.9vw, 0.875rem)' }}>{c.campaign}</p>
+                      <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>
+                        {c.leads} leads · {c.orders} pedidos{c.conversion !== null ? ` · ${c.conversion.toFixed(1)}% conversão` : ''}
+                      </p>
+                    </div>
+                    <p className="font-body font-semibold text-green-400 flex-shrink-0" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
+                      R$ {c.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

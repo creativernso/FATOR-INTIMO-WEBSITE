@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ShoppingBag, Loader2 } from 'lucide-react';
 import { trackInitiateCheckout } from '@/lib/fbq';
 import { getOrCreateVisitorId } from '@/lib/visitor-id';
+import { getStoredUtm } from '@/lib/utm';
 
 export default function BuyButton({ productId, label = 'Comprar agora' }: { productId: string; label?: string }) {
   const [loading, setLoading] = useState(false);
@@ -17,7 +18,7 @@ export default function BuyButton({ productId, label = 'Comprar agora' }: { prod
       const res = await fetch('/api/checkout/create-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, visitorId: getOrCreateVisitorId() }),
+        body: JSON.stringify({ productId, visitorId: getOrCreateVisitorId(), ...getStoredUtm() }),
       });
       const data = await res.json();
       if (data.url) {

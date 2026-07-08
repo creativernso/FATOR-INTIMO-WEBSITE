@@ -12,6 +12,10 @@ export interface Order {
   createdAt: string;
   downloadUrl?: string;
   reviewRequestSentAt?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  utmContent?: string;
 }
 
 const db = () => getAdminDb();

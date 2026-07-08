@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Download, Users, Check } from 'lucide-react';
 import { trackLead } from '@/lib/fbq';
+import { getStoredUtm } from '@/lib/utm';
 
 interface Props {
   slug: string;
@@ -43,7 +44,12 @@ export default function GuideSubscribeForm({
       const res = await fetch(`/api/guides/${slug}/subscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), email: email.trim() || undefined, whatsapp: whatsapp.trim() || undefined }),
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim() || undefined,
+          whatsapp: whatsapp.trim() || undefined,
+          ...getStoredUtm(),
+        }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Ocorreu um erro. Tente novamente.'); return; }
