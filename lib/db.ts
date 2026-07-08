@@ -1,6 +1,6 @@
 import { getAdminDb } from './firebase-admin';
 import type { Query } from 'firebase-admin/firestore';
-import { FieldValue } from 'firebase-admin/firestore';
+import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification, MarqueePhrase, EmailCampaign, EmailAutomation, ChatSettings, ReviewSettings } from './types';
 
 const db = () => getAdminDb();
@@ -380,6 +380,74 @@ export async function incrementPageView(path: string): Promise<void> {
 export async function getPageViewTotals(days = 30): Promise<{ date: string; total: number }[]> {
   const snap = await db().collection('pageviews').orderBy('date', 'desc').limit(days).get();
   return snap.docs.map((d) => ({ date: d.data().date as string, total: (d.data().total as number) || 0 }));
+}
+
+// ─── Live visitors ──────────────────────────────────────────────────────────
+// A visitor doc is kept alive by a heartbeat ping while the tab is open, so
+// "online now" is derived from recency rather than an explicit online flag.
+const LIVE_WINDOW_MS = 90 * 1000;
+const CHECKOUT_WINDOW_MS = 30 * 60 * 1000;
+
+export async function recordVisitorHeartbeat(visitorId: string, path: string): Promise<void> {
+  const safePath = path.replace(/[^a-zA-Z0-9/_-]/g, '').slice(0, 120) || '/';
+  await db().collection('visitors').doc(visitorId).set(
+    { path: safePath, lastSeen: FieldValue.serverTimestamp() },
+    { merge: true }
+  );
+}
+
+export async function markCheckoutStarted(visitorId: string): Promise<void> {
+  await db().collection('visitors').doc(visitorId).set(
+    { checkoutStartedAt: FieldValue.serverTimestamp() },
+    { merge: true }
+  );
+}
+
+export interface LiveOverview {
+  visitorsNow: number;
+  browsing: number;
+  checkingOut: number;
+  purchasedRecent: number;
+  topPaths: { path: string; count: number }[];
+}
+
+export async function getLiveOverview(): Promise<LiveOverview> {
+  const now = Date.now();
+  const onlineCutoff = Timestamp.fromMillis(now - LIVE_WINDOW_MS);
+  const checkoutCutoff = Timestamp.fromMillis(now - CHECKOUT_WINDOW_MS);
+  const purchaseCutoffIso = new Date(now - CHECKOUT_WINDOW_MS).toISOString();
+
+  const [onlineSnap, checkoutSnap, ordersSnap] = await Promise.all([
+    db().collection('visitors').where('lastSeen', '>=', onlineCutoff).get(),
+    db().collection('visitors').where('checkoutStartedAt', '>=', checkoutCutoff).get(),
+    db().collection('orders').where('createdAt', '>=', purchaseCutoffIso).get(),
+  ]);
+
+  const checkingOutIds = new Set(checkoutSnap.docs.map((d) => d.id));
+
+  let browsing = 0;
+  const pathCounts: Record<string, number> = {};
+  for (const doc of onlineSnap.docs) {
+    const data = doc.data();
+    if (!checkingOutIds.has(doc.id)) {
+      browsing++;
+      const path = (data.path as string) || '/';
+      pathCounts[path] = (pathCounts[path] || 0) + 1;
+    }
+  }
+
+  const topPaths = Object.entries(pathCounts)
+    .map(([path, count]) => ({ path, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  return {
+    visitorsNow: onlineSnap.size,
+    browsing,
+    checkingOut: checkingOutIds.size,
+    purchasedRecent: ordersSnap.size,
+    topPaths,
+  };
 }
 
 // ─── Review automation settings ───────────────────────────────────────────────

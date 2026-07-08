@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { getPosts, getLeads, getTestimonials, getGuides, getCommunityPosts, getPageViewTotals } from '@/lib/db';
 import { getOrders } from '@/lib/orders';
 import { AnalyticsFilterBar } from './AnalyticsFilterBar';
+import { LiveView } from './LiveView';
 
 export const dynamic = 'force-dynamic';
 
@@ -127,6 +128,8 @@ export default async function AnalyticsPage({ searchParams }: Props) {
           <AnalyticsFilterBar current={daysParam} />
         </Suspense>
       </div>
+
+      <LiveView />
 
       {/* KPI Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

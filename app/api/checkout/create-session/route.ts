@@ -1,18 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
-import { getProducts } from '@/lib/db';
+import { getProducts, markCheckoutStarted } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
   if (!stripe) {
     return NextResponse.json({ error: 'Pagamentos não configurados.' }, { status: 503 });
   }
 
-  const { productId } = await req.json();
+  const { productId, visitorId } = await req.json();
   const products = await getProducts();
   const product = products.find((p) => p.id === productId);
 
   if (!product) {
     return NextResponse.json({ error: 'Produto não encontrado.' }, { status: 404 });
+  }
+
+  if (typeof visitorId === 'string' && visitorId) {
+    markCheckoutStarted(visitorId).catch(() => {});
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
