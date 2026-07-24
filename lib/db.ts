@@ -1,7 +1,7 @@
 import { getAdminDb } from './firebase-admin';
 import type { Query } from 'firebase-admin/firestore';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
-import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification, MarqueePhrase, EmailCampaign, EmailAutomation, ChatSettings, ReviewSettings, PopupConfig, CartRecoverySettings } from './types';
+import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification, MarqueePhrase, EmailCampaign, EmailAutomation, ChatSettings, ReviewSettings, PopupConfig, CartRecoverySettings, AdminUser } from './types';
 
 const db = () => getAdminDb();
 
@@ -598,4 +598,25 @@ export async function saveCartRecoverySettings(settings: CartRecoverySettings): 
     ...settings,
     updatedAt: new Date().toISOString(),
   });
+}
+
+// ─── Admin team ─────────────────────────────────────────────────────────────
+
+export async function getAdminUsers(): Promise<AdminUser[]> {
+  const snap = await db().collection('adminUsers').get();
+  return snap.docs.map((d) => d.data() as AdminUser).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
+
+export async function getAdminUser(uid: string): Promise<AdminUser | null> {
+  if (!uid) return null;
+  const doc = await db().collection('adminUsers').doc(uid).get();
+  return doc.exists ? (doc.data() as AdminUser) : null;
+}
+
+export async function upsertAdminUser(user: AdminUser): Promise<void> {
+  await db().collection('adminUsers').doc(user.uid).set(user);
+}
+
+export async function deleteAdminUser(uid: string): Promise<void> {
+  await db().collection('adminUsers').doc(uid).delete();
 }

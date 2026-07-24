@@ -300,6 +300,19 @@ export interface ChatSettings {
   updatedAt?: string;
 }
 
+// ─── Admin team ───────────────────────────────────────────────────────────────
+
+export type AdminRole = 'owner' | 'editor' | 'support';
+
+export interface AdminUser {
+  uid: string;
+  email: string;
+  name: string;
+  role: AdminRole;
+  createdAt: string;
+  createdBy?: string; // uid of the admin who invited them
+}
+
 // ─── Popup ────────────────────────────────────────────────────────────────────
 
 export interface PopupConfig {

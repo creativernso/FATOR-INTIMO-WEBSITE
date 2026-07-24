@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getOrders } from '@/lib/orders';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { purchaseConfirmationHtml, purchaseConfirmationText } from '@/lib/email-template';
+import { requireAdmin } from '@/lib/admin-auth';
 
 export async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  if (!(await requireAdmin(['owner']))) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   const { id } = await params;
   const orders = await getOrders();
   const order = orders.find((o) => o.id === id);

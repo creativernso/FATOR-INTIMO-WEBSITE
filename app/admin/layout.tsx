@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
@@ -22,27 +22,32 @@ import {
   BarChart2,
   MessageCircle,
   PictureInPicture2,
+  Shield,
 } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton';
 import ThemeToggle from '@/components/ThemeToggle';
 import NotificationBell from '@/components/admin/NotificationBell';
 import AdminBadgesProvider, { useAdminBadges } from '@/components/admin/AdminBadgesProvider';
+import type { AdminRole, AdminUser } from '@/lib/types';
 
-const navItems = [
+// A nav item with no `roles` is visible to every admin. Financial and
+// team-management sections are restricted to 'owner'.
+const navItems: { href: string; label: string; icon: typeof LayoutDashboard; exact?: boolean; roles?: AdminRole[] }[] = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { href: '/admin/analytics', label: 'Analytics', icon: BarChart2 },
-  { href: '/admin/blog', label: 'Blog', icon: FileText },
-  { href: '/admin/products', label: 'Produtos', icon: Package },
-  { href: '/admin/testimonials', label: 'Depoimentos', icon: MessageSquare },
-  { href: '/admin/guide', label: 'Guias', icon: BookOpen },
-  { href: '/admin/leads', label: 'Leads', icon: Users },
-  { href: '/admin/emails', label: 'E-mails', icon: Send },
-  { href: '/admin/orders', label: 'Pedidos', icon: ShoppingBag },
-  { href: '/admin/comments', label: 'Comentários', icon: MessagesSquare },
-  { href: '/admin/comunidade', label: 'Comunidade', icon: Heart },
-  { href: '/admin/marquee', label: 'Marquee', icon: Sparkles },
-  { href: '/admin/chat', label: 'Live Chat', icon: MessageCircle },
-  { href: '/admin/popup', label: 'Pop-up', icon: PictureInPicture2 },
+  { href: '/admin/analytics', label: 'Analytics', icon: BarChart2, roles: ['owner'] },
+  { href: '/admin/blog', label: 'Blog', icon: FileText, roles: ['owner', 'editor'] },
+  { href: '/admin/products', label: 'Produtos', icon: Package, roles: ['owner', 'editor'] },
+  { href: '/admin/testimonials', label: 'Depoimentos', icon: MessageSquare, roles: ['owner', 'editor'] },
+  { href: '/admin/guide', label: 'Guias', icon: BookOpen, roles: ['owner', 'editor'] },
+  { href: '/admin/leads', label: 'Leads', icon: Users, roles: ['owner', 'support'] },
+  { href: '/admin/emails', label: 'E-mails', icon: Send, roles: ['owner'] },
+  { href: '/admin/orders', label: 'Pedidos', icon: ShoppingBag, roles: ['owner'] },
+  { href: '/admin/comments', label: 'Comentários', icon: MessagesSquare, roles: ['owner', 'editor', 'support'] },
+  { href: '/admin/comunidade', label: 'Comunidade', icon: Heart, roles: ['owner', 'support'] },
+  { href: '/admin/marquee', label: 'Marquee', icon: Sparkles, roles: ['owner', 'editor'] },
+  { href: '/admin/chat', label: 'Live Chat', icon: MessageCircle, roles: ['owner', 'support'] },
+  { href: '/admin/popup', label: 'Pop-up', icon: PictureInPicture2, roles: ['owner', 'editor'] },
+  { href: '/admin/team', label: 'Equipe', icon: Shield, roles: ['owner'] },
 ];
 
 type BadgeSection = 'testimonials' | 'comunidade' | 'comments' | 'leads' | 'chat' | 'orders';
@@ -59,6 +64,13 @@ const PATH_TO_SECTION: Record<string, BadgeSection> = {
 function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { badges, rawCounts, dismiss } = useAdminBadges();
+  const [me, setMe] = useState<AdminUser | null>(null);
+
+  useEffect(() => {
+    fetch('/api/admin/me').then((r) => (r.ok ? r.json() : null)).then(setMe).catch(() => {});
+  }, []);
+
+  const visibleNavItems = navItems.filter((item) => !item.roles || (me && item.roles.includes(me.role)));
 
   // Dismiss the badge of the section the admin is currently viewing. Depends
   // on rawCounts so that if a new item arrives while the admin is *already on*
@@ -116,7 +128,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           <p className="hidden lg:block text-[10px] tracking-widest uppercase px-3 mb-3 text-text-muted opacity-60">
             Navegação
           </p>
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
             return (
               <Link
@@ -198,8 +210,9 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
             <div
               className="w-8 h-8 lg:w-9 lg:h-9 rounded-full border border-accent/30 flex items-center justify-center text-accent font-semibold flex-shrink-0"
               style={{ background: 'radial-gradient(circle, rgba(254,0,80,0.15), transparent)', fontSize: 'clamp(0.7rem, 0.85vw, 0.8rem)' }}
+              title={me ? `${me.name} · ${me.role}` : undefined}
             >
-              A
+              {me?.name?.charAt(0).toUpperCase() || 'A'}
             </div>
           </div>
         </header>

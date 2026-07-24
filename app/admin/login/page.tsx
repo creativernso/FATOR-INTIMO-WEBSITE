@@ -66,7 +66,8 @@ export default function LoginPage() {
         router.push('/admin');
         router.refresh();
       } else {
-        setError('Erro ao criar sessão. Tente novamente.');
+        const data = await res.json().catch(() => null);
+        setError(res.status === 403 ? data?.error ?? 'Esta conta não tem acesso ao painel.' : 'Erro ao criar sessão. Tente novamente.');
       }
     } catch (err) {
       const code = (err as AuthError).code ?? '';

@@ -1,22 +1,9 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { getAdminAuth } from '@/lib/firebase-admin';
 import { getAbandonedCheckouts, getOrders } from '@/lib/orders';
-
-async function verifyAdmin() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get('fi_session')?.value;
-  if (!session) return false;
-  try {
-    await getAdminAuth().verifySessionCookie(session, true);
-    return true;
-  } catch {
-    return false;
-  }
-}
+import { requireAdmin } from '@/lib/admin-auth';
 
 export async function GET() {
-  if (!(await verifyAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await requireAdmin(['owner']))) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const [checkouts, orders] = await Promise.all([getAbandonedCheckouts(), getOrders()]);
 
