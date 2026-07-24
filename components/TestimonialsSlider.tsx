@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { Testimonial } from '@/lib/types';
 
 interface Props {
@@ -24,7 +24,6 @@ export default function TestimonialsSlider({ testimonials }: Props) {
   }, [transitioning]);
 
   const next = useCallback(() => goTo((current + 1) % total), [current, total, goTo]);
-  const prev = useCallback(() => goTo((current - 1 + total) % total), [current, total, goTo]);
 
   const resetTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -148,32 +147,16 @@ export default function TestimonialsSlider({ testimonials }: Props) {
       </div>
 
       {/* Controls */}
-      <div className="flex items-center justify-center gap-6 mt-8">
-        <button
-          onClick={() => { prev(); resetTimer(); }}
-          className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-text-muted hover:text-text-primary hover:border-white/20 transition-all"
-        >
-          <ChevronLeft size={16} />
-        </button>
-
-        <div className="flex items-center gap-2">
-          {testimonials.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => { goTo(i); resetTimer(); }}
-              className={`rounded-full transition-all duration-300 ${
-                i === current ? 'w-6 h-1.5 bg-accent' : 'w-1.5 h-1.5 bg-white/20 hover:bg-white/40'
-              }`}
-            />
-          ))}
-        </div>
-
-        <button
-          onClick={() => { next(); resetTimer(); }}
-          className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-text-muted hover:text-text-primary hover:border-white/20 transition-all"
-        >
-          <ChevronRight size={16} />
-        </button>
+      <div className="flex items-center justify-center gap-1.5 mt-8">
+        {testimonials.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => { goTo(i); resetTimer(); }}
+            className={`rounded-full transition-all duration-300 ${
+              i === current ? 'w-4 h-1 bg-accent/70' : 'w-1 h-1 bg-white/15 hover:bg-white/30'
+            }`}
+          />
+        ))}
       </div>
     </div>
   );
