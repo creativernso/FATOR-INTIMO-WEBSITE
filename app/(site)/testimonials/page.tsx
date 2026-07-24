@@ -19,7 +19,10 @@ export const dynamic = 'force-dynamic';
 export default async function TestimonialsPage() {
   const t = createT('pt');
 
-  const testimonials = await getTestimonials(true);
+  const allTestimonials = await getTestimonials(true);
+  // Exclude product/guide reviews (avaliações) — they carry verifiedPurchase
+  // or guideSlug, which plain depoimentos never get.
+  const testimonials = allTestimonials.filter((t) => t.verifiedPurchase === undefined && !t.guideSlug);
   const avgRating = testimonials.filter((t) => t.rating).reduce((acc, t) => acc + (t.rating ?? 0), 0) / (testimonials.filter((t) => t.rating).length || 1);
 
   const statsLabels = ['Histórias compartilhadas', 'Avaliação média', 'Pessoas impactadas'];
