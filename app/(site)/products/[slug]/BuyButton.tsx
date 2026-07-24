@@ -6,7 +6,7 @@ import { trackInitiateCheckout } from '@/lib/fbq';
 import { getOrCreateVisitorId } from '@/lib/visitor-id';
 import { getStoredUtm } from '@/lib/utm';
 
-export default function BuyButton({ productId, label = 'Comprar agora' }: { productId: string; label?: string }) {
+export default function BuyButton({ productId, label = 'Começar agora' }: { productId: string; label?: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
