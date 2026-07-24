@@ -56,6 +56,9 @@ export async function POST(req: NextRequest) {
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/products/${product.slug}`,
       locale: 'pt-BR',
+      // Shorter than Stripe's 24h default so abandoned checkouts are
+      // detected (and can be followed up on) same-day rather than tomorrow.
+      expires_at: Math.floor(Date.now() / 1000) + 2 * 60 * 60,
     });
 
     return NextResponse.json({ url: session.url });

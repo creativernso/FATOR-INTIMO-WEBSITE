@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { resend, FROM_EMAIL, sendTransactional } from '@/lib/resend';
-import { saveOrder } from '@/lib/orders';
+import { saveOrder, saveAbandonedCheckout } from '@/lib/orders';
 import { getProducts, createNotification, getEmailAutomations, upsertLead, getLeadByEmail } from '@/lib/db';
 import { purchaseConfirmationHtml, purchaseConfirmationText, campaignHtml, campaignText } from '@/lib/email-template';
 import { alertNewOrder, alertStripeWebhookFailure } from '@/lib/admin-notifications';
@@ -182,6 +182,43 @@ export async function POST(req: NextRequest) {
       console.log('[webhook] email sent to:', email);
     } else {
       console.warn('[webhook] email skipped, resend:', !!resend, 'email:', email, 'product:', !!product);
+    }
+  } else if (event.type === 'checkout.session.expired') {
+    const session = event.data.object;
+    // Only worth recording if the shopper got far enough to type an email —
+    // otherwise there's no one to send a recovery message to.
+    const email = session.customer_details?.email ?? '';
+    if (email) {
+      const { productId, utmSource, utmMedium, utmCampaign, utmContent } = session.metadata ?? {};
+      try {
+        const allProducts = await getProducts();
+        const product = productId ? allProducts.find((p) => p.id === productId) : null;
+        await saveAbandonedCheckout({
+          id: uuid(),
+          sessionId: session.id,
+          productId: productId ?? '',
+          productTitle: product?.title ?? '',
+          productSlug: product?.slug ?? '',
+          customerEmail: email,
+          customerName: session.customer_details?.name ?? '',
+          amountTotal: session.amount_total ?? 0,
+          currency: session.currency ?? 'brl',
+          createdAt: new Date().toISOString(),
+          utmSource: utmSource || undefined,
+          utmMedium: utmMedium || undefined,
+          utmCampaign: utmCampaign || undefined,
+          utmContent: utmContent || undefined,
+        });
+        const amount = ((session.amount_total ?? 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        await createNotification(
+          'checkout_abandoned',
+          'Carrinho abandonado',
+          `${session.customer_details?.name || email} não concluiu a compra de "${product?.title ?? 'produto'}" (${amount}).`,
+          { name: session.customer_details?.name ?? '', email, productTitle: product?.title ?? '', amount },
+        );
+      } catch (err) {
+        console.error('[webhook] failed to save abandoned checkout:', err);
+      }
     }
   }
 

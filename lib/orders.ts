@@ -40,3 +40,38 @@ export async function markOrderReviewRequestSent(orderId: string): Promise<void>
     reviewRequestSentAt: new Date().toISOString(),
   });
 }
+
+// ─── Abandoned checkouts ────────────────────────────────────────────────────
+
+export interface AbandonedCheckout {
+  id: string;
+  sessionId: string;
+  productId: string;
+  productTitle: string;
+  productSlug: string;
+  customerEmail: string;
+  customerName?: string;
+  amountTotal: number;
+  currency: string;
+  createdAt: string; // when the Stripe Checkout Session expired (i.e. was abandoned)
+  recoveryEmailSentAt?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  utmContent?: string;
+}
+
+export async function getAbandonedCheckouts(): Promise<AbandonedCheckout[]> {
+  const snap = await db().collection('abandonedCheckouts').orderBy('createdAt', 'desc').get();
+  return snap.docs.map((d) => d.data() as AbandonedCheckout);
+}
+
+export async function saveAbandonedCheckout(item: AbandonedCheckout): Promise<void> {
+  await db().collection('abandonedCheckouts').doc(item.id).set(item);
+}
+
+export async function markAbandonedCheckoutRecoveryEmailSent(id: string): Promise<void> {
+  await db().collection('abandonedCheckouts').doc(id).update({
+    recoveryEmailSentAt: new Date().toISOString(),
+  });
+}

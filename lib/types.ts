@@ -103,6 +103,15 @@ export interface ReviewSettings {
   updatedAt?: string;
 }
 
+export interface CartRecoverySettings {
+  enabled: boolean;
+  delayHours: number; // hours after abandonment before the recovery email goes out
+  subject: string;    // supports {nome}, {produto}, {link}
+  body: string;        // supports {nome}, {produto}, {link}
+  ctaLabel: string;
+  updatedAt?: string;
+}
+
 export interface Guide {
   id: string;
   slug: string;
@@ -145,7 +154,7 @@ export interface Comment {
 
 export interface AdminNotification {
   id: string;
-  type: 'purchase' | 'guide_download' | 'community_join' | 'community_post' | 'community_report' | 'comment' | 'testimonial';
+  type: 'purchase' | 'guide_download' | 'community_join' | 'community_post' | 'community_report' | 'comment' | 'testimonial' | 'checkout_abandoned';
   title: string;
   body: string;
   read: boolean;

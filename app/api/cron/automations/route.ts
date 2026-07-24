@@ -7,8 +7,9 @@ import {
   getGuides,
   getReviewSettings,
   markLeadReviewRequestSent,
+  getCartRecoverySettings,
 } from '@/lib/db';
-import { getOrders, markOrderReviewRequestSent } from '@/lib/orders';
+import { getOrders, markOrderReviewRequestSent, getAbandonedCheckouts, markAbandonedCheckoutRecoveryEmailSent } from '@/lib/orders';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { campaignHtml, campaignText } from '@/lib/email-template';
 
@@ -21,7 +22,7 @@ function fillTemplate(template: string, vars: Record<string, string>): string {
   return template.replace(/\{(\w+)\}/g, (_, key) => vars[key] ?? '');
 }
 
-function buildReviewEmail(opts: {
+function buildCtaEmail(opts: {
   subject: string;
   body: string;
   ctaLabel: string;
@@ -114,7 +115,7 @@ export async function GET(req: NextRequest) {
         const product = productById.get(order.productId);
         if (!product) continue;
         const ctaUrl = `${BASE_URL}/products/${product.slug}?review=1&name=${encodeURIComponent(order.customerName || '')}&email=${encodeURIComponent(order.customerEmail)}#avaliacoes`;
-        const email = buildReviewEmail({
+        const email = buildCtaEmail({
           subject: settings.productSubject,
           body: settings.productBody,
           ctaLabel: settings.ctaLabel,
@@ -163,7 +164,7 @@ export async function GET(req: NextRequest) {
         const guide = guideBySlug.get(lead.guideSlug);
         if (!guide) continue;
         const ctaUrl = `${BASE_URL}/guia/${guide.slug}?review=1&name=${encodeURIComponent(lead.name || '')}&email=${encodeURIComponent(lead.email)}#avaliacoes`;
-        const email = buildReviewEmail({
+        const email = buildCtaEmail({
           subject: settings.guideSubject,
           body: settings.guideBody,
           ctaLabel: settings.ctaLabel,
@@ -194,10 +195,67 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  // ── Abandoned checkout recovery emails ───────────────────────────────────
+  let cartRecoveryEmailsSent = 0;
+  try {
+    const cartSettings = await getCartRecoverySettings();
+    if (cartSettings.enabled) {
+      const [checkouts, orders] = await Promise.all([getAbandonedCheckouts(), getOrders()]);
+      const cutoffMs = Date.now() - cartSettings.delayHours * 3600000;
+      const BASE = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+
+      for (const checkout of checkouts) {
+        if (checkout.recoveryEmailSentAt) continue;
+        if (!checkout.customerEmail) continue;
+        if (new Date(checkout.createdAt).getTime() > cutoffMs) continue;
+
+        // Skip if they already completed a fresh checkout for the same product.
+        const alreadyRecovered = orders.some(
+          (o) =>
+            o.customerEmail === checkout.customerEmail &&
+            o.productId === checkout.productId &&
+            new Date(o.createdAt).getTime() >= new Date(checkout.createdAt).getTime(),
+        );
+        if (alreadyRecovered) continue;
+
+        const ctaUrl = checkout.productSlug ? `${BASE}/products/${checkout.productSlug}` : BASE;
+        const vars = {
+          nome: checkout.customerName?.split(' ')[0] || '',
+          produto: checkout.productTitle || 'seu produto',
+          link: ctaUrl,
+        };
+        const email = buildCtaEmail({
+          subject: cartSettings.subject,
+          body: cartSettings.body,
+          ctaLabel: cartSettings.ctaLabel,
+          ctaUrl,
+          vars,
+        });
+        try {
+          await resend.emails.send({
+            from: FROM_EMAIL,
+            to: checkout.customerEmail,
+            subject: email.subject,
+            html: email.html,
+            text: email.text,
+          });
+          await markAbandonedCheckoutRecoveryEmailSent(checkout.id);
+          cartRecoveryEmailsSent++;
+        } catch {
+          // silent, retried next day
+        }
+        await new Promise((r) => setTimeout(r, 100));
+      }
+    }
+  } catch (err) {
+    console.error('[cron/automations] cart recovery emails failed:', err);
+  }
+
   return NextResponse.json({
     ran: activeAutomations.length,
     results,
     productReviewRequestsSent,
     guideReviewRequestsSent,
+    cartRecoveryEmailsSent,
   });
 }

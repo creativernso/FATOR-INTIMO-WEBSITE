@@ -1,7 +1,7 @@
 import { getAdminDb } from './firebase-admin';
 import type { Query } from 'firebase-admin/firestore';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
-import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification, MarqueePhrase, EmailCampaign, EmailAutomation, ChatSettings, ReviewSettings, PopupConfig } from './types';
+import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification, MarqueePhrase, EmailCampaign, EmailAutomation, ChatSettings, ReviewSettings, PopupConfig, CartRecoverySettings } from './types';
 
 const db = () => getAdminDb();
 
@@ -560,3 +560,26 @@ export async function getPopupConfig(): Promise<PopupConfig> {
 export const savePopupConfig = async (config: PopupConfig): Promise<void> => {
   await db().collection('popup_config').doc('main').set(config);
 };
+
+// ─── Cart recovery settings ────────────────────────────────────────────────────
+
+const DEFAULT_CART_RECOVERY_SETTINGS: CartRecoverySettings = {
+  enabled: false,
+  delayHours: 2,
+  subject: 'Você esqueceu de finalizar sua compra',
+  body: 'Olá {nome},\n\nVocê começou a garantir {produto} mas o pagamento não foi concluído. Ainda dá tempo de finalizar o seu acesso.',
+  ctaLabel: 'Concluir minha compra',
+};
+
+export async function getCartRecoverySettings(): Promise<CartRecoverySettings> {
+  const snap = await db().collection('cartRecoverySettings').doc('default').get();
+  if (!snap.exists) return DEFAULT_CART_RECOVERY_SETTINGS;
+  return { ...DEFAULT_CART_RECOVERY_SETTINGS, ...(snap.data() as CartRecoverySettings) };
+}
+
+export async function saveCartRecoverySettings(settings: CartRecoverySettings): Promise<void> {
+  await db().collection('cartRecoverySettings').doc('default').set({
+    ...settings,
+    updatedAt: new Date().toISOString(),
+  });
+}
