@@ -75,7 +75,11 @@ export default async function Home() {
   });
   const posts = allPosts.slice(0, 3);
   const products = allProducts.filter((p) => p.featured).slice(0, 3);
-  const testimonials = allTestimonials.slice(0, 6);
+  // The testimonials collection also holds product/guide reviews
+  // (avaliações), which carry verifiedPurchase/guideSlug. Only the
+  // curated depoimentos belong on the homepage.
+  const depoimentos = allTestimonials.filter((t) => t.verifiedPurchase === undefined && !t.guideSlug);
+  const testimonials = depoimentos.slice(0, 6);
   const activePhrases = marqueePhrases.filter((p) => p.active).map((p) => p.text);
   const guides = allGuides.slice(0, 6);
   const recentPosts = communityPosts.slice(0, 3);
