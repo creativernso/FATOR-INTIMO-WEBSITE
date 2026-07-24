@@ -35,7 +35,14 @@ async function replaceCollection<T extends { id: string }>(name: string, items: 
 }
 
 // Posts
-export const getPosts = (): Promise<Post[]> => getCollection<Post>('posts');
+export async function getPosts(publishedOnly = false): Promise<Post[]> {
+  const posts = await getCollection<Post>('posts');
+  if (!publishedOnly) return posts;
+  const now = Date.now();
+  // A post with a future publishedAt is scheduled and stays hidden from
+  // public reads until that moment, with no cron needed for visibility.
+  return posts.filter((p) => new Date(p.publishedAt).getTime() <= now);
+}
 export const savePosts = (posts: Post[]): Promise<void> => replaceCollection('posts', posts);
 export const upsertPost = (post: Post): Promise<void> => upsertDoc('posts', post);
 export const deletePost = (id: string): Promise<void> => deleteDoc('posts', id);

@@ -2,8 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { Post } from '@/lib/types';
-import { Pencil, Trash2, Plus, X, Check, Star, Clock, FileText } from 'lucide-react';
+import { Pencil, Trash2, Plus, X, Check, Star, Clock, FileText, CalendarClock } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
+
+// <input type="datetime-local"> needs "YYYY-MM-DDTHH:mm" in the viewer's
+// local time (no seconds, no timezone suffix).
+function toDatetimeLocal(iso: string): string {
+  const d = iso ? new Date(iso) : new Date();
+  if (Number.isNaN(d.getTime())) return new Date().toISOString().slice(0, 16);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 
 const emptyForm = {
   title: '',
@@ -12,7 +21,7 @@ const emptyForm = {
   content: '',
   category: 'Psicologia',
   coverImage: '',
-  publishedAt: new Date().toISOString().split('T')[0],
+  publishedAt: toDatetimeLocal(new Date().toISOString()),
   readTime: 5,
   featured: false,
 };
@@ -38,7 +47,9 @@ export default function AdminBlog() {
 
   const fetchPosts = async () => {
     const res = await fetch('/api/posts');
-    setPosts(await res.json());
+    const data: Post[] = await res.json();
+    data.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+    setPosts(data);
     setLoading(false);
   };
 
@@ -46,7 +57,7 @@ export default function AdminBlog() {
 
   const openNew = () => { setForm({ ...emptyForm }); setEditingId(null); setShowForm(true); };
   const openEdit = (post: Post) => {
-    setForm({ title: post.title, slug: post.slug, excerpt: post.excerpt, content: post.content, category: post.category, coverImage: post.coverImage, publishedAt: post.publishedAt, readTime: post.readTime, featured: post.featured });
+    setForm({ title: post.title, slug: post.slug, excerpt: post.excerpt, content: post.content, category: post.category, coverImage: post.coverImage, publishedAt: toDatetimeLocal(post.publishedAt), readTime: post.readTime, featured: post.featured });
     setEditingId(post.id);
     setShowForm(true);
   };
@@ -54,7 +65,7 @@ export default function AdminBlog() {
   const handleSave = async () => {
     setSaving(true);
     const slug = form.slug || form.title.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-');
-    const payload = { ...form, slug };
+    const payload = { ...form, slug, publishedAt: new Date(form.publishedAt).toISOString() };
     if (editingId) {
       await fetch(`/api/posts/${editingId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     } else {
@@ -115,7 +126,7 @@ export default function AdminBlog() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/[0.04]">
-                {['Artigo', 'Categoria', 'Data', 'Status', ''].map((h, i) => (
+                {['Artigo', 'Categoria', 'Publicação', 'Status', ''].map((h, i) => (
                   <th key={i} className={`text-left px-5 lg:px-6 py-4 text-text-muted font-medium tracking-widest uppercase ${i > 1 && i < 4 ? 'hidden md:table-cell' : ''} ${i === 1 ? 'hidden sm:table-cell' : ''} ${i === 4 ? 'text-right' : ''}`}
                     style={{ fontSize: fs('0.62rem', '0.7vw', '0.68rem') }}>
                     {h}
@@ -126,11 +137,17 @@ export default function AdminBlog() {
             <tbody className="divide-y divide-white/[0.04]">
               {posts.map((post) => {
                 const color = categoryColors[post.category] || '#6b7280';
+                const isScheduled = new Date(post.publishedAt).getTime() > Date.now();
                 return (
                   <tr key={post.id} className="hover:bg-white/2 transition-colors group">
                     <td className="px-5 lg:px-6 py-4 lg:py-5">
-                      <p className="text-text-primary font-medium line-clamp-1" style={{ fontSize: fs('0.82rem', '0.95vw', '0.9rem') }}>
+                      <p className="text-text-primary font-medium line-clamp-1 flex items-center gap-2" style={{ fontSize: fs('0.82rem', '0.95vw', '0.9rem') }}>
                         {post.title}
+                        {isScheduled && (
+                          <span className="md:hidden flex-shrink-0 flex items-center gap-1 text-amber-400 border border-amber-400/25 bg-amber-400/10 rounded-full px-2 py-0.5" style={{ fontSize: '10px' }}>
+                            <CalendarClock size={10} /> Agendado
+                          </span>
+                        )}
                       </p>
                       <p className="text-text-muted mt-0.5 flex items-center gap-1.5" style={{ fontSize: fs('0.7rem', '0.78vw', '0.75rem') }}>
                         <Clock size={10} /> {post.readTime}min leitura
@@ -144,8 +161,17 @@ export default function AdminBlog() {
                         {post.category}
                       </span>
                     </td>
-                    <td className="px-5 lg:px-6 py-4 text-text-muted hidden md:table-cell" style={{ fontSize: fs('0.75rem', '0.85vw', '0.8rem') }}>
-                      {new Date(post.publishedAt).toLocaleDateString('pt-BR')}
+                    <td className="px-5 lg:px-6 py-4 hidden md:table-cell" style={{ fontSize: fs('0.75rem', '0.85vw', '0.8rem') }}>
+                      {isScheduled ? (
+                        <span className="flex items-center gap-1.5 text-amber-400">
+                          <CalendarClock size={12} />
+                          {new Date(post.publishedAt).toLocaleString('pt-BR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      ) : (
+                        <span className="text-text-muted">
+                          {new Date(post.publishedAt).toLocaleDateString('pt-BR')}
+                        </span>
+                      )}
                     </td>
                     <td className="px-5 lg:px-6 py-4 hidden md:table-cell">
                       {post.featured ? (
@@ -243,9 +269,14 @@ export default function AdminBlog() {
                 </div>
                 <div>
                   <label className="text-text-muted font-medium mb-1.5 block" style={{ fontSize: fs('0.72rem', '0.8vw', '0.75rem') }}>
-                    Data
+                    Data e hora de publicação
                   </label>
-                  <input type="date" className="admin-input" value={form.publishedAt} onChange={(e) => setForm({ ...form, publishedAt: e.target.value })} />
+                  <input type="datetime-local" className="admin-input" value={form.publishedAt} onChange={(e) => setForm({ ...form, publishedAt: e.target.value })} />
+                  {new Date(form.publishedAt).getTime() > Date.now() && (
+                    <p className="text-amber-400 mt-1.5 flex items-center gap-1.5" style={{ fontSize: fs('0.68rem', '0.75vw', '0.72rem') }}>
+                      <CalendarClock size={11} /> Agendado — só aparece no site nesse horário.
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-col">
                   <label className="text-text-muted font-medium mb-1.5 block" style={{ fontSize: fs('0.72rem', '0.8vw', '0.75rem') }}>

@@ -29,36 +29,43 @@ export async function POST(req: NextRequest) {
     content: body.content || '',
     category: body.category || 'Geral',
     coverImage: body.coverImage || 'https://images.unsplash.com/photo-1516302752625-fcc3c50ae61f?w=800&q=80',
-    publishedAt: body.publishedAt || new Date().toISOString().split('T')[0],
+    publishedAt: body.publishedAt || new Date().toISOString(),
     readTime: Number(body.readTime) || 5,
     featured: Boolean(body.featured),
   };
   await upsertPost(newPost);
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
-  const articleUrl = `${baseUrl}/blog/${newPost.slug}`;
+  // A future publishedAt means the post is scheduled: lib/db's getPosts(true)
+  // keeps it hidden from every public read until that moment, and none of
+  // the "new article" notifications below should fire until it's actually live.
+  const isDue = new Date(newPost.publishedAt).getTime() <= Date.now();
 
-  // Admin dashboard notification
-  await createNotification(
-    'comment',
-    'Novo artigo publicado',
-    `"${newPost.title}" foi publicado.`,
-    { slug: newPost.slug, category: newPost.category },
-  );
+  if (isDue) {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+    const articleUrl = `${baseUrl}/blog/${newPost.slug}`;
 
-  // Admin email alert (fire and forget)
-  sendAdminAlert({
-    subject: `Novo artigo publicado: ${newPost.title}`,
-    title: `Novo artigo: ${newPost.title}`,
-    body: newPost.excerpt || 'Um novo artigo foi publicado no blog.',
-    ctaLabel: 'Ver artigo',
-    ctaUrl: articleUrl,
-    meta: { Categoria: newPost.category, 'Leitura': `${newPost.readTime}min` },
-  });
+    // Admin dashboard notification
+    await createNotification(
+      'comment',
+      'Novo artigo publicado',
+      `"${newPost.title}" foi publicado.`,
+      { slug: newPost.slug, category: newPost.category },
+    );
 
-  // Broadcast to email subscribers (fire and forget)
-  if (resend && body.broadcastToSubscribers !== false) {
-    broadcastArticle(newPost.title, newPost.excerpt, articleUrl, newPost.coverImage);
+    // Admin email alert (fire and forget)
+    sendAdminAlert({
+      subject: `Novo artigo publicado: ${newPost.title}`,
+      title: `Novo artigo: ${newPost.title}`,
+      body: newPost.excerpt || 'Um novo artigo foi publicado no blog.',
+      ctaLabel: 'Ver artigo',
+      ctaUrl: articleUrl,
+      meta: { Categoria: newPost.category, 'Leitura': `${newPost.readTime}min` },
+    });
+
+    // Broadcast to email subscribers (fire and forget)
+    if (resend && body.broadcastToSubscribers !== false) {
+      broadcastArticle(newPost.title, newPost.excerpt, articleUrl, newPost.coverImage);
+    }
   }
 
   return NextResponse.json(newPost, { status: 201 });

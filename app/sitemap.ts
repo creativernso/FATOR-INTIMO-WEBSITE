@@ -58,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let communityEntries: MetadataRoute.Sitemap = [];
 
   try {
-    const posts = await getPosts();
+    const posts = await getPosts(true);
     postEntries = posts.map((p) => ({
       url: `${SITE_URL}/blog/${p.slug}`,
       lastModified: p.publishedAt ? new Date(p.publishedAt) : now,

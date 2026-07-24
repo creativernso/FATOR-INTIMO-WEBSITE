@@ -28,7 +28,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = (await getPosts()).find((p) => p.slug === slug);
+  const post = (await getPosts(true)).find((p) => p.slug === slug);
   if (!post) return { title: 'Artigo não encontrado' };
   const url = `${SITE_URL}/blog/${post.slug}`;
   return {
@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPost({ params }: Props) {
   const { slug } = await params;
-  const posts = await getPosts();
+  const posts = await getPosts(true);
   const post = posts.find((p) => p.slug === slug);
   if (!post) notFound();
 

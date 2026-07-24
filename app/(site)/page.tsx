@@ -59,7 +59,7 @@ export default async function Home() {
   ];
 
   const [allPostsRaw, allProducts, allTestimonials, marqueePhrases, allGuides, communityPosts, ytVideos] = await Promise.all([
-    getPosts(),
+    getPosts(true),
     getProducts(),
     getTestimonials(true),
     getMarqueePhrases(),

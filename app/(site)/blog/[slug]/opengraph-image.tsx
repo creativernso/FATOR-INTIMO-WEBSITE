@@ -7,7 +7,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
 export default async function BlogOgImage({ params }: { params: { slug: string } }) {
-  const post = (await getPosts()).find((p) => p.slug === params.slug);
+  const post = (await getPosts(true)).find((p) => p.slug === params.slug);
   const title = post?.title ?? 'Fator Íntimo';
   const category = post?.category ?? 'Psicologia das Relações';
 
