@@ -55,6 +55,7 @@ export interface AbandonedCheckout {
   currency: string;
   createdAt: string; // when the Stripe Checkout Session expired (i.e. was abandoned)
   recoveryEmailSentAt?: string;
+  secondEmailSentAt?: string;
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
@@ -73,5 +74,11 @@ export async function saveAbandonedCheckout(item: AbandonedCheckout): Promise<vo
 export async function markAbandonedCheckoutRecoveryEmailSent(id: string): Promise<void> {
   await db().collection('abandonedCheckouts').doc(id).update({
     recoveryEmailSentAt: new Date().toISOString(),
+  });
+}
+
+export async function markAbandonedCheckoutSecondEmailSent(id: string): Promise<void> {
+  await db().collection('abandonedCheckouts').doc(id).update({
+    secondEmailSentAt: new Date().toISOString(),
   });
 }

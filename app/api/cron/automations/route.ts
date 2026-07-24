@@ -9,7 +9,7 @@ import {
   markLeadReviewRequestSent,
   getCartRecoverySettings,
 } from '@/lib/db';
-import { getOrders, markOrderReviewRequestSent, getAbandonedCheckouts, markAbandonedCheckoutRecoveryEmailSent } from '@/lib/orders';
+import { getOrders, markOrderReviewRequestSent, getAbandonedCheckouts, markAbandonedCheckoutRecoveryEmailSent, markAbandonedCheckoutSecondEmailSent, AbandonedCheckout } from '@/lib/orders';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { campaignHtml, campaignText, cartRecoveryHtml, cartRecoveryText } from '@/lib/email-template';
 
@@ -195,29 +195,24 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // ── Abandoned checkout recovery emails ───────────────────────────────────
+  // ── Abandoned checkout recovery emails (2-step sequence) ─────────────────
   let cartRecoveryEmailsSent = 0;
+  let cartSecondEmailsSent = 0;
   try {
     const cartSettings = await getCartRecoverySettings();
-    if (cartSettings.enabled) {
+    if (cartSettings.enabled || cartSettings.secondEnabled) {
       const [checkouts, orders, cartProducts] = await Promise.all([getAbandonedCheckouts(), getOrders(), getProducts()]);
-      const cutoffMs = Date.now() - cartSettings.delayHours * 3600000;
       const BASE = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
 
-      for (const checkout of checkouts) {
-        if (checkout.recoveryEmailSentAt) continue;
-        if (!checkout.customerEmail) continue;
-        if (new Date(checkout.createdAt).getTime() > cutoffMs) continue;
-
-        // Skip if they already completed a fresh checkout for the same product.
-        const alreadyRecovered = orders.some(
+      const isAlreadyRecovered = (checkout: AbandonedCheckout) =>
+        orders.some(
           (o) =>
             o.customerEmail === checkout.customerEmail &&
             o.productId === checkout.productId &&
             new Date(o.createdAt).getTime() >= new Date(checkout.createdAt).getTime(),
         );
-        if (alreadyRecovered) continue;
 
+      const sendCartEmail = (checkout: AbandonedCheckout, subjectTpl: string, bodyTpl: string, ctaLabel: string) => {
         const product = cartProducts.find((p) => p.id === checkout.productId);
         const ctaUrl = checkout.productSlug ? `${BASE}/products/${checkout.productSlug}` : BASE;
         const vars = {
@@ -225,8 +220,8 @@ export async function GET(req: NextRequest) {
           produto: checkout.productTitle || 'seu produto',
           link: ctaUrl,
         };
-        const subject = fillTemplate(cartSettings.subject, vars);
-        const introMessage = fillTemplate(cartSettings.body, vars);
+        const subject = fillTemplate(subjectTpl, vars);
+        const introMessage = fillTemplate(bodyTpl, vars);
         const emailData = {
           name: checkout.customerName,
           introMessage,
@@ -235,22 +230,56 @@ export async function GET(req: NextRequest) {
           originalPrice: product?.originalPrice,
           coverImage: product?.coverImage,
           ctaUrl,
-          ctaLabel: cartSettings.ctaLabel,
+          ctaLabel,
         };
-        try {
-          await resend.emails.send({
-            from: FROM_EMAIL,
-            to: checkout.customerEmail,
-            subject,
-            html: cartRecoveryHtml(emailData),
-            text: cartRecoveryText(emailData),
-          });
-          await markAbandonedCheckoutRecoveryEmailSent(checkout.id);
-          cartRecoveryEmailsSent++;
-        } catch {
-          // silent, retried next day
+        return resend!.emails.send({
+          from: FROM_EMAIL,
+          to: checkout.customerEmail,
+          subject,
+          html: cartRecoveryHtml(emailData),
+          text: cartRecoveryText(emailData),
+        });
+      };
+
+      // First email
+      if (cartSettings.enabled) {
+        const cutoffMs = Date.now() - cartSettings.delayHours * 3600000;
+        for (const checkout of checkouts) {
+          if (checkout.recoveryEmailSentAt) continue;
+          if (!checkout.customerEmail) continue;
+          if (new Date(checkout.createdAt).getTime() > cutoffMs) continue;
+          if (isAlreadyRecovered(checkout)) continue;
+
+          try {
+            await sendCartEmail(checkout, cartSettings.subject, cartSettings.body, cartSettings.ctaLabel);
+            await markAbandonedCheckoutRecoveryEmailSent(checkout.id);
+            cartRecoveryEmailsSent++;
+          } catch {
+            // silent, retried next day
+          }
+          await new Promise((r) => setTimeout(r, 100));
         }
-        await new Promise((r) => setTimeout(r, 100));
+      }
+
+      // Second, more urgent follow-up — only after the first one already went out
+      if (cartSettings.secondEnabled) {
+        for (const checkout of checkouts) {
+          if (!checkout.recoveryEmailSentAt) continue;
+          if (checkout.secondEmailSentAt) continue;
+          if (!checkout.customerEmail) continue;
+          const dueAtMs = new Date(checkout.recoveryEmailSentAt).getTime() + cartSettings.secondDelayHours * 3600000;
+          if (dueAtMs > Date.now()) continue;
+          if (isAlreadyRecovered(checkout)) continue;
+
+          try {
+            await sendCartEmail(checkout, cartSettings.secondSubject, cartSettings.secondBody, cartSettings.secondCtaLabel);
+            await markAbandonedCheckoutSecondEmailSent(checkout.id);
+            cartSecondEmailsSent++;
+          } catch {
+            // silent, retried next day
+          }
+          await new Promise((r) => setTimeout(r, 100));
+        }
       }
     }
   } catch (err) {
@@ -263,5 +292,6 @@ export async function GET(req: NextRequest) {
     productReviewRequestsSent,
     guideReviewRequestsSent,
     cartRecoveryEmailsSent,
+    cartSecondEmailsSent,
   });
 }

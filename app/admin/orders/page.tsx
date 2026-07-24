@@ -17,6 +17,7 @@ interface AbandonedCheckoutRow {
   currency: string;
   createdAt: string;
   recoveryEmailSentAt?: string;
+  secondEmailSentAt?: string;
   recovered: boolean;
 }
 
@@ -26,6 +27,11 @@ const DEFAULT_CART_SETTINGS: CartRecoverySettings = {
   subject: 'Você esqueceu de finalizar sua compra',
   body: 'Olá {nome},\n\nVocê começou a garantir {produto} mas o pagamento não foi concluído. Ainda dá tempo de finalizar o seu acesso.',
   ctaLabel: 'Concluir minha compra',
+  secondEnabled: false,
+  secondDelayHours: 24,
+  secondSubject: 'Ainda dá tempo de garantir {produto}',
+  secondBody: 'Olá {nome},\n\nSe você ainda quer ter acesso a {produto}, esse é o momento certo para finalizar sua compra.',
+  secondCtaLabel: 'Finalizar minha compra',
 };
 
 type Tab = 'orders' | 'abandoned';
@@ -40,6 +46,7 @@ export default function AdminOrders() {
   const [checkouts, setCheckouts] = useState<AbandonedCheckoutRow[]>([]);
   const [checkoutsLoading, setCheckoutsLoading] = useState(true);
   const [sendingId, setSendingId] = useState<string | null>(null);
+  const [sendingSecondId, setSendingSecondId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [cartSettings, setCartSettings] = useState<CartRecoverySettings>(DEFAULT_CART_SETTINGS);
   const [settingsSaving, setSettingsSaving] = useState(false);
@@ -81,6 +88,16 @@ export default function AdminOrders() {
       await fetchCheckouts();
     } finally {
       setSendingId(null);
+    }
+  };
+
+  const handleSendSecondRecovery = async (id: string) => {
+    setSendingSecondId(id);
+    try {
+      await fetch(`/api/admin/checkouts/${id}/send-second-recovery`, { method: 'POST' });
+      await fetchCheckouts();
+    } finally {
+      setSendingSecondId(null);
     }
   };
 
@@ -359,7 +376,9 @@ export default function AdminOrders() {
             </button>
 
             {showSettings && (
-              <div className="px-5 lg:px-6 pb-6 pt-2 space-y-4 border-t border-white/[0.04]">
+              <div className="px-5 lg:px-6 pb-6 pt-2 space-y-5 border-t border-white/[0.04]">
+                <p className="text-text-muted text-xs uppercase tracking-widest pt-2">1º e-mail</p>
+
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
@@ -373,7 +392,7 @@ export default function AdminOrders() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-text-muted text-xs uppercase tracking-widest block mb-1.5">Enviar após (horas)</label>
+                    <label className="text-text-muted text-xs uppercase tracking-widest block mb-1.5">Enviar após (horas do abandono)</label>
                     <input
                       type="number"
                       min={1}
@@ -412,6 +431,61 @@ export default function AdminOrders() {
                     onChange={(e) => setCartSettings((s) => ({ ...s, body: e.target.value }))}
                     className="admin-input resize-none"
                   />
+                </div>
+
+                <div className="pt-2 border-t border-white/[0.04]">
+                  <p className="text-text-muted text-xs uppercase tracking-widest pt-4 mb-4">2º e-mail (urgência)</p>
+
+                  <div className="flex items-center gap-3 mb-4">
+                    <button
+                      type="button"
+                      onClick={() => setCartSettings((s) => ({ ...s, secondEnabled: !s.secondEnabled }))}
+                      className={`w-11 h-6 rounded-full transition-colors relative flex-shrink-0 ${cartSettings.secondEnabled ? 'bg-accent' : 'bg-white/10'}`}
+                    >
+                      <span className="absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all" style={{ left: cartSettings.secondEnabled ? '22px' : '2px' }} />
+                    </button>
+                    <span className="text-text-secondary text-sm">Enviar um segundo lembrete, mais urgente</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="text-text-muted text-xs uppercase tracking-widest block mb-1.5">Enviar após (horas do 1º e-mail)</label>
+                      <input
+                        type="number"
+                        min={1}
+                        value={cartSettings.secondDelayHours}
+                        onChange={(e) => setCartSettings((s) => ({ ...s, secondDelayHours: Number(e.target.value) }))}
+                        className="admin-input"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-text-muted text-xs uppercase tracking-widest block mb-1.5">Texto do botão</label>
+                      <input
+                        value={cartSettings.secondCtaLabel}
+                        onChange={(e) => setCartSettings((s) => ({ ...s, secondCtaLabel: e.target.value }))}
+                        className="admin-input"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="text-text-muted text-xs uppercase tracking-widest block mb-1.5">Assunto</label>
+                    <input
+                      value={cartSettings.secondSubject}
+                      onChange={(e) => setCartSettings((s) => ({ ...s, secondSubject: e.target.value }))}
+                      className="admin-input"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-text-muted text-xs uppercase tracking-widest block mb-1.5">Mensagem de introdução</label>
+                    <textarea
+                      rows={3}
+                      value={cartSettings.secondBody}
+                      onChange={(e) => setCartSettings((s) => ({ ...s, secondBody: e.target.value }))}
+                      className="admin-input resize-none"
+                    />
+                  </div>
                 </div>
 
                 <button
@@ -493,9 +567,13 @@ export default function AdminOrders() {
                           <span className="flex items-center gap-1.5 text-emerald-400" style={{ fontSize: fs('0.72rem', '0.8vw', '0.75rem') }}>
                             <Check size={12} /> Recuperado
                           </span>
+                        ) : c.secondEmailSentAt ? (
+                          <span className="flex items-center gap-1.5 text-text-muted" style={{ fontSize: fs('0.72rem', '0.8vw', '0.75rem') }}>
+                            <Mail size={12} /> 2º e-mail enviado
+                          </span>
                         ) : c.recoveryEmailSentAt ? (
                           <span className="flex items-center gap-1.5 text-text-muted" style={{ fontSize: fs('0.72rem', '0.8vw', '0.75rem') }}>
-                            <Mail size={12} /> E-mail enviado
+                            <Mail size={12} /> 1º e-mail enviado
                           </span>
                         ) : (
                           <span className="flex items-center gap-1.5 text-amber-400" style={{ fontSize: fs('0.72rem', '0.8vw', '0.75rem') }}>
@@ -505,16 +583,26 @@ export default function AdminOrders() {
                       </td>
                       <td className="px-5 lg:px-6 py-4">
                         {!c.recovered && (
-                          <div className="flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={() => handleSendRecovery(c.id)}
                               disabled={sendingId === c.id}
-                              title="Enviar e-mail de recuperação"
+                              title="Enviar 1º e-mail de recuperação"
                               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-text-muted hover:text-accent hover:bg-accent/8 border border-transparent hover:border-accent/20 transition-all disabled:opacity-50"
                               style={{ fontSize: fs('0.7rem', '0.78vw', '0.75rem') }}
                             >
                               <Send size={12} className={sendingId === c.id ? 'animate-pulse' : ''} />
-                              <span className="hidden sm:inline">{c.recoveryEmailSentAt ? 'Reenviar' : 'Enviar'}</span>
+                              <span className="hidden sm:inline">1º {c.recoveryEmailSentAt ? '↻' : ''}</span>
+                            </button>
+                            <button
+                              onClick={() => handleSendSecondRecovery(c.id)}
+                              disabled={sendingSecondId === c.id || !c.recoveryEmailSentAt}
+                              title={c.recoveryEmailSentAt ? 'Enviar 2º e-mail (urgência)' : 'Envie o 1º e-mail primeiro'}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-text-muted hover:text-accent hover:bg-accent/8 border border-transparent hover:border-accent/20 transition-all disabled:opacity-30"
+                              style={{ fontSize: fs('0.7rem', '0.78vw', '0.75rem') }}
+                            >
+                              <Send size={12} className={sendingSecondId === c.id ? 'animate-pulse' : ''} />
+                              <span className="hidden sm:inline">2º {c.secondEmailSentAt ? '↻' : ''}</span>
                             </button>
                           </div>
                         )}

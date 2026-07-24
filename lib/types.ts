@@ -111,6 +111,12 @@ export interface CartRecoverySettings {
   subject: string;    // supports {nome}, {produto}, {link}
   body: string;        // supports {nome}, {produto}, {link}
   ctaLabel: string;
+  // Second, more urgent follow-up — only sent after the first one already went out
+  secondEnabled: boolean;
+  secondDelayHours: number; // hours after the first recovery email was sent
+  secondSubject: string;
+  secondBody: string;
+  secondCtaLabel: string;
   updatedAt?: string;
 }
 

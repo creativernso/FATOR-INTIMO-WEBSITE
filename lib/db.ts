@@ -580,6 +580,11 @@ const DEFAULT_CART_RECOVERY_SETTINGS: CartRecoverySettings = {
   subject: 'Você esqueceu de finalizar sua compra',
   body: 'Olá {nome},\n\nVocê começou a garantir {produto} mas o pagamento não foi concluído. Ainda dá tempo de finalizar o seu acesso.',
   ctaLabel: 'Concluir minha compra',
+  secondEnabled: false,
+  secondDelayHours: 24,
+  secondSubject: 'Ainda dá tempo de garantir {produto}',
+  secondBody: 'Olá {nome},\n\nSe você ainda quer ter acesso a {produto}, esse é o momento certo para finalizar sua compra.',
+  secondCtaLabel: 'Finalizar minha compra',
 };
 
 export async function getCartRecoverySettings(): Promise<CartRecoverySettings> {
