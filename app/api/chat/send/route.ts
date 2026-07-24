@@ -52,18 +52,22 @@ export async function POST(req: NextRequest) {
         .get();
       if (msgsSnap.size === 1) {
         const settings = await getChatSettings();
-        // Wait briefly so it feels human, then write the welcome
-        setTimeout(async () => {
-          try {
-            await db.collection('chatSessions').doc(visitorId).collection('messages').add({
-              text: settings.welcomeMessage,
-              from: 'admin',
-              createdAt: FieldValue.serverTimestamp(),
-              visitorId,
-              auto: true,
-            });
-          } catch {}
-        }, 1500);
+        // Wait briefly so it feels human. This is awaited (not a detached
+        // setTimeout) because serverless functions can be frozen/terminated
+        // right after the response is sent, which would silently drop a
+        // fire-and-forget write and leave the welcome message missing.
+        await new Promise((r) => setTimeout(r, 1200));
+        try {
+          await db.collection('chatSessions').doc(visitorId).collection('messages').add({
+            text: settings.welcomeMessage,
+            from: 'admin',
+            createdAt: FieldValue.serverTimestamp(),
+            visitorId,
+            auto: true,
+          });
+        } catch (err) {
+          console.error('[chat/send] failed to write auto-welcome:', err);
+        }
       }
     }
 
