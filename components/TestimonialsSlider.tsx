@@ -37,11 +37,7 @@ export default function TestimonialsSlider({ testimonials }: Props) {
   }, [resetTimer]);
 
   const getVisibleIndices = () => {
-    return [
-      (current - 1 + total) % total,
-      current,
-      (current + 1) % total,
-    ];
+    return [0, 1, 2, 3].map((offset) => (current + offset) % total);
   };
 
   const t = testimonials[current];
@@ -50,29 +46,22 @@ export default function TestimonialsSlider({ testimonials }: Props) {
 
   return (
     <div className="relative">
-      {/* Desktop: 3-card view */}
+      {/* Desktop: 4-card view */}
       <div className="hidden md:block">
-        <div className="grid grid-cols-3 gap-5">
-          {getVisibleIndices().map((idx, position) => {
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+          {getVisibleIndices().map((idx) => {
             const item = testimonials[idx];
-            const isCenter = position === 1;
             const itemName = item.anonymous ? 'Anônimo' : item.name;
             const itemPhoto = !item.anonymous && !!item.avatar;
 
             return (
               <div
                 key={idx}
-                onClick={() => !isCenter && goTo(idx)}
-                className={`relative rounded-3xl border overflow-hidden flex flex-col transition-all duration-500 cursor-pointer select-none ${
-                  isCenter
-                    ? 'border-white/15 scale-100 opacity-100'
-                    : 'border-white/5 scale-95 opacity-40 hover:opacity-60'
-                }`}
-                style={{ background: isCenter ? 'rgb(var(--surface))' : 'rgb(var(--surface))' }}
+                onClick={() => goTo(idx)}
+                className="relative rounded-3xl border border-white/15 overflow-hidden flex flex-col transition-all duration-500 cursor-pointer select-none hover:border-white/25"
+                style={{ background: 'rgb(var(--surface))' }}
               >
-                {isCenter && (
-                  <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
-                )}
+                <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
 
                 <div className="px-4 pt-4">
                   <div className="relative w-full rounded-2xl overflow-hidden bg-white/5" style={{ aspectRatio: '4/5' }}>
