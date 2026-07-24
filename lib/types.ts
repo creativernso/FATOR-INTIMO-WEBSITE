@@ -282,3 +282,39 @@ export interface ChatSettings {
   quickReplies: string[];
   updatedAt?: string;
 }
+
+// ─── Popup ────────────────────────────────────────────────────────────────────
+
+export interface PopupConfig {
+  id: string; // always 'main'
+  enabled: boolean;
+
+  trigger: 'delay' | 'exit_intent' | 'scroll';
+  delaySeconds: number; // used for 'delay', and as the mobile fallback for 'exit_intent'
+  scrollPercent: number; // used for 'scroll'
+
+  frequency: 'session' | 'every_visit' | 'days';
+  frequencyDays: number; // used when frequency === 'days'
+
+  pageScope: 'all' | 'include' | 'exclude';
+  pagePaths: string[]; // path prefixes, used with 'include'/'exclude'
+
+  title: string;
+  subtitle: string;
+  body: string;
+  imageUrl?: string;
+  ctaText: string;
+
+  incentiveType: 'guide' | 'discount' | 'newsletter';
+  guideSlug?: string; // published guide to deliver, when incentiveType === 'guide'
+  discountCode?: string; // when incentiveType === 'discount'
+  discountText?: string; // e.g. "10% OFF na primeira compra"
+
+  collectName: boolean;
+  contactMethod: 'email' | 'whatsapp' | 'both';
+
+  successTitle: string;
+  successMessage: string;
+
+  updatedAt: string;
+}

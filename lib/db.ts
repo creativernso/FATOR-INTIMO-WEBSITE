@@ -1,7 +1,7 @@
 import { getAdminDb } from './firebase-admin';
 import type { Query } from 'firebase-admin/firestore';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
-import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification, MarqueePhrase, EmailCampaign, EmailAutomation, ChatSettings, ReviewSettings } from './types';
+import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification, MarqueePhrase, EmailCampaign, EmailAutomation, ChatSettings, ReviewSettings, PopupConfig } from './types';
 
 const db = () => getAdminDb();
 
@@ -517,3 +517,39 @@ export async function saveReviewSettings(settings: ReviewSettings): Promise<void
     updatedAt: new Date().toISOString(),
   });
 }
+
+// ─── Popup config (single doc with id='main') ─────────────────────────────────
+
+function defaultPopupConfig(): PopupConfig {
+  return {
+    id: 'main',
+    enabled: false,
+    trigger: 'delay',
+    delaySeconds: 15,
+    scrollPercent: 50,
+    frequency: 'session',
+    frequencyDays: 7,
+    pageScope: 'exclude',
+    pagePaths: ['/checkout', '/guia'],
+    title: 'Antes de você ir...',
+    subtitle: 'Receba gratuitamente',
+    body: 'Baixe nosso guia gratuito com os padrões psicológicos que sabotam relacionamentos.',
+    ctaText: 'Quero receber agora',
+    incentiveType: 'newsletter',
+    collectName: true,
+    contactMethod: 'email',
+    successTitle: 'Prontinho!',
+    successMessage: 'Confira seu e-mail em instantes.',
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+export async function getPopupConfig(): Promise<PopupConfig> {
+  const doc = await db().collection('popup_config').doc('main').get();
+  if (doc.exists) return { ...defaultPopupConfig(), ...(doc.data() as PopupConfig) };
+  return defaultPopupConfig();
+}
+
+export const savePopupConfig = async (config: PopupConfig): Promise<void> => {
+  await db().collection('popup_config').doc('main').set(config);
+};

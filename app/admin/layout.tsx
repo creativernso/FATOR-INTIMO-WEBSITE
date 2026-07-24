@@ -21,6 +21,7 @@ import {
   Sparkles,
   BarChart2,
   MessageCircle,
+  PictureInPicture2,
 } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -41,6 +42,7 @@ const navItems = [
   { href: '/admin/comunidade', label: 'Comunidade', icon: Heart },
   { href: '/admin/marquee', label: 'Marquee', icon: Sparkles },
   { href: '/admin/chat', label: 'Live Chat', icon: MessageCircle },
+  { href: '/admin/popup', label: 'Pop-up', icon: PictureInPicture2 },
 ];
 
 type BadgeSection = 'testimonials' | 'comunidade' | 'comments' | 'leads' | 'chat' | 'orders';

@@ -1,6 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import LiveChat from '@/components/LiveChat';
+import SitePopup from '@/components/SitePopup';
 import { PageViewTracker } from '@/components/PageViewTracker';
 import { MetaPixel } from '@/components/MetaPixel';
 
@@ -13,6 +14,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <main>{children}</main>
       <Footer />
       <LiveChat />
+      <SitePopup />
     </>
   );
 }
