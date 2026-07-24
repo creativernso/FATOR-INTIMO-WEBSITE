@@ -555,6 +555,74 @@ Fator Íntimo
 fatorintimo.com`;
 }
 
+// ── Abandoned cart recovery ────────────────────────────────────────────────────
+
+interface CartRecoveryData {
+  name?: string;
+  introMessage: string;
+  productTitle: string;
+  productPrice: number; // in cents (matches Stripe's amount_total)
+  originalPrice?: number;
+  coverImage?: string;
+  ctaUrl: string;
+  ctaLabel: string;
+}
+
+export function cartRecoveryHtml({ name, introMessage, productTitle, productPrice, originalPrice, coverImage, ctaUrl, ctaLabel }: CartRecoveryData): string {
+  const introHtml = introMessage.replace(/\n/g, '<br/>');
+  const price = (productPrice / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+  const discount = originalPrice && originalPrice * 100 > productPrice
+    ? `<span style="text-decoration:line-through;color:#666;font-size:13px;margin-right:8px;">R$ ${originalPrice}</span>`
+    : '';
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0a0705;font-family:Georgia,serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0705;padding:48px 16px;">
+    <tr><td align="center">
+      <table width="100%" style="max-width:560px;background:#1a1410;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;">
+        <tr><td style="height:1px;background:linear-gradient(to right,transparent,#fe0050,transparent);"></td></tr>
+        <tr><td align="center" style="padding:36px 40px 0;">
+          <p style="margin:0;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#fe0050;">FATOR ÍNTIMO</p>
+        </td></tr>
+        <tr><td style="padding:28px 40px 0;">
+          ${name ? `<p style="margin:0 0 14px;font-size:14px;color:#a09080;">Olá, ${name.split(' ')[0]},</p>` : ''}
+          <p style="margin:0;font-size:14px;color:#a09080;line-height:1.7;">${introHtml}</p>
+        </td></tr>
+        <tr><td style="padding:28px 40px 0;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;overflow:hidden;">
+            ${coverImage ? `<tr><td><img src="${coverImage}" alt="${productTitle}" style="width:100%;display:block;" /></td></tr>` : ''}
+            <tr><td style="padding:20px 24px;">
+              <p style="margin:0 0 8px;font-size:16px;color:#f5f0eb;font-weight:600;line-height:1.3;">${productTitle}</p>
+              <p style="margin:0;font-size:18px;color:#f5f0eb;">${discount}<strong>R$ ${price}</strong></p>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td align="center" style="padding:28px 40px 36px;">
+          <a href="${ctaUrl}" style="display:inline-block;background:#fe0050;color:#fff;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:13px;font-weight:600;letter-spacing:0.5px;">${ctaLabel} →</a>
+        </td></tr>
+        <tr><td style="padding:20px 40px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+          <p style="margin:0;font-size:12px;color:#605040;">Fator Íntimo · fatorintimo.com</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+export function cartRecoveryText({ name, introMessage, productTitle, productPrice, ctaUrl, ctaLabel }: CartRecoveryData): string {
+  const price = (productPrice / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+  return `${name ? `Olá, ${name.split(' ')[0]},\n\n` : ''}${introMessage}
+
+${productTitle} — R$ ${price}
+
+${ctaLabel}: ${ctaUrl}
+
+Fator Íntimo
+fatorintimo.com`;
+}
+
 // ── New product broadcast ─────────────────────────────────────────────────────
 
 interface NewProductData {

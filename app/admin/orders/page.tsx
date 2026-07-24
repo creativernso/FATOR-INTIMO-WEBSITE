@@ -402,8 +402,10 @@ export default function AdminOrders() {
                 </div>
 
                 <div>
-                  <label className="text-text-muted text-xs uppercase tracking-widest block mb-1.5">Mensagem</label>
-                  <p className="text-text-muted text-xs mb-1.5">Use {'{nome}'}, {'{produto}'} e {'{link}'}.</p>
+                  <label className="text-text-muted text-xs uppercase tracking-widest block mb-1.5">Mensagem de introdução</label>
+                  <p className="text-text-muted text-xs mb-1.5">
+                    Aparece acima do produto no e-mail. A imagem, o título, o preço e o botão são preenchidos automaticamente com os dados do produto abandonado. Use {'{nome}'}, {'{produto}'} e {'{link}'}.
+                  </p>
                   <textarea
                     rows={3}
                     value={cartSettings.body}

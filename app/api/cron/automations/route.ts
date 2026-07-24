@@ -11,7 +11,7 @@ import {
 } from '@/lib/db';
 import { getOrders, markOrderReviewRequestSent, getAbandonedCheckouts, markAbandonedCheckoutRecoveryEmailSent } from '@/lib/orders';
 import { resend, FROM_EMAIL } from '@/lib/resend';
-import { campaignHtml, campaignText } from '@/lib/email-template';
+import { campaignHtml, campaignText, cartRecoveryHtml, cartRecoveryText } from '@/lib/email-template';
 
 // Vercel cron, runs daily at 09:00 UTC
 // Configure in vercel.json: { "crons": [{ "path": "/api/cron/automations", "schedule": "0 9 * * *" }] }
@@ -200,7 +200,7 @@ export async function GET(req: NextRequest) {
   try {
     const cartSettings = await getCartRecoverySettings();
     if (cartSettings.enabled) {
-      const [checkouts, orders] = await Promise.all([getAbandonedCheckouts(), getOrders()]);
+      const [checkouts, orders, cartProducts] = await Promise.all([getAbandonedCheckouts(), getOrders(), getProducts()]);
       const cutoffMs = Date.now() - cartSettings.delayHours * 3600000;
       const BASE = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
 
@@ -218,26 +218,32 @@ export async function GET(req: NextRequest) {
         );
         if (alreadyRecovered) continue;
 
+        const product = cartProducts.find((p) => p.id === checkout.productId);
         const ctaUrl = checkout.productSlug ? `${BASE}/products/${checkout.productSlug}` : BASE;
         const vars = {
           nome: checkout.customerName?.split(' ')[0] || '',
           produto: checkout.productTitle || 'seu produto',
           link: ctaUrl,
         };
-        const email = buildCtaEmail({
-          subject: cartSettings.subject,
-          body: cartSettings.body,
-          ctaLabel: cartSettings.ctaLabel,
+        const subject = fillTemplate(cartSettings.subject, vars);
+        const introMessage = fillTemplate(cartSettings.body, vars);
+        const emailData = {
+          name: checkout.customerName,
+          introMessage,
+          productTitle: checkout.productTitle || 'seu produto',
+          productPrice: checkout.amountTotal,
+          originalPrice: product?.originalPrice,
+          coverImage: product?.coverImage,
           ctaUrl,
-          vars,
-        });
+          ctaLabel: cartSettings.ctaLabel,
+        };
         try {
           await resend.emails.send({
             from: FROM_EMAIL,
             to: checkout.customerEmail,
-            subject: email.subject,
-            html: email.html,
-            text: email.text,
+            subject,
+            html: cartRecoveryHtml(emailData),
+            text: cartRecoveryText(emailData),
           });
           await markAbandonedCheckoutRecoveryEmailSent(checkout.id);
           cartRecoveryEmailsSent++;
