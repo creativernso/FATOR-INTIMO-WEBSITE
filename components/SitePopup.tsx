@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { X, ArrowRight, CheckCircle, Copy, Check } from 'lucide-react';
 import { trackLead } from '@/lib/fbq';
 import { getStoredUtm } from '@/lib/utm';
+import { getOrCreateVisitorId } from '@/lib/visitor-id';
 import { PopupConfig } from '@/lib/types';
 
 const SESSION_KEY = 'fi_popup_shown_session';
@@ -113,6 +114,7 @@ export default function SitePopup() {
       const payload = {
         name: name.trim(),
         [method]: contact.trim(),
+        visitorId: getOrCreateVisitorId(),
         ...getStoredUtm(),
       };
 

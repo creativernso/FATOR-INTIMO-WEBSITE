@@ -185,11 +185,13 @@ export async function POST(req: NextRequest) {
     }
   } else if (event.type === 'checkout.session.expired') {
     const session = event.data.object;
-    // Only worth recording if the shopper got far enough to type an email —
-    // otherwise there's no one to send a recovery message to.
-    const email = session.customer_details?.email ?? '';
+    // Only worth recording if we have an email to recover them with — either
+    // they typed one on Stripe's page, or we already knew them (pre-filled
+    // via customer_email at session creation) and they never even got there.
+    const email = session.customer_details?.email || session.customer_email || '';
     if (email) {
-      const { productId, utmSource, utmMedium, utmCampaign, utmContent } = session.metadata ?? {};
+      const { productId, utmSource, utmMedium, utmCampaign, utmContent, leadName } = session.metadata ?? {};
+      const name = session.customer_details?.name || leadName || '';
       try {
         const allProducts = await getProducts();
         const product = productId ? allProducts.find((p) => p.id === productId) : null;
@@ -200,7 +202,7 @@ export async function POST(req: NextRequest) {
           productTitle: product?.title ?? '',
           productSlug: product?.slug ?? '',
           customerEmail: email,
-          customerName: session.customer_details?.name ?? '',
+          customerName: name,
           amountTotal: session.amount_total ?? 0,
           currency: session.currency ?? 'brl',
           createdAt: new Date().toISOString(),
@@ -213,8 +215,8 @@ export async function POST(req: NextRequest) {
         await createNotification(
           'checkout_abandoned',
           'Carrinho abandonado',
-          `${session.customer_details?.name || email} não concluiu a compra de "${product?.title ?? 'produto'}" (${amount}).`,
-          { name: session.customer_details?.name ?? '', email, productTitle: product?.title ?? '', amount },
+          `${name || email} não concluiu a compra de "${product?.title ?? 'produto'}" (${amount}).`,
+          { name, email, productTitle: product?.title ?? '', amount },
         );
       } catch (err) {
         console.error('[webhook] failed to save abandoned checkout:', err);

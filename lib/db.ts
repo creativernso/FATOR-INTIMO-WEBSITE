@@ -82,6 +82,17 @@ export async function getLeadByEmail(email: string): Promise<Lead | null> {
   return null;
 }
 
+/** Finds the most recent lead with an email for this anonymous browser id. */
+export async function getLeadByVisitorId(visitorId: string): Promise<Lead | null> {
+  if (!visitorId) return null;
+  const snap = await db().collection('leads').where('visitorId', '==', visitorId).get();
+  if (snap.empty) return null;
+  const leads = snap.docs.map((d) => d.data() as Lead).filter((l) => !!l.email);
+  if (leads.length === 0) return null;
+  leads.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  return leads[0];
+}
+
 export async function markLeadReviewRequestSent(leadId: string): Promise<void> {
   await db().collection('leads').doc(leadId).update({
     reviewRequestSentAt: new Date().toISOString(),

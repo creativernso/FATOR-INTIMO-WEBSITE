@@ -87,6 +87,8 @@ export interface Lead {
   utmMedium?: string;
   utmCampaign?: string;
   utmContent?: string;
+  visitorId?: string; // links this lead to the anonymous browser id (fi_visitor_id), so a
+                       // later checkout from the same browser can be pre-filled with this email
 }
 
 // Review automation + UX settings, stored at reviewSettings/default

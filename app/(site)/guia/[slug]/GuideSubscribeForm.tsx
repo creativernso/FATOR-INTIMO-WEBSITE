@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowRight, Download, Users, Check } from 'lucide-react';
 import { trackLead } from '@/lib/fbq';
 import { getStoredUtm } from '@/lib/utm';
+import { getOrCreateVisitorId } from '@/lib/visitor-id';
 
 interface Props {
   slug: string;
@@ -48,6 +49,7 @@ export default function GuideSubscribeForm({
           name: name.trim(),
           email: email.trim() || undefined,
           whatsapp: whatsapp.trim() || undefined,
+          visitorId: getOrCreateVisitorId(),
           ...getStoredUtm(),
         }),
       });

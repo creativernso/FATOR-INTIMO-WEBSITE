@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
-import { getProducts, markCheckoutStarted } from '@/lib/db';
+import { getProducts, markCheckoutStarted, getLeadByVisitorId } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
   if (!stripe) {
@@ -15,8 +15,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Produto não encontrado.' }, { status: 404 });
   }
 
+  // If this browser already gave us an email (popup, free guide, community...)
+  // pre-fill it on the Checkout Session. This means Stripe has an email to
+  // report back even if the shopper closes the tab before typing anything,
+  // which is otherwise the main gap in abandoned-checkout recovery.
+  let knownEmail: string | undefined;
+  let knownName: string | undefined;
   if (typeof visitorId === 'string' && visitorId) {
     markCheckoutStarted(visitorId).catch(() => {});
+    try {
+      const lead = await getLeadByVisitorId(visitorId);
+      if (lead?.email) knownEmail = lead.email;
+      if (lead?.name) knownName = lead.name;
+    } catch (err) {
+      console.error('[checkout] lead lookup failed:', err);
+    }
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
@@ -45,9 +58,11 @@ export async function POST(req: NextRequest) {
       // Payment methods — Stripe will reject the session at create-time if
       // a listed method is disabled for this account / currency.
       payment_method_types: ['card', 'pix'],
+      ...(knownEmail ? { customer_email: knownEmail } : {}),
       metadata: {
         productId: product.id,
         productSlug: product.slug,
+        ...(knownName ? { leadName: knownName } : {}),
         ...(typeof utmSource === 'string' && utmSource ? { utmSource } : {}),
         ...(typeof utmMedium === 'string' && utmMedium ? { utmMedium } : {}),
         ...(typeof utmCampaign === 'string' && utmCampaign ? { utmCampaign } : {}),

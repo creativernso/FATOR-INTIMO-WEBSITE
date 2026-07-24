@@ -13,7 +13,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
   const guide = await getGuideBySlug(slug);
   if (!guide?.published) return NextResponse.json({ error: 'Guia não encontrado.' }, { status: 404 });
 
-  const { name, email, whatsapp, utmSource, utmMedium, utmCampaign, utmContent } = await req.json();
+  const { name, email, whatsapp, utmSource, utmMedium, utmCampaign, utmContent, visitorId } = await req.json();
   if (!name?.trim()) return NextResponse.json({ error: 'Nome obrigatório.' }, { status: 400 });
   if (!email?.trim() && !whatsapp?.trim())
     return NextResponse.json({ error: 'E-mail ou WhatsApp obrigatório.' }, { status: 400 });
@@ -33,6 +33,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
     utmMedium: utmMedium || undefined,
     utmCampaign: utmCampaign || undefined,
     utmContent: utmContent || undefined,
+    visitorId: visitorId || undefined,
   };
 
   await upsertLead(lead);

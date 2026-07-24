@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
     utmMedium: body.utmMedium || undefined,
     utmCampaign: body.utmCampaign || undefined,
     utmContent: body.utmContent || undefined,
+    visitorId: body.visitorId || undefined,
   };
   await upsertLead(newLead);
   await createNotification(
