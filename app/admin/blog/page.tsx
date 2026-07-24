@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Post } from '@/lib/types';
-import { Pencil, Trash2, Plus, X, Check, Star, Clock, FileText, CalendarClock } from 'lucide-react';
+import { Pencil, Trash2, Plus, X, Check, Star, Clock, FileText, CalendarClock, List, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
 
 // <input type="datetime-local"> needs "YYYY-MM-DDTHH:mm" in the viewer's
@@ -37,6 +37,16 @@ const categoryColors: Record<string, string> = {
   Geral: '#6b7280',
 };
 
+const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+function sameDay(a: Date, b: Date): boolean {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+
+function startOfMonth(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+
 export default function AdminBlog() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,6 +54,8 @@ export default function AdminBlog() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [view, setView] = useState<'list' | 'calendar'>('list');
+  const [calendarMonth, setCalendarMonth] = useState(() => startOfMonth(new Date()));
 
   const fetchPosts = async () => {
     const res = await fetch('/api/posts');
@@ -56,6 +68,13 @@ export default function AdminBlog() {
   useEffect(() => { fetchPosts(); }, []);
 
   const openNew = () => { setForm({ ...emptyForm }); setEditingId(null); setShowForm(true); };
+  const openNewOnDate = (date: Date) => {
+    const d = new Date(date);
+    d.setHours(9, 0, 0, 0);
+    setForm({ ...emptyForm, publishedAt: toDatetimeLocal(d.toISOString()) });
+    setEditingId(null);
+    setShowForm(true);
+  };
   const openEdit = (post: Post) => {
     setForm({ title: post.title, slug: post.slug, excerpt: post.excerpt, content: post.content, category: post.category, coverImage: post.coverImage, publishedAt: toDatetimeLocal(post.publishedAt), readTime: post.readTime, featured: post.featured });
     setEditingId(post.id);
@@ -84,6 +103,21 @@ export default function AdminBlog() {
 
   const fs = (min: string, mid: string, max: string) => `clamp(${min}, ${mid}, ${max})`;
 
+  const calendarCells = useMemo(() => {
+    const first = startOfMonth(calendarMonth);
+    const daysInMonth = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+    const leadingBlanks = first.getDay();
+    const totalCells = Math.ceil((leadingBlanks + daysInMonth) / 7) * 7;
+
+    return Array.from({ length: totalCells }, (_, i) => {
+      const dayNum = i - leadingBlanks + 1;
+      const date = new Date(first.getFullYear(), first.getMonth(), dayNum);
+      const inMonth = dayNum >= 1 && dayNum <= daysInMonth;
+      const dayPosts = posts.filter((p) => sameDay(new Date(p.publishedAt), date));
+      return { date, inMonth, posts: dayPosts };
+    });
+  }, [calendarMonth, posts]);
+
   return (
     <div className="space-y-6 lg:space-y-8">
       <div className="flex items-end justify-between">
@@ -98,15 +132,33 @@ export default function AdminBlog() {
             {posts.length} {posts.length === 1 ? 'artigo publicado' : 'artigos publicados'}
           </p>
         </div>
-        <button
-          onClick={openNew}
-          className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-4 lg:px-5 py-2.5 rounded-xl transition-all hover:shadow-lg hover:shadow-accent/20"
-          style={{ fontSize: fs('0.78rem', '0.9vw', '0.875rem') }}
-        >
-          <Plus size={14} /> Novo artigo
-        </button>
+        <div className="flex items-center gap-2">
+          <div className="flex rounded-xl border border-white/8 overflow-hidden">
+            {([
+              { id: 'list', label: 'Lista', icon: List },
+              { id: 'calendar', label: 'Calendário', icon: CalendarDays },
+            ] as const).map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setView(t.id)}
+                className={`flex items-center gap-1.5 px-3.5 py-2.5 transition-all ${view === t.id ? 'bg-accent text-white' : 'text-text-muted hover:bg-white/5'}`}
+                style={{ fontSize: fs('0.78rem', '0.9vw', '0.875rem') }}
+              >
+                <t.icon size={14} /> <span className="hidden sm:inline">{t.label}</span>
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={openNew}
+            className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-4 lg:px-5 py-2.5 rounded-xl transition-all hover:shadow-lg hover:shadow-accent/20"
+            style={{ fontSize: fs('0.78rem', '0.9vw', '0.875rem') }}
+          >
+            <Plus size={14} /> Novo artigo
+          </button>
+        </div>
       </div>
 
+      {view === 'list' && (
       <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
         {loading ? (
           <div className="p-16 text-center text-text-muted" style={{ fontSize: fs('0.8rem', '0.9vw', '0.875rem') }}>
@@ -199,6 +251,86 @@ export default function AdminBlog() {
           </table>
         )}
       </div>
+      )}
+
+      {view === 'calendar' && (
+        <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
+          <div className="flex items-center justify-between px-5 lg:px-6 py-4 border-b border-white/[0.04]">
+            <h3 className="text-text-primary font-medium capitalize" style={{ fontSize: fs('0.9rem', '1vw', '0.95rem') }}>
+              {calendarMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+            </h3>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setCalendarMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1))}
+                className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/6 transition-all"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button
+                onClick={() => setCalendarMonth(startOfMonth(new Date()))}
+                className="px-3 py-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/6 transition-all"
+                style={{ fontSize: fs('0.72rem', '0.8vw', '0.75rem') }}
+              >
+                Hoje
+              </button>
+              <button
+                onClick={() => setCalendarMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1))}
+                className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/6 transition-all"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-7 border-b border-white/[0.04]">
+            {WEEKDAYS.map((d) => (
+              <div key={d} className="text-center py-2.5 text-text-muted font-medium tracking-widest uppercase" style={{ fontSize: fs('0.6rem', '0.68vw', '0.65rem') }}>
+                {d}
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-7">
+            {calendarCells.map((cell, i) => {
+              const isToday = sameDay(cell.date, new Date());
+              return (
+                <div
+                  key={i}
+                  onClick={() => cell.inMonth && openNewOnDate(cell.date)}
+                  className={`min-h-24 sm:min-h-28 p-1.5 sm:p-2 border-b border-r border-white/[0.04] ${(i + 1) % 7 === 0 ? 'border-r-0' : ''} ${cell.inMonth ? 'cursor-pointer hover:bg-white/2' : 'opacity-30'} transition-colors`}
+                >
+                  <p className={`mb-1 ${isToday ? 'inline-flex items-center justify-center w-5 h-5 rounded-full bg-accent text-white' : 'text-text-muted'}`} style={{ fontSize: fs('0.68rem', '0.76vw', '0.72rem') }}>
+                    {cell.date.getDate()}
+                  </p>
+                  <div className="space-y-1">
+                    {cell.posts.slice(0, 3).map((post) => {
+                      const color = categoryColors[post.category] || '#6b7280';
+                      const scheduled = new Date(post.publishedAt).getTime() > Date.now();
+                      return (
+                        <button
+                          key={post.id}
+                          onClick={(e) => { e.stopPropagation(); openEdit(post); }}
+                          className="w-full text-left px-1.5 py-1 rounded-md truncate flex items-center gap-1"
+                          style={{ fontSize: fs('0.6rem', '0.68vw', '0.65rem'), color, background: `${color}14` }}
+                          title={post.title}
+                        >
+                          {scheduled && <CalendarClock size={9} className="flex-shrink-0" />}
+                          <span className="truncate">{post.title}</span>
+                        </button>
+                      );
+                    })}
+                    {cell.posts.length > 3 && (
+                      <p className="text-text-muted px-1.5" style={{ fontSize: fs('0.58rem', '0.65vw', '0.62rem') }}>
+                        +{cell.posts.length - 3} mais
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Modal */}
       {showForm && (
