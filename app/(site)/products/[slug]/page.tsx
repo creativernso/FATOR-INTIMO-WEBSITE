@@ -144,7 +144,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       )}
       <ProductEvents productId={product.id} productTitle={product.title} value={product.price} />
       {/* Back */}
-      <div className="pt-28 pb-0 px-6 max-w-6xl mx-auto">
+      <div className="pt-20 pb-0 px-6 max-w-6xl mx-auto">
         <Link href="/products" className="inline-flex items-center gap-2 text-text-muted hover:text-text-primary text-sm transition-colors">
           <ArrowLeft size={14} /> Todos os produtos
         </Link>
