@@ -151,7 +151,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       </div>
 
       {/* ── HERO ── */}
-      <section className="py-12 px-6">
+      <section className="pt-4 pb-12 px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
           {/* Cover */}
