@@ -122,6 +122,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={LANG_ATTR[locale]} suppressHydrationWarning>
       <head>
+        {/* Google requires this script to be the first item in <head>. Using
+            beforeInteractive (not afterInteractive) is what makes Next.js
+            actually inject it server-side into <head> instead of appending
+            it to the end of <body> after hydration. */}
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4821949064173943"
+          crossOrigin="anonymous"
+          strategy="beforeInteractive"
+        />
         <meta name="google-adsense-account" content="ca-pub-4821949064173943" />
         {/* Preconnect to font hosts so the first request doesn't wait on DNS */}
         {/* AdSense preconnect */}
@@ -151,13 +161,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {children}
           </LocaleProvider>
         </ThemeProvider>
-        {/* Google AdSense auto-ads */}
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4821949064173943"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
       </body>
     </html>
   );

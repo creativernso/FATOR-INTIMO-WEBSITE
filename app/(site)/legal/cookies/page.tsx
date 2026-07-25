@@ -71,10 +71,21 @@ const sections = [
           ferramentas como Google Analytics e instrumentação interna para entender quais conteúdos têm
           maior impacto e onde melhorar.
         </P>
-        <H3>Marketing</H3>
+        <H3>Marketing e publicidade</H3>
         <P>
           Permitem medir a eficácia de campanhas e mostrar conteúdo relevante em outras plataformas.
-          Quando aplicável, utilizamos Meta Pixel e identificadores publicitários, sempre respeitando
+          Utilizamos o <Strong>Google AdSense</Strong> para exibir anúncios no site. O Google e seus
+          parceiros publicitários usam cookies para veicular anúncios com base em visitas anteriores dos
+          usuários a este e a outros sites. Você pode desativar a publicidade personalizada visitando as{' '}
+          <a
+            href="https://adssettings.google.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-accent hover:underline"
+          >
+            Configurações de anúncios do Google
+          </a>
+          . Também utilizamos Meta Pixel e outros identificadores publicitários, sempre respeitando
           consentimento e preferências.
         </P>
       </>
@@ -90,6 +101,7 @@ const sections = [
         </P>
         <UL>
           <LI><Strong>Stripe</Strong>, segurança e antifraude em pagamentos.</LI>
+          <LI><Strong>Google AdSense</Strong>, exibição de anúncios personalizados com base em visitas anteriores.</LI>
           <LI><Strong>Google Analytics</Strong>, análise agregada de uso.</LI>
           <LI><Strong>Meta Pixel (Facebook/Instagram)</Strong>, métricas de campanhas.</LI>
           <LI><Strong>YouTube/Vimeo</Strong>, quando vídeos são embutidos no site.</LI>
