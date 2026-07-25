@@ -40,7 +40,7 @@ export default async function ProductsPage() {
   return (
     <>
       {/* Hero */}
-      <section className="pt-36 pb-20 px-6 text-center relative overflow-hidden">
+      <section className="pt-20 md:pt-36 pb-20 px-6 text-center relative overflow-hidden">
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] pointer-events-none"
           style={{ background: 'radial-gradient(ellipse at top, rgba(254,0,80,0.07) 0%, transparent 65%)' }}
