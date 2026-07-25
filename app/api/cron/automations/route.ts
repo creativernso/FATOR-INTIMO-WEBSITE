@@ -16,7 +16,7 @@ import { campaignHtml, campaignText, cartRecoveryHtml, cartRecoveryText } from '
 // Vercel cron, runs daily at 09:00 UTC
 // Configure in vercel.json: { "crons": [{ "path": "/api/cron/automations", "schedule": "0 9 * * *" }] }
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
 
 function fillTemplate(template: string, vars: Record<string, string>): string {
   return template.replace(/\{(\w+)\}/g, (_, key) => vars[key] ?? '');
