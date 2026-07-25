@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Clock } from 'lucide-react';
+import { ArrowRight, Clock, Search } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import BlogCard from '@/components/BlogCard';
 import { getPosts } from '@/lib/db';
@@ -17,17 +17,40 @@ export const metadata: Metadata = buildPageMetadata({
 
 export const dynamic = 'force-dynamic';
 
-export default async function BlogPage() {
+export default async function BlogPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const locale = await getLocale();
   const t = createT(locale);
+  const { q } = await searchParams;
+  const query = q?.trim() || '';
 
   const posts = await getPosts(true);
   const sorted = [...posts].sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   );
+
+  const searchResults = query
+    ? sorted.filter((p) => {
+        const haystack = `${p.title} ${p.excerpt} ${p.category} ${p.content}`.toLowerCase();
+        return haystack.includes(query.toLowerCase());
+      })
+    : null;
+
   const latest = sorted[0] ?? null;
   const featured = posts.filter((p) => p.featured && p.id !== latest?.id);
   const rest = posts.filter((p) => !p.featured && p.id !== latest?.id);
+
+  const searchBox = (
+    <form action="/blog" method="GET" className="max-w-md mx-auto mt-8 relative">
+      <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+      <input
+        type="text"
+        name="q"
+        defaultValue={query}
+        placeholder="Buscar artigos..."
+        className="w-full bg-white/5 border border-white/10 rounded-full py-3 pl-11 pr-4 text-sm text-text-primary placeholder:text-text-muted outline-none focus:border-accent/40 transition-colors"
+      />
+    </form>
+  );
 
   return (
     <>
@@ -42,6 +65,7 @@ export default async function BlogPage() {
             <p className="text-text-secondary text-base leading-relaxed max-w-xl mx-auto">
               {t('blog.desc')}
             </p>
+            {searchBox}
           </AnimateOnScroll>
         </div>
       </section>
@@ -49,7 +73,26 @@ export default async function BlogPage() {
       {/* Content */}
       <section className="py-10 px-6 pb-28">
         <div className="max-w-5xl mx-auto">
-          {posts.length === 0 ? (
+          {searchResults ? (
+            <>
+              <AnimateOnScroll>
+                <h2 className="font-heading text-2xl font-light text-text-primary mb-6">
+                  {searchResults.length > 0
+                    ? `${searchResults.length} resultado${searchResults.length === 1 ? '' : 's'} para "${query}"`
+                    : `Nenhum resultado para "${query}"`}
+                </h2>
+              </AnimateOnScroll>
+              {searchResults.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                  {searchResults.map((post, i) => (
+                    <AnimateOnScroll key={post.id} delay={i * 50}>
+                      <BlogCard post={post} />
+                    </AnimateOnScroll>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : posts.length === 0 ? (
             <p className="text-center text-text-muted py-20">{t('blog.empty')}</p>
           ) : (
             <>

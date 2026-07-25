@@ -97,6 +97,8 @@ const ORGANIZATION_JSONLD = {
   sameAs: [
     'https://www.instagram.com/fatorintimo/',
     'https://www.youtube.com/@fatorintimo',
+    'https://www.facebook.com/profile.php?id=61584890526784',
+    'https://www.tiktok.com/@fatorintimo',
   ],
 };
 
