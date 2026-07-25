@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest) {
     try {
       const author = await getCommunityUser(post.authorUid);
       if (author?.email) {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
         const postUrl = `${baseUrl}/comunidade/${id}`;
         await resend.emails.send({
           from: FROM_EMAIL,

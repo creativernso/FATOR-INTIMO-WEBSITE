@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
       // Meta will deduplicate. This catches every paid order even if the
       // user's browser has an ad-blocker or never reaches /checkout/success.
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
         await sendMetaEvent({
           eventName: 'Purchase',
           eventId: `purchase-${session.id}`,
@@ -161,7 +161,7 @@ export async function POST(req: NextRequest) {
 
     // Send confirmation email (transactional — Primary inbox optimized)
     if (resend && email && product) {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
       const secureDownloadUrl = `${baseUrl}/api/download?session_id=${session.id}&redirect=1`;
 
       await sendTransactional({

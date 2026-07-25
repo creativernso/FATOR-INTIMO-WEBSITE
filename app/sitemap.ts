@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { getPosts, getProducts, getGuides, getCommunityPosts } from '@/lib/db';
 
-const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
 
 // Force this route to be dynamic so it always reflects the latest content.
 export const dynamic = 'force-dynamic';

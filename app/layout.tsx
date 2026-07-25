@@ -5,7 +5,7 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { LocaleProvider } from '@/components/LocaleProvider';
 import { getLocale } from '@/lib/i18n';
 
-const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
 
 const DEFAULT_TITLE = 'Fator Íntimo: Psicologia das Relações';
 const DEFAULT_DESCRIPTION =

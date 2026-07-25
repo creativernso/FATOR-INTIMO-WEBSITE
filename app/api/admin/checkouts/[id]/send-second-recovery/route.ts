@@ -21,7 +21,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
 
   const [settings, products] = await Promise.all([getCartRecoverySettings(), getProducts()]);
   const product = products.find((p) => p.id === checkout.productId);
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
   const ctaUrl = checkout.productSlug ? `${baseUrl}/products/${checkout.productSlug}` : baseUrl;
   const vars = { nome: checkout.customerName?.split(' ')[0] || '', produto: checkout.productTitle || 'seu produto', link: ctaUrl };
 

@@ -22,7 +22,7 @@ export async function POST(
     return NextResponse.json({ error: 'Email not configured' }, { status: 503 });
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
   const downloadUrl = `${baseUrl}/api/download?session_id=${order.sessionId}&redirect=1`;
 
   await resend.emails.send({

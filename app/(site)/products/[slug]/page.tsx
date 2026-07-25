@@ -15,7 +15,7 @@ import ReviewSection from '@/components/ReviewSection';
 
 export const dynamic = 'force-dynamic';
 
-const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

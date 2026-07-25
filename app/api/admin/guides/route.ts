@@ -9,7 +9,7 @@ import { v4 as uuid } from 'uuid';
 function triggerGuideBroadcast(guide: Guide, optIn: boolean) {
   if (!optIn) return;
   if (!guide.published) return;
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
   broadcastGuide({
     title: guide.title,
     description: guide.description || guide.subtitle || '',

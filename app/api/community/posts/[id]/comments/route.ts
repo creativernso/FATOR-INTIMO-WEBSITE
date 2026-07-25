@@ -59,7 +59,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     try {
       const postAuthor = await getCommunityUser(post.authorUid);
       if (postAuthor?.email) {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
         const postUrl = `${baseUrl}/comunidade/${postId}`;
         await resend.emails.send({
           from: FROM_EMAIL,

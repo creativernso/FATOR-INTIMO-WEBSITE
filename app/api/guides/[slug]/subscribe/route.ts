@@ -47,7 +47,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
   let downloadUrl: string | undefined;
 
   if (resend && lead.email) {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
     if (guide.pdfPath) {
       downloadUrl = `${baseUrl}/api/guides/${slug}/download`;
     }

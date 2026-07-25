@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
 
 export default function robots(): MetadataRoute.Robots {
   return {

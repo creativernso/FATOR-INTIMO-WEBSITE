@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
   const isDue = new Date(newPost.publishedAt).getTime() <= Date.now();
 
   if (isDue) {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
     const articleUrl = `${baseUrl}/blog/${newPost.slug}`;
 
     // Admin dashboard notification

@@ -72,7 +72,7 @@ export function alertNewLead(name: string, email?: string, source?: string) {
     title: 'Novo lead captado',
     body: `${name} acabou de entrar na sua lista.`,
     ctaLabel: 'Ver leads',
-    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/leads`,
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com'}/admin/leads`,
     meta: { Nome: name, Email: email || '-', Fonte: source || '-' },
   });
 }
@@ -83,7 +83,7 @@ export function alertGuideDownload(name: string, guideTitle: string, email?: str
     title: 'Novo download de guia',
     body: `${name} baixou "${guideTitle}".`,
     ctaLabel: 'Ver leads',
-    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/leads`,
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com'}/admin/leads`,
     meta: { Nome: name, Email: email || '-', Guia: guideTitle },
   });
 }
@@ -100,7 +100,7 @@ export function alertNewReview(
     title: verifiedPurchase ? 'Nova avaliação verificada' : 'Nova avaliação aguardando aprovação',
     body: `${name} avaliou "${target}" com ${rating} estrelas.`,
     ctaLabel: 'Revisar avaliação',
-    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/testimonials`,
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com'}/admin/testimonials`,
     meta: {
       Autor: name,
       Item: target,
@@ -116,7 +116,7 @@ export function alertNewCommunityMember(name: string, email?: string) {
     title: 'Novo membro na Comunidade',
     body: `${name} acabou de entrar na Comunidade Íntima.`,
     ctaLabel: 'Ver membros',
-    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/comunidade`,
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com'}/admin/comunidade`,
     meta: { Nome: name, Email: email || '-' },
   });
 }
@@ -127,7 +127,7 @@ export function alertNewTestimonial(name: string) {
     title: 'Novo depoimento recebido',
     body: `${name} enviou um depoimento. Acesse o painel para aprovar.`,
     ctaLabel: 'Revisar depoimento',
-    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/testimonials`,
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com'}/admin/testimonials`,
     meta: { Nome: name },
   });
 }
@@ -138,7 +138,7 @@ export function alertNewCommunityPost(title: string, author: string) {
     title: 'Nova publicação na comunidade',
     body: `"${title}" por ${author} aguarda moderação.`,
     ctaLabel: 'Moderar publicação',
-    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/comunidade`,
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com'}/admin/comunidade`,
     meta: { Título: title, Autor: author },
   });
 }
@@ -149,7 +149,7 @@ export function alertNewOrder(productTitle: string, amount: number, customerEmai
     title: 'Nova venda realizada! 🎉',
     body: `${productTitle} foi comprado.`,
     ctaLabel: 'Ver pedido',
-    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/orders`,
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com'}/admin/orders`,
     meta: { Produto: productTitle, Valor: `R$ ${(amount / 100).toFixed(2)}`, Email: customerEmail },
   });
 }
@@ -160,7 +160,7 @@ export function alertNewComment(postTitle: string, author: string) {
     title: 'Novo comentário recebido',
     body: `${author} comentou em "${postTitle}".`,
     ctaLabel: 'Revisar comentários',
-    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/comments`,
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com'}/admin/comments`,
     meta: { Artigo: postTitle, Autor: author },
   });
 }
@@ -171,7 +171,7 @@ export function alertNewCommunityComment(postTitle: string, author: string) {
     title: 'Novo comentário na comunidade',
     body: `${author} comentou em "${postTitle}".`,
     ctaLabel: 'Ver discussão',
-    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/comunidade`,
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com'}/admin/comunidade`,
     meta: { Publicação: postTitle, Autor: author },
   });
 }
@@ -182,7 +182,7 @@ export function alertCommunityReport(reason: string, reporter: string, target: s
     title: 'Conteúdo denunciado pela comunidade',
     body: `Motivo: "${reason}". Conteúdo aguarda moderação.`,
     ctaLabel: 'Moderar agora',
-    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/comunidade`,
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com'}/admin/comunidade`,
     meta: { Denunciante: reporter, Alvo: target, Motivo: reason },
   });
 }
@@ -204,7 +204,7 @@ export function alertNewChatMessage(visitorId: string, firstLineOfMessage: strin
     title: 'Visitante iniciou uma conversa',
     body: `"${firstLineOfMessage.slice(0, 140)}"`,
     ctaLabel: 'Responder agora',
-    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com'}/admin/chat`,
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com'}/admin/chat`,
     meta: { Visitante: visitorId.slice(0, 24), Mensagem: firstLineOfMessage.slice(0, 100) },
   });
 }

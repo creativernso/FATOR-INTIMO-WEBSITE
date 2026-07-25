@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
   // Broadcast to all email leads unless the admin opted out
   if (body.broadcast !== false) {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
     broadcastProduct({
       title: newProduct.title,
       hook: newProduct.hook,

@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
   if (resend && newLead.email) {
     try {
       const config = await getGuideConfig();
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatorintimo.com';
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
       const downloadUrl = config.guideFilePath
         ? `${baseUrl}/api/guide-download`
         : undefined;
