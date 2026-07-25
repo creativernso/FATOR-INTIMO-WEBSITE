@@ -1,16 +1,21 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { FB_PIXEL_ID, fbq } from '@/lib/fbq';
+import { onConsentChange } from '@/lib/cookie-consent';
 
 // Loads the Meta Pixel base code once and fires PageView automatically on
 // every client-side navigation. Renders nothing visible.
 export function MetaPixel() {
   const pathname = usePathname();
+  const [marketingConsent, setMarketingConsent] = useState(false);
 
-  // Inject base script once
+  useEffect(() => onConsentChange((d) => setMarketingConsent(d.marketing)), []);
+
+  // Inject base script once, only after the visitor consents to marketing cookies
   useEffect(() => {
+    if (!marketingConsent) return;
     if (!FB_PIXEL_ID) return;
     if (typeof window === 'undefined') return;
     if (window.fbq) return;
@@ -39,15 +44,15 @@ export function MetaPixel() {
 
     fbq('init', FB_PIXEL_ID);
     fbq('track', 'PageView');
-  }, []);
+  }, [marketingConsent]);
 
   // Fire PageView on every route change
   useEffect(() => {
-    if (!FB_PIXEL_ID || typeof window === 'undefined') return;
+    if (!marketingConsent || !FB_PIXEL_ID || typeof window === 'undefined') return;
     fbq('track', 'PageView');
-  }, [pathname]);
+  }, [pathname, marketingConsent]);
 
-  if (!FB_PIXEL_ID) return null;
+  if (!FB_PIXEL_ID || !marketingConsent) return null;
 
   return (
     <noscript>
