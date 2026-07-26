@@ -108,15 +108,15 @@ export default function VideoTestimonialCard({ url, name, headline, role }: Prop
             </div>
           </button>
 
-          <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none">
-            <p className="text-white text-sm font-medium leading-snug">{name}</p>
-            {role && <p className="text-white/60 text-xs">{role}</p>}
+          <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none transition-transform duration-300 ease-out group-hover:-translate-y-2">
+            <p className="text-white text-sm font-medium leading-snug drop-shadow-sm">{name}</p>
+            {role && <p className="text-white/60 text-xs drop-shadow-sm">{role}</p>}
             {headline && (
-              <p className="text-white/80 text-xs italic mt-1 line-clamp-2">&ldquo;{headline}&rdquo;</p>
+              <p className="text-white/80 text-xs italic mt-1 line-clamp-2 drop-shadow-sm">&ldquo;{headline}&rdquo;</p>
             )}
             <div className="flex items-center gap-0.5 mt-1.5">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} size={10} className="text-accent fill-accent" />
+                <Star key={i} size={10} className="text-accent fill-accent drop-shadow-sm" />
               ))}
             </div>
           </div>
