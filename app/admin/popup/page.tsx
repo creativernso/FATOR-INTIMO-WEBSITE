@@ -276,9 +276,6 @@ export default function AdminPopupPage() {
 
       {/* Content */}
       <Section title="Conteúdo">
-        <Field label="Tag (acima do título)">
-          <input value={config.subtitle} onChange={(e) => setConfig((c) => ({ ...c, subtitle: e.target.value }))} className="admin-input" />
-        </Field>
         <Field label="Título">
           <input value={config.title} onChange={(e) => setConfig((c) => ({ ...c, title: e.target.value }))} className="admin-input" />
         </Field>

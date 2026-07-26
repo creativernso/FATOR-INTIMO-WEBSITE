@@ -181,10 +181,6 @@ export default function SitePopup() {
         <div className="p-7">
           {step === 'form' ? (
             <>
-              <div className="inline-flex items-center gap-2 text-xs text-accent border border-accent/20 rounded-full px-3 py-1 mb-4">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-                {config.subtitle}
-              </div>
               <h2 className="font-heading text-2xl font-medium text-text-primary mb-2 leading-tight">
                 {config.title}
               </h2>
