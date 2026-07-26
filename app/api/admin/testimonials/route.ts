@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
     transformation: body.transformation?.trim() || undefined,
     rating: body.rating ? Math.max(1, Math.min(5, Number(body.rating))) : 5,
     avatar: body.avatar || undefined,
+    videoUrl: body.videoUrl?.trim() || undefined,
     productPurchased: body.productPurchased?.trim() || undefined,
     socialHandle: body.socialHandle?.trim() || undefined,
     anonymous: !!body.anonymous,

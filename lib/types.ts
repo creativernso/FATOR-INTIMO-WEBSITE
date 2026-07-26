@@ -54,6 +54,7 @@ export interface Testimonial {
   avatar?: string;
   productPurchased?: string;
   guideSlug?: string;         // reviews can target a free guide instead of a paid product
+  videoUrl?: string;          // optional video testimonial (YouTube, Vimeo, or direct .mp4/.webm)
   socialHandle?: string;
   anonymous?: boolean;
   status?: 'pending' | 'approved' | 'rejected';

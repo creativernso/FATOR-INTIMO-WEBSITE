@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowRight, PenLine, Star, BookOpen, Users } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import TestimonialCard from '@/components/TestimonialCard';
+import VideoTestimonialCard from '@/components/VideoTestimonialCard';
 import { getTestimonials } from '@/lib/db';
 import { createT } from '@/lib/i18n';
 import { buildPageMetadata } from '@/lib/seo';
@@ -23,6 +24,7 @@ export default async function TestimonialsPage() {
   // Exclude product/guide reviews (avaliações) — they carry verifiedPurchase
   // or guideSlug, which plain depoimentos never get.
   const testimonials = allTestimonials.filter((t) => t.verifiedPurchase === undefined && !t.guideSlug);
+  const videoTestimonials = testimonials.filter((t) => !!t.videoUrl);
   const avgRating = testimonials.filter((t) => t.rating).reduce((acc, t) => acc + (t.rating ?? 0), 0) / (testimonials.filter((t) => t.rating).length || 1);
 
   const statsLabels = ['Histórias compartilhadas', 'Avaliação média', 'Pessoas impactadas'];
@@ -119,6 +121,31 @@ export default async function TestimonialsPage() {
                 ))}
               </div>
             </>
+          )}
+
+          {/* Video testimonials */}
+          {videoTestimonials.length > 0 && (
+            <AnimateOnScroll>
+              <div className="mt-20">
+                <div className="text-center mb-8">
+                  <span className="text-xs text-accent tracking-widest uppercase mb-3 block">Na voz deles</span>
+                  <h2 className="font-heading text-3xl font-light text-text-primary">
+                    Histórias em <span style={{ color: '#fe0050' }}>vídeo</span>
+                  </h2>
+                </div>
+                <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory -mx-6 px-6">
+                  {videoTestimonials.map((vt) => (
+                    <VideoTestimonialCard
+                      key={vt.id}
+                      url={vt.videoUrl!}
+                      name={vt.anonymous ? 'Anônimo' : vt.name}
+                      headline={vt.headline}
+                      role={vt.role}
+                    />
+                  ))}
+                </div>
+              </div>
+            </AnimateOnScroll>
           )}
 
           {/* Submit CTA */}

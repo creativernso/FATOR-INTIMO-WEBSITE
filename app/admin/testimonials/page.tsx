@@ -5,7 +5,7 @@ import { Testimonial, Product, ReviewSettings } from '@/lib/types';
 import {
   Check, X, Star, Trash2, Eye, EyeOff, Sparkles, Clock,
   MessageSquare, Search, ChevronDown, Plus, ShieldCheck, MapPin, ThumbsUp, Reply, Send,
-  Settings as SettingsIcon, Save,
+  Settings as SettingsIcon, Save, Video,
 } from 'lucide-react';
 
 type Filter = 'all' | 'pending' | 'approved' | 'rejected';
@@ -21,6 +21,7 @@ const EMPTY_FORM = {
   rating: '5',
   productPurchased: '',
   avatar: '',
+  videoUrl: '',
   socialHandle: '',
   anonymous: false,
   featured: false,
@@ -282,6 +283,17 @@ export default function AdminTestimonials() {
             rows={4}
             className="w-full bg-surface border border-white/8 rounded-xl px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/30 transition-colors resize-none"
           />
+          <div>
+            <input
+              value={form.videoUrl}
+              onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
+              placeholder="URL do vídeo (opcional) — YouTube, Vimeo ou link .mp4"
+              className="w-full bg-surface border border-white/8 rounded-xl px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/30 transition-colors"
+            />
+            <p className="text-text-muted text-[11px] mt-1">
+              Quando preenchido, este depoimento aparece na seção de vídeos em &quot;Histórias&quot;.
+            </p>
+          </div>
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
               <label className="text-text-muted text-xs">Nota</label>
@@ -501,6 +513,22 @@ export default function AdminTestimonials() {
                             <option key={p.id} value={p.title}>{p.title}</option>
                           ))}
                         </select>
+                      </div>
+                      <div className="flex items-center gap-1.5 flex-1 min-w-[180px]">
+                        <label className="text-text-muted text-[10px] uppercase tracking-wider flex items-center gap-1">
+                          <Video size={10} /> Vídeo:
+                        </label>
+                        <input
+                          key={t.id}
+                          defaultValue={t.videoUrl || ''}
+                          onBlur={(e) => {
+                            const value = e.target.value.trim() || undefined;
+                            if (value !== t.videoUrl) patch(t.id, { videoUrl: value });
+                          }}
+                          disabled={busy}
+                          placeholder="Colar link do vídeo"
+                          className="bg-white/4 border border-white/8 rounded-lg px-2 py-1 text-xs text-text-secondary placeholder:text-text-muted focus:outline-none focus:border-accent/30 flex-1 min-w-0"
+                        />
                       </div>
                     </div>
 

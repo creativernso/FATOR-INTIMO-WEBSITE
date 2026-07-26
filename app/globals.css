@@ -376,3 +376,12 @@ h1, h2, h3, h4, h5 {
   transform-origin: 12px 12px;
   animation: fi-clock-hour 36s linear infinite;
 }
+
+/* ─── Hidden-but-functional scrollbar for horizontal strips ─────────────── */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
