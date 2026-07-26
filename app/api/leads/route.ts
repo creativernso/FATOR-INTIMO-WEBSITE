@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLeads, upsertLead, getGuideConfig, createNotification, getEmailAutomations } from '@/lib/db';
 import { resend, FROM_EMAIL, sendTransactional } from '@/lib/resend';
-import { guideDeliveryHtml, guideDeliveryText, campaignHtml, campaignText } from '@/lib/email-template';
+import { guideDeliveryHtml, guideDeliveryText, campaignHtml, campaignText, fillTemplate } from '@/lib/email-template';
 import { alertNewLead } from '@/lib/admin-notifications';
 import { sendMetaEvent, extractFbCookies } from '@/lib/meta-capi';
 import { v4 as uuid } from 'uuid';
@@ -73,12 +73,15 @@ export async function POST(req: NextRequest) {
       const automations = await getEmailAutomations();
       const immediateAutos = automations.filter((a) => a.active && a.trigger === 'signup' && a.delayDays === 0);
       for (const auto of immediateAutos) {
+        const vars = { nome: newLead.name?.split(' ')[0] || '' };
+        const subject = fillTemplate(auto.subject, vars);
+        const body = fillTemplate(auto.body, vars);
         await resend.emails.send({
           from: FROM_EMAIL,
           to: newLead.email!,
-          subject: auto.subject,
-          html: campaignHtml({ subject: auto.subject, body: auto.body, recipientName: newLead.name }),
-          text: campaignText({ subject: auto.subject, body: auto.body, recipientName: newLead.name }),
+          subject,
+          html: campaignHtml({ subject, body }),
+          text: campaignText({ subject, body }),
         });
       }
     } catch {}

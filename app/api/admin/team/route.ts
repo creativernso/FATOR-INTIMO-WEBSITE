@@ -67,8 +67,8 @@ export async function POST(req: NextRequest) {
         from: FROM_EMAIL,
         to: cleanEmail,
         subject,
-        html: campaignHtml({ subject, body: `${intro}\n\n${ctaHtml}`, recipientName: firstName }),
-        text: campaignText({ subject, body: `${intro}\n\n${resetLink}`, recipientName: firstName }),
+        html: campaignHtml({ subject, body: `${intro}\n\n${ctaHtml}` }),
+        text: campaignText({ subject, body: `${intro}\n\n${resetLink}` }),
       });
     } catch (err) {
       console.error('[admin/team] failed to send invite email:', err);

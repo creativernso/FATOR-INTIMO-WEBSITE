@@ -3,7 +3,7 @@ import { stripe } from '@/lib/stripe';
 import { resend, FROM_EMAIL, sendTransactional } from '@/lib/resend';
 import { saveOrder, saveAbandonedCheckout } from '@/lib/orders';
 import { getProducts, createNotification, getEmailAutomations, upsertLead, getLeadByEmail } from '@/lib/db';
-import { purchaseConfirmationHtml, purchaseConfirmationText, campaignHtml, campaignText } from '@/lib/email-template';
+import { purchaseConfirmationHtml, purchaseConfirmationText, campaignHtml, campaignText, fillTemplate } from '@/lib/email-template';
 import { alertNewOrder, alertStripeWebhookFailure } from '@/lib/admin-notifications';
 import { sendMetaEvent } from '@/lib/meta-capi';
 import { v4 as uuid } from 'uuid';
@@ -147,12 +147,15 @@ export async function POST(req: NextRequest) {
         const automations = await getEmailAutomations();
         const purchaseAutos = automations.filter((a) => a.active && a.trigger === 'purchase');
         for (const auto of purchaseAutos) {
+          const vars = { nome: name?.split(' ')[0] || '' };
+          const subject = fillTemplate(auto.subject, vars);
+          const body = fillTemplate(auto.body, vars);
           await resend.emails.send({
             from: FROM_EMAIL,
             to: email,
-            subject: auto.subject,
-            html: campaignHtml({ subject: auto.subject, body: auto.body, recipientName: name }),
-            text: campaignText({ subject: auto.subject, body: auto.body, recipientName: name }),
+            subject,
+            html: campaignHtml({ subject, body }),
+            text: campaignText({ subject, body }),
           });
           await new Promise((r) => setTimeout(r, 100));
         }

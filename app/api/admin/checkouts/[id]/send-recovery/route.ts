@@ -2,12 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAbandonedCheckouts, markAbandonedCheckoutRecoveryEmailSent } from '@/lib/orders';
 import { getCartRecoverySettings, getProducts } from '@/lib/db';
 import { resend, FROM_EMAIL } from '@/lib/resend';
-import { cartRecoveryHtml, cartRecoveryText } from '@/lib/email-template';
+import { cartRecoveryHtml, cartRecoveryText, fillTemplate } from '@/lib/email-template';
 import { requireAdmin } from '@/lib/admin-auth';
-
-function fillTemplate(template: string, vars: Record<string, string>): string {
-  return template.replace(/\{(\w+)\}/g, (_, key) => vars[key] ?? '');
-}
 
 export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!(await requireAdmin(['owner']))) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

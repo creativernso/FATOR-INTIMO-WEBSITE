@@ -11,16 +11,12 @@ import {
 } from '@/lib/db';
 import { getOrders, markOrderReviewRequestSent, getAbandonedCheckouts, markAbandonedCheckoutRecoveryEmailSent, markAbandonedCheckoutSecondEmailSent, AbandonedCheckout } from '@/lib/orders';
 import { resend, FROM_EMAIL } from '@/lib/resend';
-import { campaignHtml, campaignText, cartRecoveryHtml, cartRecoveryText } from '@/lib/email-template';
+import { campaignHtml, campaignText, cartRecoveryHtml, cartRecoveryText, fillTemplate } from '@/lib/email-template';
 
 // Vercel cron, runs daily at 09:00 UTC
 // Configure in vercel.json: { "crons": [{ "path": "/api/cron/automations", "schedule": "0 9 * * *" }] }
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
-
-function fillTemplate(template: string, vars: Record<string, string>): string {
-  return template.replace(/\{(\w+)\}/g, (_, key) => vars[key] ?? '');
-}
 
 function buildCtaEmail(opts: {
   subject: string;
@@ -31,12 +27,15 @@ function buildCtaEmail(opts: {
 }) {
   const subject = fillTemplate(opts.subject, opts.vars);
   const bodyText = fillTemplate(opts.body, opts.vars);
-  // Append the CTA in the campaign template body
+  // Append the CTA in the campaign template body. recipientName is NOT
+  // passed here — the body/subject templates already carry their own
+  // {nome} greeting, and campaignHtml would otherwise prepend a second,
+  // redundant "Olá, Nome," line above it.
   const fullBody = `${bodyText}\n\n→ ${opts.ctaLabel}: ${opts.ctaUrl}`;
   return {
     subject,
-    html: campaignHtml({ subject, body: bodyText + `\n\n<a href="${opts.ctaUrl}" style="display:inline-block;background:#fe0050;color:#fff;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:13px;font-weight:600;margin-top:14px;">${opts.ctaLabel} →</a>`, recipientName: opts.vars.nome }),
-    text: campaignText({ subject, body: fullBody, recipientName: opts.vars.nome }),
+    html: campaignHtml({ subject, body: bodyText + `\n\n<a href="${opts.ctaUrl}" style="display:inline-block;background:#fe0050;color:#fff;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:13px;font-weight:600;margin-top:14px;">${opts.ctaLabel} →</a>` }),
+    text: campaignText({ subject, body: fullBody }),
   };
 }
 
@@ -78,12 +77,15 @@ export async function GET(req: NextRequest) {
     for (const lead of targets) {
       if (!lead.email) continue;
       try {
+        const vars = { nome: lead.name?.split(' ')[0] || '' };
+        const subject = fillTemplate(auto.subject, vars);
+        const body = fillTemplate(auto.body, vars);
         await resend.emails.send({
           from: FROM_EMAIL,
           to: lead.email,
-          subject: auto.subject,
-          html: campaignHtml({ subject: auto.subject, body: auto.body, recipientName: lead.name }),
-          text: campaignText({ subject: auto.subject, body: auto.body, recipientName: lead.name }),
+          subject,
+          html: campaignHtml({ subject, body }),
+          text: campaignText({ subject, body }),
         });
         sent++;
       } catch {

@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { getAdminAuth } from '@/lib/firebase-admin';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { getLeads } from '@/lib/db';
-import { campaignHtml, campaignText } from '@/lib/email-template';
+import { campaignHtml, campaignText, fillTemplate } from '@/lib/email-template';
 
 export async function POST(req: NextRequest) {
   const cookieStore = await cookies();
@@ -32,12 +32,15 @@ export async function POST(req: NextRequest) {
   for (const lead of targets) {
     if (!lead.email) continue;
     try {
+      const vars = { nome: lead.name?.split(' ')[0] || '' };
+      const filledSubject = fillTemplate(subject, vars);
+      const filledBody = fillTemplate(body, vars);
       await resend.emails.send({
         from: FROM_EMAIL,
         to: lead.email,
-        subject,
-        html: campaignHtml({ subject, body, recipientName: lead.name }),
-        text: campaignText({ subject, body, recipientName: lead.name }),
+        subject: filledSubject,
+        html: campaignHtml({ subject: filledSubject, body: filledBody }),
+        text: campaignText({ subject: filledSubject, body: filledBody }),
       });
       sent++;
     } catch {

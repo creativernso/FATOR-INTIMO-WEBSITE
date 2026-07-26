@@ -1,3 +1,8 @@
+/** Replaces {varName} placeholders (e.g. {nome}, {produto}, {link}) in admin-authored subject/body text. */
+export function fillTemplate(template: string, vars: Record<string, string>): string {
+  return template.replace(/\{(\w+)\}/g, (_, key) => vars[key] ?? '');
+}
+
 interface EmailData {
   productTitle: string;
   customerName?: string;
@@ -568,7 +573,7 @@ interface CartRecoveryData {
   ctaLabel: string;
 }
 
-export function cartRecoveryHtml({ name, introMessage, productTitle, productPrice, originalPrice, coverImage, ctaUrl, ctaLabel }: CartRecoveryData): string {
+export function cartRecoveryHtml({ introMessage, productTitle, productPrice, originalPrice, coverImage, ctaUrl, ctaLabel }: CartRecoveryData): string {
   const introHtml = introMessage.replace(/\n/g, '<br/>');
   const price = (productPrice / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
   const discount = originalPrice && originalPrice * 100 > productPrice
@@ -586,7 +591,6 @@ export function cartRecoveryHtml({ name, introMessage, productTitle, productPric
           <p style="margin:0;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#fe0050;">FATOR ÍNTIMO</p>
         </td></tr>
         <tr><td style="padding:28px 40px 0;">
-          ${name ? `<p style="margin:0 0 14px;font-size:14px;color:#a09080;">Olá, ${name.split(' ')[0]},</p>` : ''}
           <p style="margin:0;font-size:14px;color:#a09080;line-height:1.7;">${introHtml}</p>
         </td></tr>
         <tr><td style="padding:28px 40px 0;">
@@ -611,9 +615,9 @@ export function cartRecoveryHtml({ name, introMessage, productTitle, productPric
 </html>`;
 }
 
-export function cartRecoveryText({ name, introMessage, productTitle, productPrice, ctaUrl, ctaLabel }: CartRecoveryData): string {
+export function cartRecoveryText({ introMessage, productTitle, productPrice, ctaUrl, ctaLabel }: CartRecoveryData): string {
   const price = (productPrice / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-  return `${name ? `Olá, ${name.split(' ')[0]},\n\n` : ''}${introMessage}
+  return `${introMessage}
 
 ${productTitle} — R$ ${price}
 
