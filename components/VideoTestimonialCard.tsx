@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Play, Star } from 'lucide-react';
+import { Play, Star, X } from 'lucide-react';
 
 interface Props {
   url: string;
@@ -18,11 +18,19 @@ type Embed =
 function getEmbed(url: string): Embed | null {
   const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   if (ytMatch) {
-    return { type: 'youtube', videoId: ytMatch[1], src: `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0` };
+    return {
+      type: 'youtube',
+      videoId: ytMatch[1],
+      src: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&rel=0&modestbranding=1&controls=0&iv_load_policy=3&playsinline=1`,
+    };
   }
   const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   if (vimeoMatch) {
-    return { type: 'vimeo', videoId: vimeoMatch[1], src: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1` };
+    return {
+      type: 'vimeo',
+      videoId: vimeoMatch[1],
+      src: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&title=0&byline=0&portrait=0&controls=0`,
+    };
   }
   if (/\.(mp4|webm|ogg)(\?|$)/i.test(url)) {
     return { type: 'direct', src: url };
@@ -59,16 +67,25 @@ export default function VideoTestimonialCard({ url, name, headline, role }: Prop
   return (
     <div className="relative flex-shrink-0 w-[240px] sm:w-[280px] rounded-3xl overflow-hidden border border-white/10 bg-surface aspect-[9/16] snap-center group">
       {playing ? (
-        embed.type === 'direct' ? (
-          <video src={embed.src} autoPlay controls playsInline className="absolute inset-0 w-full h-full object-cover" />
-        ) : (
-          <iframe
-            src={embed.src}
-            className="absolute inset-0 w-full h-full"
-            allow="autoplay; fullscreen; picture-in-picture"
-            allowFullScreen
-          />
-        )
+        <>
+          {embed.type === 'direct' ? (
+            <video src={embed.src} autoPlay controls playsInline className="absolute inset-0 w-full h-full object-cover" />
+          ) : (
+            <iframe
+              src={embed.src}
+              className="absolute inset-0 w-full h-full"
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
+            />
+          )}
+          <button
+            onClick={() => setPlaying(false)}
+            aria-label="Fechar vídeo"
+            className="absolute top-3 right-3 z-10 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-white transition-colors"
+          >
+            <X size={14} />
+          </button>
+        </>
       ) : (
         <>
           {embed.type === 'direct' ? (
