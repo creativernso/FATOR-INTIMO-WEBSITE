@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Testimonial, Product, ReviewSettings } from '@/lib/types';
 import {
   Check, X, Star, Trash2, Eye, EyeOff, Sparkles, Clock,
   MessageSquare, Search, ChevronDown, Plus, ShieldCheck, MapPin, ThumbsUp, Reply, Send,
-  Settings as SettingsIcon, Save, Video,
+  Settings as SettingsIcon, Save, Video, Upload,
 } from 'lucide-react';
 
 type Filter = 'all' | 'pending' | 'approved' | 'rejected';
@@ -62,6 +62,9 @@ export default function AdminTestimonials() {
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [rowAvatarBusy, setRowAvatarBusy] = useState<string | null>(null);
+  const avatarFileRef = useRef<HTMLInputElement>(null);
   const [replyOpen, setReplyOpen] = useState<string | null>(null);
   const [replyDraft, setReplyDraft] = useState<Record<string, string>>({});
   const [replyBusy, setReplyBusy] = useState<string | null>(null);
@@ -145,6 +148,43 @@ export default function AdminTestimonials() {
       }
     } finally {
       setSaving(false);
+    }
+  };
+
+  const uploadAvatarFile = async (file: File): Promise<string | null> => {
+    if (!file.type.startsWith('image/')) { alert('Apenas imagens são permitidas.'); return null; }
+    if (file.size > 5 * 1024 * 1024) { alert('Imagem deve ter no máximo 5MB.'); return null; }
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch('/api/testimonials/upload-photo', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok) { alert(data.error || 'Erro ao enviar foto.'); return null; }
+    return data.url as string;
+  };
+
+  const handleCreateAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setAvatarUploading(true);
+    try {
+      const url = await uploadAvatarFile(file);
+      if (url) setForm((f) => ({ ...f, avatar: url }));
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
+  const handleRowAvatarUpload = async (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setRowAvatarBusy(id);
+    try {
+      const url = await uploadAvatarFile(file);
+      if (url) await patch(id, { avatar: url });
+    } finally {
+      setRowAvatarBusy(null);
     }
   };
 
@@ -283,16 +323,46 @@ export default function AdminTestimonials() {
             rows={4}
             className="w-full bg-surface border border-white/8 rounded-xl px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/30 transition-colors resize-none"
           />
-          <div>
-            <input
-              value={form.videoUrl}
-              onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
-              placeholder="URL do vídeo (opcional) — YouTube, Vimeo ou link .mp4"
-              className="w-full bg-surface border border-white/8 rounded-xl px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/30 transition-colors"
-            />
-            <p className="text-text-muted text-[11px] mt-1">
-              Quando preenchido, este depoimento aparece na seção de vídeos em &quot;Histórias&quot;.
-            </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-text-muted text-xs mb-2">Foto de perfil (opcional)</label>
+              {form.avatar ? (
+                <div className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={form.avatar} alt="preview" className="w-11 h-11 rounded-full object-cover border border-white/10" />
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, avatar: '' })}
+                    className="flex items-center gap-1.5 text-xs text-text-muted hover:text-red-400 transition-colors"
+                  >
+                    <X size={12} /> Remover
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <input ref={avatarFileRef} type="file" accept="image/*" onChange={handleCreateAvatarUpload} className="hidden" />
+                  <button
+                    type="button"
+                    onClick={() => avatarFileRef.current?.click()}
+                    disabled={avatarUploading}
+                    className="flex items-center gap-2 border border-white/8 hover:border-accent/30 text-text-muted hover:text-accent px-3.5 py-2.5 rounded-xl text-sm transition-all disabled:opacity-50"
+                  >
+                    <Upload size={13} /> {avatarUploading ? 'Enviando...' : 'Enviar foto'}
+                  </button>
+                </>
+              )}
+            </div>
+            <div>
+              <input
+                value={form.videoUrl}
+                onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
+                placeholder="URL do vídeo (opcional) — YouTube, Vimeo ou link .mp4"
+                className="w-full bg-surface border border-white/8 rounded-xl px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/30 transition-colors"
+              />
+              <p className="text-text-muted text-[11px] mt-1">
+                Quando preenchido, este depoimento aparece na seção de vídeos em &quot;Histórias&quot;.
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
@@ -513,6 +583,38 @@ export default function AdminTestimonials() {
                             <option key={p.id} value={p.title}>{p.title}</option>
                           ))}
                         </select>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <label className="text-text-muted text-[10px] uppercase tracking-wider flex items-center gap-1">
+                          <Upload size={10} /> Foto:
+                        </label>
+                        {rowAvatarBusy === t.id ? (
+                          <span className="text-text-muted text-xs">Enviando...</span>
+                        ) : (
+                          <>
+                            <label htmlFor={`avatar-upload-${t.id}`} className="cursor-pointer text-xs text-accent hover:text-accent-hover transition-colors">
+                              {t.avatar ? 'Trocar' : 'Enviar'}
+                            </label>
+                            {t.avatar && (
+                              <button
+                                type="button"
+                                onClick={() => patch(t.id, { avatar: '' })}
+                                disabled={busy}
+                                title="Remover foto"
+                                className="text-text-muted hover:text-red-400 transition-colors disabled:opacity-50"
+                              >
+                                <X size={11} />
+                              </button>
+                            )}
+                            <input
+                              id={`avatar-upload-${t.id}`}
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => handleRowAvatarUpload(t.id, e)}
+                            />
+                          </>
+                        )}
                       </div>
                       <div className="flex items-center gap-1.5 flex-1 min-w-[180px]">
                         <label className="text-text-muted text-[10px] uppercase tracking-wider flex items-center gap-1">
