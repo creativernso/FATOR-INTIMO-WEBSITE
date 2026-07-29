@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { getProducts, markCheckoutStarted, getLeadByVisitorId } from '@/lib/db';
+import { extractFbCookies } from '@/lib/meta-capi';
 
 export async function POST(req: NextRequest) {
   if (!stripe) {
@@ -33,6 +34,15 @@ export async function POST(req: NextRequest) {
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
+  // Capture Meta CAPI matching signals now, while this is still a genuine
+  // customer-originated request — the Stripe webhook that later fires the
+  // server-side Purchase event is a Stripe-to-server call with no access to
+  // the customer's cookies/IP/UA, so these have to be stashed in session
+  // metadata here and read back at webhook time.
+  const { fbp, fbc } = extractFbCookies(req.headers.get('cookie'));
+  const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '';
+  const userAgent = req.headers.get('user-agent') || '';
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -67,6 +77,11 @@ export async function POST(req: NextRequest) {
         ...(typeof utmMedium === 'string' && utmMedium ? { utmMedium } : {}),
         ...(typeof utmCampaign === 'string' && utmCampaign ? { utmCampaign } : {}),
         ...(typeof utmContent === 'string' && utmContent ? { utmContent } : {}),
+        // Meta CAPI matching signals, forwarded to the webhook's Purchase event.
+        ...(fbp ? { fbp } : {}),
+        ...(fbc ? { fbc } : {}),
+        ...(clientIp ? { clientIp } : {}),
+        ...(userAgent ? { userAgent: userAgent.slice(0, 500) } : {}),
       },
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/products/${product.slug}`,

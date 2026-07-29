@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    const { productId, utmSource, utmMedium, utmCampaign, utmContent } = session.metadata ?? {};
+    const { productId, utmSource, utmMedium, utmCampaign, utmContent, fbp, fbc, clientIp, userAgent } = session.metadata ?? {};
     const email = session.customer_details?.email ?? '';
     const name = session.customer_details?.name ?? '';
 
@@ -86,8 +86,13 @@ export async function POST(req: NextRequest) {
           eventId: `purchase-${session.id}`,
           userData: {
             email,
+            phone: session.customer_details?.phone ?? undefined,
             fullName: name,
             externalId: session.id,
+            ip: clientIp,
+            userAgent,
+            fbp,
+            fbc,
           },
           customData: {
             currency: 'BRL',
