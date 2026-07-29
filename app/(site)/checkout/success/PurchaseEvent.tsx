@@ -10,6 +10,15 @@ interface Props {
   value: number;
 }
 
+// This page is only ever reached via a hard, full-page redirect from Stripe's
+// checkout domain back to the site — so on mount, MetaPixel hasn't had a
+// chance to load window.fbq yet (its base-code injection is gated behind an
+// async consent check that always needs an extra React render pass). A
+// fire-and-forget trackPurchase() here would silently no-op. Poll briefly for
+// fbq readiness instead — this is the one event we can't afford to lose.
+const MAX_WAIT_MS = 8000;
+const POLL_INTERVAL_MS = 200;
+
 export default function PurchaseEvent({ sessionId, productId, productName, value }: Props) {
   const firedRef = useRef(false);
   useEffect(() => {
@@ -21,14 +30,30 @@ export default function PurchaseEvent({ sessionId, productId, productName, value
       if (sessionStorage.getItem(key)) return;
       sessionStorage.setItem(key, '1');
     } catch {}
-    trackPurchase({
-      content_ids: productId ? [productId] : undefined,
-      content_name: productName,
-      value,
-      currency: 'BRL',
-      // Same event_id as the server-side CAPI Purchase call so Meta dedupes.
-      eventID: `purchase-${sessionId}`,
-    });
+
+    let cancelled = false;
+    let waited = 0;
+    const tryFire = () => {
+      if (cancelled) return;
+      if (typeof window.fbq !== 'function') {
+        waited += POLL_INTERVAL_MS;
+        if (waited < MAX_WAIT_MS) setTimeout(tryFire, POLL_INTERVAL_MS);
+        return;
+      }
+      trackPurchase({
+        content_ids: productId ? [productId] : undefined,
+        content_name: productName,
+        value,
+        currency: 'BRL',
+        // Same event_id as the server-side CAPI Purchase call so Meta dedupes.
+        eventID: `purchase-${sessionId}`,
+      });
+    };
+    tryFire();
+
+    return () => {
+      cancelled = true;
+    };
   }, [sessionId, productId, productName, value]);
   return null;
 }
