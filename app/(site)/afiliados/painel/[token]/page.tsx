@@ -80,17 +80,27 @@ export default async function AffiliateDashboardPage({
           <p className="text-text-muted text-sm">Você ganha {affiliate.commissionRate}% de comissão em cada venda pelo seu link.</p>
         </div>
 
-        <div className="mb-6">
-          <p className="text-text-muted text-xs mb-2 uppercase tracking-widest">Seu link de afiliado</p>
-          <CopyReferralLink link={referralLink} />
-        </div>
+        {productOptions.length > 0 ? (
+          <div className="mb-6">
+            <p className="text-text-muted text-xs mb-2 uppercase tracking-widest">Seu link de afiliado</p>
+            <ProductLinkPicker baseUrl={baseUrl} code={affiliate.code} products={productOptions} />
+            <p className="text-text-muted text-[11px] mt-1.5">
+              Escolha o produto e leve a pessoa direto para a página dele: converte muito mais do que mandar para a home.
+            </p>
+          </div>
+        ) : (
+          <div className="mb-6">
+            <p className="text-text-muted text-xs mb-2 uppercase tracking-widest">Seu link de afiliado</p>
+            <CopyReferralLink link={referralLink} />
+          </div>
+        )}
 
         {productOptions.length > 0 && (
           <div className="mb-8">
-            <p className="text-text-muted text-xs mb-2 uppercase tracking-widest">Ou promova um produto específico</p>
-            <ProductLinkPicker baseUrl={baseUrl} code={affiliate.code} products={productOptions} />
+            <p className="text-text-muted text-[11px] mb-2 uppercase tracking-widest opacity-60">Ou link geral do site</p>
+            <CopyReferralLink link={referralLink} />
             <p className="text-text-muted text-[11px] mt-1.5">
-              Leva a pessoa direto para a página do produto escolhido, o que costuma converter melhor.
+              Útil se você for falar do Fator Íntimo em geral, sem apontar para um produto específico.
             </p>
           </div>
         )}
