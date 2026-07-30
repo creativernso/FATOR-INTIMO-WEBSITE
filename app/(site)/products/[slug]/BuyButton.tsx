@@ -5,6 +5,7 @@ import { ShoppingBag, Loader2 } from 'lucide-react';
 import { trackInitiateCheckout } from '@/lib/fbq';
 import { getOrCreateVisitorId } from '@/lib/visitor-id';
 import { getStoredUtm } from '@/lib/utm';
+import { getStoredAffiliateCode } from '@/lib/affiliate-ref';
 
 export default function BuyButton({ productId, label = 'Começar agora' }: { productId: string; label?: string }) {
   const [loading, setLoading] = useState(false);
@@ -18,7 +19,12 @@ export default function BuyButton({ productId, label = 'Começar agora' }: { pro
       const res = await fetch('/api/checkout/create-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, visitorId: getOrCreateVisitorId(), ...getStoredUtm() }),
+        body: JSON.stringify({
+          productId,
+          visitorId: getOrCreateVisitorId(),
+          affiliateCode: getStoredAffiliateCode(),
+          ...getStoredUtm(),
+        }),
       });
       const data = await res.json();
       if (data.url) {

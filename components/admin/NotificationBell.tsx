@@ -1,18 +1,19 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Bell, ShoppingBag, BookOpen, Users, MessageSquare, FileText, AlertTriangle, Heart, Check, X, LucideIcon } from 'lucide-react';
+import { Bell, ShoppingBag, BookOpen, Users, MessageSquare, FileText, AlertTriangle, Heart, Check, X, UserPlus, LucideIcon } from 'lucide-react';
 import { AdminNotification } from '@/lib/types';
 
 const TYPE_CONFIG: Record<AdminNotification['type'], { icon: LucideIcon; color: string; bg: string }> = {
-  purchase:           { icon: ShoppingBag,   color: 'text-green-400',  bg: 'bg-green-400/10'  },
-  guide_download:     { icon: BookOpen,      color: 'text-blue-400',   bg: 'bg-blue-400/10'   },
-  community_join:     { icon: Users,         color: 'text-purple-400', bg: 'bg-purple-400/10' },
-  community_post:     { icon: Heart,         color: 'text-accent',     bg: 'bg-accent/10'     },
-  community_report:   { icon: AlertTriangle, color: 'text-red-400',    bg: 'bg-red-400/10'    },
-  comment:            { icon: MessageSquare, color: 'text-amber-400',  bg: 'bg-amber-400/10'  },
-  testimonial:        { icon: FileText,      color: 'text-sky-400',    bg: 'bg-sky-400/10'    },
-  checkout_abandoned: { icon: AlertTriangle, color: 'text-orange-400', bg: 'bg-orange-400/10' },
+  purchase:             { icon: ShoppingBag,   color: 'text-green-400',  bg: 'bg-green-400/10'  },
+  guide_download:       { icon: BookOpen,      color: 'text-blue-400',   bg: 'bg-blue-400/10'   },
+  community_join:       { icon: Users,         color: 'text-purple-400', bg: 'bg-purple-400/10' },
+  community_post:       { icon: Heart,         color: 'text-accent',     bg: 'bg-accent/10'     },
+  community_report:     { icon: AlertTriangle, color: 'text-red-400',    bg: 'bg-red-400/10'    },
+  comment:              { icon: MessageSquare, color: 'text-amber-400',  bg: 'bg-amber-400/10'  },
+  testimonial:          { icon: FileText,      color: 'text-sky-400',    bg: 'bg-sky-400/10'    },
+  checkout_abandoned:   { icon: AlertTriangle, color: 'text-orange-400', bg: 'bg-orange-400/10' },
+  affiliate_application:{ icon: UserPlus,      color: 'text-pink-400',   bg: 'bg-pink-400/10'   },
 };
 
 function timeAgo(iso: string) {

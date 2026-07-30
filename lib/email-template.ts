@@ -502,6 +502,117 @@ Fator Íntimo
 fatorintimo.com`;
 }
 
+// ─── Affiliate approved ───────────────────────────────────────────────────────
+
+interface AffiliateApprovedData {
+  name: string;
+  referralLink: string;
+  dashboardUrl: string;
+  commissionRate: number;
+}
+
+export function affiliateApprovedHtml({ name, referralLink, dashboardUrl, commissionRate }: AffiliateApprovedData): string {
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Você está aprovado como afiliado.</title>
+</head>
+<body style="margin:0;padding:0;background-color:#0a0a0a;font-family:'Inter',system-ui,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:48px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" style="max-width:580px;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;">
+          <tr><td style="height:1px;background:linear-gradient(to right,transparent,#fe0050,transparent);"></td></tr>
+          <tr>
+            <td align="center" style="padding:40px 40px 0;">
+              <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#fe0050;">FATOR ÍNTIMO · AFILIADOS</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:28px 40px 8px;">
+              <h1 style="margin:0;font-size:30px;font-weight:300;color:#dcdcdc;line-height:1.25;letter-spacing:-0.3px;">
+                Você está aprovado.
+              </h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 40px;">
+              <div style="height:1px;background:rgba(255,255,255,0.06);margin:18px 0;"></div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 40px 24px;">
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.85;color:#a0a0a0;">
+                Olá, <strong style="color:#dcdcdc;">${name}</strong>,
+              </p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.85;color:#a0a0a0;">
+                Sua solicitação para o programa de afiliados do Fator Íntimo foi aprovada. A partir de agora, você ganha <strong style="color:#dcdcdc;">${commissionRate}% de comissão</strong> em cada venda feita através do seu link.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 40px 28px;">
+              <div style="background:rgba(254,0,80,0.04);border:1px solid rgba(254,0,80,0.12);border-radius:12px;padding:20px 24px;">
+                <p style="margin:0 0 8px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#fe0050;">Seu link de afiliado</p>
+                <p style="margin:0;font-size:14px;line-height:1.6;color:#dcdcdc;word-break:break-all;">${referralLink}</p>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding:0 40px 36px;">
+              <a href="${dashboardUrl}"
+                style="display:inline-block;background:#fe0050;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;letter-spacing:0.5px;padding:15px 44px;border-radius:50px;">
+                Ver meu painel →
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 40px;">
+              <div style="height:1px;background:rgba(255,255,255,0.05);"></div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 40px;">
+              <p style="margin:0;font-size:13px;line-height:1.7;color:#666666;">
+                Guarde o link do seu painel — ele é pessoal e não deve ser compartilhado. É por ele que você acompanha cliques, vendas e comissões em tempo real.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 40px 36px;border-top:1px solid rgba(255,255,255,0.04);">
+              <p style="margin:20px 0 0;font-size:12px;color:#555555;text-align:center;">
+                Fator Íntimo · Psicologia das Relações<br/>
+                <a href="https://fatorintimo.com" style="color:#fe0050;text-decoration:none;">fatorintimo.com</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+export function affiliateApprovedText({ name, referralLink, dashboardUrl, commissionRate }: AffiliateApprovedData): string {
+  return `Você está aprovado como afiliado.
+
+Olá, ${name},
+
+Sua solicitação para o programa de afiliados do Fator Íntimo foi aprovada. Você ganha ${commissionRate}% de comissão em cada venda feita através do seu link.
+
+Seu link de afiliado: ${referralLink}
+
+Seu painel (cliques, vendas, comissões): ${dashboardUrl}
+
+Guarde o link do seu painel — ele é pessoal e não deve ser compartilhado.
+
+Fator Íntimo
+fatorintimo.com`;
+}
+
 // ── New article broadcast ─────────────────────────────────────────────────────
 
 interface NewArticleData {

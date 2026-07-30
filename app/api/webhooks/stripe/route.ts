@@ -6,6 +6,7 @@ import { getProducts, createNotification, getEmailAutomations, upsertLead, getLe
 import { purchaseConfirmationHtml, purchaseConfirmationText, campaignHtml, campaignText, fillTemplate } from '@/lib/email-template';
 import { alertNewOrder, alertStripeWebhookFailure } from '@/lib/admin-notifications';
 import { sendMetaEvent } from '@/lib/meta-capi';
+import { getAffiliateByCode, saveAffiliateReferral } from '@/lib/affiliates';
 import { v4 as uuid } from 'uuid';
 
 export async function POST(req: NextRequest) {
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    const { productId, utmSource, utmMedium, utmCampaign, utmContent, fbp, fbc, clientIp, userAgent } = session.metadata ?? {};
+    const { productId, utmSource, utmMedium, utmCampaign, utmContent, fbp, fbc, clientIp, userAgent, affiliateCode } = session.metadata ?? {};
     const email = session.customer_details?.email ?? '';
     const name = session.customer_details?.name ?? '';
 
@@ -109,6 +110,35 @@ export async function POST(req: NextRequest) {
         });
       } catch (err) {
         console.error('[webhook] Meta CAPI Purchase failed:', err);
+      }
+
+      // Attribute the sale to an affiliate, if this checkout carried a
+      // referral code and that affiliate is currently approved. Rejecting
+      // the code silently (no error to the customer) if the affiliate isn't
+      // found or isn't approved keeps a stale/forged ?ref= from blocking
+      // a real purchase.
+      if (affiliateCode) {
+        try {
+          const affiliate = await getAffiliateByCode(affiliateCode);
+          if (affiliate && affiliate.status === 'approved') {
+            const saleAmount = session.amount_total ?? 0;
+            const commissionAmount = Math.round((saleAmount * affiliate.commissionRate) / 100);
+            await saveAffiliateReferral({
+              id: uuid(),
+              affiliateId: affiliate.id,
+              affiliateCode: affiliate.code,
+              orderId: session.id,
+              sessionId: session.id,
+              productTitle: product?.title ?? '',
+              saleAmount,
+              commissionAmount,
+              status: 'pending',
+              createdAt: new Date().toISOString(),
+            });
+          }
+        } catch (err) {
+          console.error('[webhook] affiliate referral attribution failed:', err);
+        }
       }
 
       // Add (or enrich) the buyer in the leads collection so they receive

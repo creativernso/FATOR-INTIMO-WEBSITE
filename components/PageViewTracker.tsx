@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { getOrCreateVisitorId } from '@/lib/visitor-id';
 import { captureUtmFromUrl, getStoredUtm } from '@/lib/utm';
+import { captureAffiliateRefFromUrl } from '@/lib/affiliate-ref';
 import { onConsentChange } from '@/lib/cookie-consent';
 
 const HEARTBEAT_INTERVAL_MS = 20 * 1000;
@@ -19,7 +20,22 @@ export function PageViewTracker() {
 
   useEffect(() => {
     captureUtmFromUrl();
+    captureAffiliateRefFromUrl();
   }, []);
+
+  // Count a click only when ?ref= is actually present on this page load (a
+  // real referral click), not on every subsequent page view during the
+  // session where the code is merely still stored from earlier.
+  useEffect(() => {
+    if (!analyticsConsent) return;
+    const ref = new URLSearchParams(window.location.search).get('ref');
+    if (!ref) return;
+    fetch('/api/affiliates/click', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: ref }),
+    }).catch(() => {});
+  }, [analyticsConsent]);
 
   useEffect(() => {
     if (!analyticsConsent) return;

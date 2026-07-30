@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Pagamentos não configurados.' }, { status: 503 });
   }
 
-  const { productId, visitorId, utmSource, utmMedium, utmCampaign, utmContent } = await req.json();
+  const { productId, visitorId, affiliateCode, utmSource, utmMedium, utmCampaign, utmContent } = await req.json();
   const products = await getProducts();
   const product = products.find((p) => p.id === productId);
 
@@ -82,6 +82,8 @@ export async function POST(req: NextRequest) {
         ...(fbc ? { fbc } : {}),
         ...(clientIp ? { clientIp } : {}),
         ...(userAgent ? { userAgent: userAgent.slice(0, 500) } : {}),
+        // Affiliate attribution, validated and turned into a commission by the webhook.
+        ...(typeof affiliateCode === 'string' && affiliateCode.trim() ? { affiliateCode: affiliateCode.trim() } : {}),
       },
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/products/${product.slug}`,

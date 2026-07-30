@@ -23,6 +23,7 @@ import {
   MessageCircle,
   PictureInPicture2,
   Shield,
+  Handshake,
 } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -42,6 +43,7 @@ const navItems: { href: string; label: string; icon: typeof LayoutDashboard; exa
   { href: '/admin/leads', label: 'Leads', icon: Users, roles: ['owner', 'support'] },
   { href: '/admin/emails', label: 'E-mails', icon: Send, roles: ['owner'] },
   { href: '/admin/orders', label: 'Pedidos', icon: ShoppingBag, roles: ['owner'] },
+  { href: '/admin/affiliates', label: 'Afiliados', icon: Handshake, roles: ['owner'] },
   { href: '/admin/comments', label: 'Comentários', icon: MessagesSquare, roles: ['owner', 'editor', 'support'] },
   { href: '/admin/comunidade', label: 'Comunidade', icon: Heart, roles: ['owner', 'support'] },
   { href: '/admin/marquee', label: 'Marquee', icon: Sparkles, roles: ['owner', 'editor'] },

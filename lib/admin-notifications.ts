@@ -132,6 +132,17 @@ export function alertNewTestimonial(name: string) {
   });
 }
 
+export function alertNewAffiliateApplication(name: string, email: string) {
+  return sendAdminAlert({
+    subject: 'Nova solicitação de afiliado',
+    title: 'Nova solicitação de afiliado',
+    body: `${name} (${email}) quer entrar no programa de afiliados. Acesse o painel para aprovar ou recusar.`,
+    ctaLabel: 'Revisar solicitação',
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com'}/admin/affiliates`,
+    meta: { Nome: name, Email: email },
+  });
+}
+
 export function alertNewCommunityPost(title: string, author: string) {
   return sendAdminAlert({
     subject: 'Nova publicação aguardando aprovação',

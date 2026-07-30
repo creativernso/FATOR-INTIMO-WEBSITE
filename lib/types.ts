@@ -163,7 +163,7 @@ export interface Comment {
 
 export interface AdminNotification {
   id: string;
-  type: 'purchase' | 'guide_download' | 'community_join' | 'community_post' | 'community_report' | 'comment' | 'testimonial' | 'checkout_abandoned';
+  type: 'purchase' | 'guide_download' | 'community_join' | 'community_post' | 'community_report' | 'comment' | 'testimonial' | 'checkout_abandoned' | 'affiliate_application';
   title: string;
   body: string;
   read: boolean;
@@ -348,4 +348,40 @@ export interface PopupConfig {
   successMessage: string;
 
   updatedAt: string;
+}
+
+// ─── Affiliate program ──────────────────────────────────────────────────────
+
+export type AffiliateStatus = 'pending' | 'approved' | 'rejected';
+
+export interface Affiliate {
+  id: string;
+  name: string;
+  email: string;
+  code: string; // unique, URL-safe referral code (?ref=code)
+  dashboardToken: string; // unguessable token for the affiliate's own private stats page
+  status: AffiliateStatus;
+  commissionRate: number; // percentage of order total, e.g. 20 for 20%
+  socialHandle?: string;
+  message?: string; // how they plan to promote, from the application form
+  pixKey?: string; // for manual payouts
+  clicks: number;
+  createdAt: string;
+  approvedAt?: string;
+}
+
+export type AffiliateReferralStatus = 'pending' | 'paid';
+
+export interface AffiliateReferral {
+  id: string;
+  affiliateId: string;
+  affiliateCode: string;
+  orderId: string;
+  sessionId: string;
+  productTitle: string;
+  saleAmount: number; // cents
+  commissionAmount: number; // cents
+  status: AffiliateReferralStatus;
+  createdAt: string;
+  paidAt?: string;
 }
