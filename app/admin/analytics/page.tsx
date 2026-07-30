@@ -1,4 +1,4 @@
-import { TrendingUp, Users, FileText, Package, ShoppingBag, BookOpen, Heart, MessageSquare, Download, Star, Eye, ExternalLink, Activity, MapPin, Megaphone } from 'lucide-react';
+import { TrendingUp, Users, FileText, Package, ShoppingBag, BookOpen, Heart, MessageSquare, Download, Star, Eye, ExternalLink, Activity, MapPin, Megaphone, type LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { getPosts, getLeads, getTestimonials, getGuides, getCommunityPosts, getPageViewTotals } from '@/lib/db';
@@ -63,6 +63,17 @@ function calcGrowth(items: { createdAt?: string; publishedAt?: string; date?: st
   }).length;
   if (lastMonth === 0) return thisMonth > 0 ? 100 : 0;
   return Math.round(((thisMonth - lastMonth) / lastMonth) * 100);
+}
+
+function SectionLabel({ icon: Icon, children }: { icon: LucideIcon; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2">
+      <Icon size={12} className="text-text-muted" />
+      <p className="text-text-muted tracking-widest uppercase" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.75rem)' }}>
+        {children}
+      </p>
+    </div>
+  );
 }
 
 type Props = { searchParams: Promise<{ days?: string }> };
@@ -208,534 +219,552 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
       <LiveView />
 
-      {/* KPI Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {stats.map((stat) => (
-          <Link
-            key={stat.label}
-            href={stat.href}
-            className="relative rounded-2xl border border-white/6 bg-surface p-5 hover:border-white/12 hover:scale-[1.01] transition-all duration-300 group overflow-hidden"
-          >
-            <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full opacity-15 blur-xl" style={{ background: stat.accent }} />
-            <div className="relative">
-              <div className="flex items-start justify-between mb-3">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${stat.accent}18`, border: `1px solid ${stat.accent}28` }}>
-                  <stat.icon size={14} style={{ color: stat.accent }} />
+      {/* ── Visão geral ────────────────────────────────────────────────── */}
+      <div className="space-y-4">
+        <SectionLabel icon={Activity}>Visão geral</SectionLabel>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {stats.map((stat) => (
+            <Link
+              key={stat.label}
+              href={stat.href}
+              className="relative rounded-2xl border border-white/6 bg-surface p-5 hover:border-white/12 hover:scale-[1.01] transition-all duration-300 group overflow-hidden"
+            >
+              <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full opacity-15 blur-xl" style={{ background: stat.accent }} />
+              <div className="relative">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${stat.accent}18`, border: `1px solid ${stat.accent}28` }}>
+                    <stat.icon size={14} style={{ color: stat.accent }} />
+                  </div>
+                  {stat.growth !== null && (
+                    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${stat.growth >= 0 ? 'bg-green-400/10 text-green-400' : 'bg-red-400/10 text-red-400'}`}>
+                      {stat.growth >= 0 ? '+' : ''}{stat.growth}%
+                    </span>
+                  )}
                 </div>
-                {stat.growth !== null && (
-                  <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${stat.growth >= 0 ? 'bg-green-400/10 text-green-400' : 'bg-red-400/10 text-red-400'}`}>
-                    {stat.growth >= 0 ? '+' : ''}{stat.growth}%
-                  </span>
-                )}
-              </div>
-              <p className="font-body font-semibold text-text-primary" style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2.2rem)', color: stat.accent }}>
-                {stat.value}
-              </p>
-              <p className="text-text-muted mt-1" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.78rem)' }}>
-                {stat.label}
-              </p>
-            </div>
-          </Link>
-        ))}
-      </div>
-
-      {/* Lead growth chart */}
-      <div className="rounded-2xl border border-white/5 bg-surface p-6 lg:p-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>
-              Novos leads nos últimos {chartDays} dias
-            </h3>
-            <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>
-              {leadsThisMonth} leads nos últimos 30 dias
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="font-body font-semibold text-green-400" style={{ fontSize: 'clamp(1.2rem, 1.8vw, 1.6rem)' }}>
-              {leadsThisMonth}
-            </p>
-            <p className="text-text-muted" style={{ fontSize: 'clamp(0.65rem, 0.75vw, 0.72rem)' }}>este mês</p>
-          </div>
-        </div>
-
-        <div className="flex items-end gap-1 h-24">
-          {leadsByDay.map(({ date, count }) => (
-            <div key={date} className="flex-1 flex flex-col items-center gap-1 group">
-              <div
-                className="w-full rounded-t transition-all duration-500 group-hover:opacity-100"
-                style={{
-                  height: `${Math.max(4, (count / maxLeads) * 88)}px`,
-                  background: count > 0 ? 'rgba(254,0,80,0.5)' : 'rgba(255,255,255,0.05)',
-                  borderTop: count > 0 ? '1px solid rgba(254,0,80,0.4)' : 'none',
-                }}
-                title={`${date}: ${count} leads`}
-              />
-              <span className="text-text-muted" style={{ fontSize: '8px', writingMode: 'vertical-rl', transform: 'rotate(180deg)', opacity: 0.5 }}>
-                {date.slice(5)}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Revenue chart */}
-      <div className="rounded-2xl border border-white/5 bg-surface p-6 lg:p-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>
-              Receita nos últimos {chartDays} dias
-            </h3>
-            <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>
-              {filteredOrders.length} pedidos no período selecionado
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="font-body font-semibold text-accent" style={{ fontSize: 'clamp(1.2rem, 1.8vw, 1.6rem)' }}>
-              R$ {chartRevenueTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </p>
-            <p className="text-text-muted" style={{ fontSize: 'clamp(0.65rem, 0.75vw, 0.72rem)' }}>
-              últimos {chartDays} dias
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-end gap-1 h-24">
-          {revenueByDay.map(({ date, amount }) => (
-            <div key={date} className="flex-1 flex flex-col items-center gap-1 group">
-              <div
-                className="w-full rounded-t transition-all duration-500"
-                style={{
-                  height: `${Math.max(4, (amount / maxRevenue) * 88)}px`,
-                  background: amount > 0 ? 'rgba(254,0,80,0.5)' : 'rgba(255,255,255,0.05)',
-                  borderTop: amount > 0 ? '1px solid rgba(254,0,80,0.4)' : 'none',
-                }}
-                title={`${date}: R$ ${amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-              />
-              <span className="text-text-muted" style={{ fontSize: '8px', writingMode: 'vertical-rl', transform: 'rotate(180deg)', opacity: 0.5 }}>
-                {date.slice(5)}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Top selling products */}
-      {topSellingProducts.length > 0 && (
-        <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
-          <div className="px-5 py-4 border-b border-white/[0.04] flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#a855f718', border: '1px solid #a855f738' }}>
-                <Package size={15} style={{ color: '#a855f7' }} />
-              </div>
-              <div>
-                <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>Produtos mais vendidos</h3>
-                <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>Por receita, no período selecionado</p>
-              </div>
-            </div>
-            <Link href="/admin/orders" className="text-text-muted hover:text-accent transition-colors" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
-              Ver pedidos →
-            </Link>
-          </div>
-          <div className="divide-y divide-white/[0.04]">
-            {topSellingProducts.map((p, i) => (
-              <div key={p.title} className="flex items-center gap-4 px-5 py-3.5 hover:bg-white/2 transition-colors">
-                <span className="text-text-muted font-heading" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)', minWidth: '18px' }}>{i + 1}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-text-secondary font-medium truncate" style={{ fontSize: 'clamp(0.8rem, 0.9vw, 0.875rem)' }}>{p.title}</p>
-                  <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>
-                    {p.count} pedido{p.count === 1 ? '' : 's'} · ticket médio R$ {(p.revenue / p.count).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-                <p className="font-body font-semibold text-green-400 flex-shrink-0" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
-                  R$ {p.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                <p className="font-body font-semibold text-text-primary" style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2.2rem)', color: stat.accent }}>
+                  {stat.value}
+                </p>
+                <p className="text-text-muted mt-1" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.78rem)' }}>
+                  {stat.label}
                 </p>
               </div>
-            ))}
-          </div>
+            </Link>
+          ))}
         </div>
-      )}
+      </div>
 
-      {/* Page views chart */}
-      {pageViewDocs.length > 0 && (
-        <div className="rounded-2xl border border-white/5 bg-surface p-6 lg:p-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>
-                Page Views
-              </h3>
-              <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>
-                {totalPageViews.toLocaleString('pt-BR')} visualizações no período
-              </p>
+      {/* ── Vendas ─────────────────────────────────────────────────────── */}
+      <div className="space-y-4">
+        <SectionLabel icon={TrendingUp}>Vendas</SectionLabel>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {/* Revenue chart */}
+          <div className="rounded-2xl border border-white/5 bg-surface p-6 lg:p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>
+                  Receita nos últimos {chartDays} dias
+                </h3>
+                <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>
+                  {filteredOrders.length} pedidos no período selecionado
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="font-body font-semibold text-accent" style={{ fontSize: 'clamp(1.2rem, 1.8vw, 1.6rem)' }}>
+                  R$ {chartRevenueTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
+                <p className="text-text-muted" style={{ fontSize: 'clamp(0.65rem, 0.75vw, 0.72rem)' }}>
+                  últimos {chartDays} dias
+                </p>
+              </div>
             </div>
-            <div className="text-right">
-              <p className="font-body font-semibold text-cyan-400" style={{ fontSize: 'clamp(1.2rem, 1.8vw, 1.6rem)' }}>
-                {totalPageViews.toLocaleString('pt-BR')}
-              </p>
-              <p className="text-text-muted" style={{ fontSize: 'clamp(0.65rem, 0.75vw, 0.72rem)' }}>total</p>
-            </div>
-          </div>
-          <div className="flex items-end gap-1 h-20">
-            {(() => {
-              const sorted = [...pageViewDocs].sort((a, b) => a.date.localeCompare(b.date)).slice(-30);
-              const maxPv = Math.max(...sorted.map((d) => d.total), 1);
-              return sorted.map(({ date, total }) => (
+
+            <div className="flex items-end gap-1 h-24">
+              {revenueByDay.map(({ date, amount }) => (
                 <div key={date} className="flex-1 flex flex-col items-center gap-1 group">
                   <div
                     className="w-full rounded-t transition-all duration-500"
                     style={{
-                      height: `${Math.max(3, (total / maxPv) * 76)}px`,
-                      background: total > 0 ? 'rgba(6,182,212,0.5)' : 'rgba(255,255,255,0.05)',
-                      borderTop: total > 0 ? '1px solid rgba(6,182,212,0.4)' : 'none',
+                      height: `${Math.max(4, (amount / maxRevenue) * 88)}px`,
+                      background: amount > 0 ? 'rgba(254,0,80,0.5)' : 'rgba(255,255,255,0.05)',
+                      borderTop: amount > 0 ? '1px solid rgba(254,0,80,0.4)' : 'none',
                     }}
-                    title={`${date}: ${total} views`}
+                    title={`${date}: R$ ${amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
                   />
-                  <span className="text-text-muted" style={{ fontSize: '7px', writingMode: 'vertical-rl', transform: 'rotate(180deg)', opacity: 0.4 }}>
+                  <span className="text-text-muted" style={{ fontSize: '8px', writingMode: 'vertical-rl', transform: 'rotate(180deg)', opacity: 0.5 }}>
                     {date.slice(5)}
                   </span>
                 </div>
-              ));
-            })()}
-          </div>
-        </div>
-      )}
-
-      {/* Sessions by location + ad-campaign performance */}
-      {(topCountriesOverall.length > 0 || campaignPerformance.length > 0) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {topCountriesOverall.length > 0 && (
-            <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
-              <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#06b6d418', border: '1px solid #06b6d438' }}>
-                  <MapPin size={15} style={{ color: '#06b6d4' }} />
-                </div>
-                <div>
-                  <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>Sessões por país</h3>
-                  <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>No período selecionado</p>
-                </div>
-              </div>
-              <div className="px-5 py-5 space-y-2.5">
-                {topCountriesOverall.map((c) => {
-                  const pct = (c.count / totalCountryViews) * 100;
-                  return (
-                    <div key={c.country} className="flex items-center gap-3 text-xs">
-                      <span className="w-28 flex-shrink-0 flex items-center gap-1.5 text-text-secondary truncate">
-                        <span>{countryCodeToFlag(c.country)}</span> {countryName(c.country)}
-                      </span>
-                      <div className="flex-1 h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
-                        <div className="h-full rounded-full bg-cyan-400/60" style={{ width: `${pct}%` }} />
-                      </div>
-                      <span className="text-text-muted w-14 text-right tabular-nums">{c.count.toLocaleString('pt-BR')}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {campaignPerformance.length > 0 && (
-            <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
-              <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#f59e0b18', border: '1px solid #f59e0b38' }}>
-                  <Megaphone size={15} style={{ color: '#f59e0b' }} />
-                </div>
-                <div>
-                  <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>Desempenho por campanha</h3>
-                  <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>utm_campaign / utm_source dos links de anúncio</p>
-                </div>
-              </div>
-              <div className="divide-y divide-white/[0.04]">
-                {campaignPerformance.slice(0, 8).map((c) => (
-                  <div key={c.campaign} className="px-5 py-3.5 flex items-center gap-4">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-text-secondary font-medium truncate" style={{ fontSize: 'clamp(0.8rem, 0.9vw, 0.875rem)' }}>{c.campaign}</p>
-                      <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>
-                        {c.leads} leads · {c.orders} pedidos{c.conversion !== null ? ` · ${c.conversion.toFixed(1)}% conversão` : ''}
-                      </p>
-                    </div>
-                    <p className="font-body font-semibold text-green-400 flex-shrink-0" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
-                      R$ {c.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Meta Pixel status card */}
-      <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
-        <div className="px-6 py-5 border-b border-white/[0.04] flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#1877f218', border: '1px solid #1877f238' }}>
-              <Activity size={15} style={{ color: '#1877f2' }} />
-            </div>
-            <div>
-              <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>Meta Pixel · Facebook Ads</h3>
-              <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
-                {pixelConfigured ? `Pixel ativo: ${fbPixelId}` : 'Pixel não configurado'}
-              </p>
+              ))}
             </div>
           </div>
-          <a
-            href={eventsManagerUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[#1877f2]/10 text-[#1877f2] border border-[#1877f2]/20 hover:bg-[#1877f2]/15 transition-colors"
-          >
-            Abrir Events Manager <ExternalLink size={11} />
-          </a>
-        </div>
-        <div className="px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: 'PageView', desc: 'Disparado em todas as páginas' },
-            { label: 'ViewContent', desc: 'Páginas de produto' },
-            { label: 'Lead', desc: 'Cadastro guia gratuito' },
-            { label: 'Purchase', desc: 'Checkout concluído' },
-          ].map((ev) => {
-            const match = pixelStats.events.find((e) => e.event.toLowerCase() === ev.label.toLowerCase());
-            const isPurchase = ev.label === 'Purchase';
-            return (
-              <div key={ev.label} className="rounded-xl border border-white/6 bg-white/2 px-4 py-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className={`w-1.5 h-1.5 rounded-full ${pixelConfigured ? 'bg-green-400 animate-pulse' : 'bg-text-muted/40'}`} />
-                  <p className="text-text-primary text-xs font-medium">{ev.label}</p>
-                </div>
-                {pixelConfigured && !pixelStats.error && (
-                  <p className="font-body font-semibold text-text-primary" style={{ fontSize: '1.15rem' }}>
-                    {(match?.count ?? 0).toLocaleString('pt-BR')}
-                  </p>
-                )}
-                <p className="text-text-muted" style={{ fontSize: '11px' }}>{ev.desc}</p>
-                {isPurchase && pixelConfigured && (
-                  purchaseMatchQuality.score !== null ? (
-                    <p className="text-accent mt-1" style={{ fontSize: '11px' }}>
-                      Match quality: {purchaseMatchQuality.score.toFixed(1)}/10
-                    </p>
-                  ) : purchaseMatchQuality.error ? (
-                    <p className="text-text-muted mt-1" style={{ fontSize: '10px' }} title={purchaseMatchQuality.error}>
-                      Match quality indisponível
-                    </p>
-                  ) : null
-                )}
+
+          {/* Lead growth chart */}
+          <div className="rounded-2xl border border-white/5 bg-surface p-6 lg:p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>
+                  Novos leads nos últimos {chartDays} dias
+                </h3>
+                <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>
+                  {leadsThisMonth} leads nos últimos 30 dias
+                </p>
               </div>
-            );
-          })}
+              <div className="text-right">
+                <p className="font-body font-semibold text-green-400" style={{ fontSize: 'clamp(1.2rem, 1.8vw, 1.6rem)' }}>
+                  {leadsThisMonth}
+                </p>
+                <p className="text-text-muted" style={{ fontSize: 'clamp(0.65rem, 0.75vw, 0.72rem)' }}>este mês</p>
+              </div>
+            </div>
+
+            <div className="flex items-end gap-1 h-24">
+              {leadsByDay.map(({ date, count }) => (
+                <div key={date} className="flex-1 flex flex-col items-center gap-1 group">
+                  <div
+                    className="w-full rounded-t transition-all duration-500 group-hover:opacity-100"
+                    style={{
+                      height: `${Math.max(4, (count / maxLeads) * 88)}px`,
+                      background: count > 0 ? 'rgba(254,0,80,0.5)' : 'rgba(255,255,255,0.05)',
+                      borderTop: count > 0 ? '1px solid rgba(254,0,80,0.4)' : 'none',
+                    }}
+                    title={`${date}: ${count} leads`}
+                  />
+                  <span className="text-text-muted" style={{ fontSize: '8px', writingMode: 'vertical-rl', transform: 'rotate(180deg)', opacity: 0.5 }}>
+                    {date.slice(5)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        {!pixelConfigured && (
-          <div className="px-6 py-4 bg-yellow-400/5 border-t border-yellow-400/10">
-            <p className="text-yellow-400/90 text-xs">
-              Defina <code className="bg-black/30 px-1.5 py-0.5 rounded">NEXT_PUBLIC_FB_PIXEL_ID</code> nas variáveis de ambiente do Vercel para ativar.
-            </p>
-          </div>
-        )}
-        {pixelConfigured && !pixelStats.error && (
-          <div className="px-6 py-3 border-t border-white/[0.04]">
-            <p className="text-text-muted" style={{ fontSize: '11px' }}>Contagens dos últimos {pixelStats.days} dias (limite da API da Meta).</p>
-          </div>
-        )}
-        {pixelConfigured && pixelStats.error && (
-          <div className="px-6 py-4 bg-yellow-400/5 border-t border-yellow-400/10">
-            <p className="text-yellow-400/90 text-xs">
-              Não foi possível buscar os números do Pixel diretamente ({pixelStats.error}). Pode ser necessário gerar um token com mais permissões em Events Manager → Configurações → Conversions API.
-            </p>
-          </div>
-        )}
-      </div>
 
-      {/* ── Reviews analytics ─────────────────────────────────────────── */}
-      {(() => {
-        // Compute on the fly so this stays a single-file change
-        const reviewed = testimonials.filter((t) => typeof t.rating === 'number' && t.rating! > 0);
-        const totalReviews = reviewed.length;
-        const avgReview = totalReviews > 0
-          ? reviewed.reduce((s, t) => s + (t.rating ?? 0), 0) / totalReviews
-          : 0;
-        const verifiedReviews = reviewed.filter((t) => t.verifiedPurchase).length;
-        const pendingReviews = testimonials.filter((t) => !t.status || t.status === 'pending').length;
-        const dist: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-        reviewed.forEach((t) => {
-          const r = Math.round(t.rating ?? 0);
-          if (r >= 1 && r <= 5) dist[r]++;
-        });
-        const maxDist = Math.max(1, ...Object.values(dist));
-
-        // Top reviewed products
-        const reviewsByProductTitle = new Map<string, { count: number; sum: number }>();
-        reviewed.forEach((t) => {
-          if (!t.productPurchased) return;
-          const entry = reviewsByProductTitle.get(t.productPurchased) ?? { count: 0, sum: 0 };
-          entry.count++;
-          entry.sum += t.rating ?? 0;
-          reviewsByProductTitle.set(t.productPurchased, entry);
-        });
-        const topReviewed = Array.from(reviewsByProductTitle.entries())
-          .map(([title, v]) => ({ title, count: v.count, avg: v.sum / v.count }))
-          .sort((a, b) => b.count - a.count)
-          .slice(0, 5);
-
-        if (totalReviews === 0) return null;
-
-        return (
+        {/* Top selling products */}
+        {topSellingProducts.length > 0 && (
           <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
-            <div className="px-5 py-4 border-b border-white/[0.04] flex items-center justify-between flex-wrap gap-2">
+            <div className="px-5 py-4 border-b border-white/[0.04] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#fe005018', border: '1px solid #fe005038' }}>
-                  <Star size={15} className="text-accent fill-accent" />
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#a855f718', border: '1px solid #a855f738' }}>
+                  <Package size={15} style={{ color: '#a855f7' }} />
                 </div>
                 <div>
-                  <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>Avaliações de produtos</h3>
-                  <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
-                    {totalReviews} avaliações · {verifiedReviews} verificadas · {pendingReviews} pendentes
-                  </p>
+                  <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>Produtos mais vendidos</h3>
+                  <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>Por receita, no período selecionado</p>
                 </div>
               </div>
-              <Link
-                href="/admin/testimonials"
-                className="text-text-muted hover:text-accent transition-colors text-xs"
-              >
-                Gerenciar →
+              <Link href="/admin/orders" className="text-text-muted hover:text-accent transition-colors" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
+                Ver pedidos →
               </Link>
             </div>
-            <div className="px-5 py-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Score + distribution */}
-              <div>
-                <div className="flex items-baseline gap-3 mb-4">
-                  <p className="font-heading text-5xl font-light text-text-primary leading-none">{avgReview.toFixed(1)}</p>
-                  <p className="text-text-muted text-sm">/ 5</p>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  {[5, 4, 3, 2, 1].map((s) => {
-                    const n = dist[s] ?? 0;
-                    const pct = totalReviews > 0 ? (n / totalReviews) * 100 : 0;
-                    const width = (n / maxDist) * 100;
-                    return (
-                      <div key={s} className="flex items-center gap-2 text-xs">
-                        <span className="text-text-muted w-6 flex items-center gap-0.5">
-                          {s}<Star size={8} className="text-accent fill-accent" />
-                        </span>
-                        <div className="flex-1 h-1 rounded-full bg-white/[0.04] overflow-hidden">
-                          <div className="h-full bg-accent rounded-full transition-all duration-700" style={{ width: `${width}%` }} />
-                        </div>
-                        <span className="text-text-muted w-10 text-right tabular-nums">{pct.toFixed(0)}%</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-              {/* Top reviewed products */}
-              <div>
-                <p className="text-text-muted text-xs uppercase tracking-widest mb-3">Mais avaliados</p>
-                {topReviewed.length === 0 ? (
-                  <p className="text-text-muted text-xs">Nenhum produto avaliado ainda.</p>
-                ) : (
-                  <div className="space-y-2.5">
-                    {topReviewed.map((p) => (
-                      <div key={p.title} className="flex items-center justify-between gap-3">
-                        <p className="text-text-secondary text-xs flex-1 truncate">{p.title}</p>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <span className="text-accent text-xs font-medium tabular-nums flex items-center gap-1">
-                            <Star size={10} className="fill-accent" /> {p.avg.toFixed(1)}
-                          </span>
-                          <span className="text-text-muted text-[10px]">({p.count})</span>
-                        </div>
-                      </div>
-                    ))}
+            <div className="divide-y divide-white/[0.04]">
+              {topSellingProducts.map((p, i) => (
+                <div key={p.title} className="flex items-center gap-4 px-5 py-3.5 hover:bg-white/2 transition-colors">
+                  <span className="text-text-muted font-heading" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)', minWidth: '18px' }}>{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-text-secondary font-medium truncate" style={{ fontSize: 'clamp(0.8rem, 0.9vw, 0.875rem)' }}>{p.title}</p>
+                    <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>
+                      {p.count} pedido{p.count === 1 ? '' : 's'} · ticket médio R$ {(p.revenue / p.count).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
                   </div>
-                )}
-              </div>
+                  <p className="font-body font-semibold text-green-400 flex-shrink-0" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
+                    R$ {p.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
-        );
-      })()}
+        )}
 
-      {/* Two-column tables */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-
-        <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.04]">
-            <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
-              Artigos publicados
-            </h3>
-            <Link href="/admin/blog" className="text-text-muted hover:text-accent transition-colors" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
-              Ver todos →
-            </Link>
-          </div>
-          <div className="divide-y divide-white/[0.04]">
-            {topPosts.length === 0 ? (
-              <p className="px-5 py-8 text-text-muted text-center" style={{ fontSize: '0.8rem' }}>Nenhum artigo ainda.</p>
-            ) : topPosts.map((post, i) => (
-              <div key={post.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-white/2 transition-colors">
-                <span className="text-text-muted font-heading" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)', minWidth: '18px' }}>{i + 1}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-text-secondary font-medium truncate" style={{ fontSize: 'clamp(0.8rem, 0.9vw, 0.875rem)' }}>{post.title}</p>
-                  <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>{post.category} · {post.readTime}min</p>
-                </div>
-                {post.featured && (
-                  <span className="text-accent border border-accent/20 bg-accent/5 px-2 py-0.5 rounded-full flex-shrink-0" style={{ fontSize: '10px' }}>Destaque</span>
-                )}
+        {/* Campaign performance */}
+        {campaignPerformance.length > 0 && (
+          <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
+            <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#f59e0b18', border: '1px solid #f59e0b38' }}>
+                <Megaphone size={15} style={{ color: '#f59e0b' }} />
               </div>
-            ))}
+              <div>
+                <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>Desempenho por campanha</h3>
+                <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>utm_campaign / utm_source dos links de anúncio</p>
+              </div>
+            </div>
+            <div className="divide-y divide-white/[0.04]">
+              {campaignPerformance.slice(0, 8).map((c) => (
+                <div key={c.campaign} className="px-5 py-3.5 flex items-center gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-text-secondary font-medium truncate" style={{ fontSize: 'clamp(0.8rem, 0.9vw, 0.875rem)' }}>{c.campaign}</p>
+                    <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>
+                      {c.leads} leads · {c.orders} pedidos{c.conversion !== null ? ` · ${c.conversion.toFixed(1)}% conversão` : ''}
+                    </p>
+                  </div>
+                  <p className="font-body font-semibold text-green-400 flex-shrink-0" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
+                    R$ {c.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Conversion mini-stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="rounded-2xl border border-white/5 bg-surface p-5">
+            <p className="text-text-muted mb-2" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>Conversão de leads</p>
+            <p className="font-body font-semibold" style={{ fontSize: 'clamp(1.6rem, 2.5vw, 2.2rem)', color: '#a855f7' }}>
+              {leads.length > 0 ? `${((orders.length / leads.length) * 100).toFixed(1)}%` : '-'}
+            </p>
+            <p className="text-text-muted mt-1" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>
+              {orders.length} vendas de {leads.length} leads
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/5 bg-surface p-5">
+            <p className="text-text-muted mb-2" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>Leads com email</p>
+            <p className="font-body font-semibold" style={{ fontSize: 'clamp(1.6rem, 2.5vw, 2.2rem)', color: '#3b82f6' }}>
+              {leads.length > 0 ? `${Math.round((emailLeads / leads.length) * 100)}%` : '-'}
+            </p>
+            <p className="text-text-muted mt-1" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>
+              {emailLeads} de {leads.length} têm email
+            </p>
           </div>
         </div>
-
-        <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.04]">
-            <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
-              Guias mais baixados
-            </h3>
-            <Link href="/admin/guide" className="text-text-muted hover:text-accent transition-colors" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
-              Ver todos →
-            </Link>
-          </div>
-          <div className="divide-y divide-white/[0.04]">
-            {topGuides.length === 0 ? (
-              <p className="px-5 py-8 text-text-muted text-center" style={{ fontSize: '0.8rem' }}>Nenhum guia ainda.</p>
-            ) : topGuides.map((guide, i) => (
-              <div key={guide.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-white/2 transition-colors">
-                <span className="text-text-muted font-heading" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)', minWidth: '18px' }}>{i + 1}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-text-secondary font-medium truncate" style={{ fontSize: 'clamp(0.8rem, 0.9vw, 0.875rem)' }}>{guide.title}</p>
-                  <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>{guide.category || 'Geral'}</p>
-                </div>
-                <div className="flex items-center gap-1 text-blue-400 flex-shrink-0" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
-                  <Download size={11} /> {guide.downloadCount ?? 0}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
       </div>
 
-      {/* Summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[
-          {
-            label: 'Conversão de leads',
-            value: leads.length > 0 ? `${((orders.length / leads.length) * 100).toFixed(1)}%` : '-',
-            sub: `${orders.length} vendas de ${leads.length} leads`,
-            color: '#a855f7',
-          },
-          {
-            label: 'Leads com email',
-            value: leads.length > 0 ? `${Math.round((emailLeads / leads.length) * 100)}%` : '-',
-            sub: `${emailLeads} de ${leads.length} têm email`,
-            color: '#3b82f6',
-          },
-          {
-            label: 'Depoimentos aprovados',
-            value: testimonials.filter((t) => t.status === 'approved' || !t.status).length,
-            sub: `${testimonials.filter((t) => t.status === 'pending').length} aguardando aprovação`,
-            color: '#10b981',
-          },
-        ].map((card) => (
-          <div key={card.label} className="rounded-2xl border border-white/5 bg-surface p-5">
-            <p className="text-text-muted mb-2" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>{card.label}</p>
-            <p className="font-body font-semibold" style={{ fontSize: 'clamp(1.6rem, 2.5vw, 2.2rem)', color: card.color }}>{card.value}</p>
-            <p className="text-text-muted mt-1" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>{card.sub}</p>
+      {/* ── Tráfego ────────────────────────────────────────────────────── */}
+      <div className="space-y-4">
+        <SectionLabel icon={Eye}>Tráfego</SectionLabel>
+
+        {/* Page views chart */}
+        {pageViewDocs.length > 0 && (
+          <div className="rounded-2xl border border-white/5 bg-surface p-6 lg:p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>
+                  Page Views
+                </h3>
+                <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>
+                  {totalPageViews.toLocaleString('pt-BR')} visualizações no período
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="font-body font-semibold text-cyan-400" style={{ fontSize: 'clamp(1.2rem, 1.8vw, 1.6rem)' }}>
+                  {totalPageViews.toLocaleString('pt-BR')}
+                </p>
+                <p className="text-text-muted" style={{ fontSize: 'clamp(0.65rem, 0.75vw, 0.72rem)' }}>total</p>
+              </div>
+            </div>
+            <div className="flex items-end gap-1 h-20">
+              {(() => {
+                const sorted = [...pageViewDocs].sort((a, b) => a.date.localeCompare(b.date)).slice(-30);
+                const maxPv = Math.max(...sorted.map((d) => d.total), 1);
+                return sorted.map(({ date, total }) => (
+                  <div key={date} className="flex-1 flex flex-col items-center gap-1 group">
+                    <div
+                      className="w-full rounded-t transition-all duration-500"
+                      style={{
+                        height: `${Math.max(3, (total / maxPv) * 76)}px`,
+                        background: total > 0 ? 'rgba(6,182,212,0.5)' : 'rgba(255,255,255,0.05)',
+                        borderTop: total > 0 ? '1px solid rgba(6,182,212,0.4)' : 'none',
+                      }}
+                      title={`${date}: ${total} views`}
+                    />
+                    <span className="text-text-muted" style={{ fontSize: '7px', writingMode: 'vertical-rl', transform: 'rotate(180deg)', opacity: 0.4 }}>
+                      {date.slice(5)}
+                    </span>
+                  </div>
+                ));
+              })()}
+            </div>
           </div>
-        ))}
+        )}
+
+        {/* Sessions by location */}
+        {topCountriesOverall.length > 0 && (
+          <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
+            <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#06b6d418', border: '1px solid #06b6d438' }}>
+                <MapPin size={15} style={{ color: '#06b6d4' }} />
+              </div>
+              <div>
+                <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>Sessões por país</h3>
+                <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>No período selecionado</p>
+              </div>
+            </div>
+            <div className="px-5 py-5 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2.5">
+              {topCountriesOverall.map((c) => {
+                const pct = (c.count / totalCountryViews) * 100;
+                return (
+                  <div key={c.country} className="flex items-center gap-3 text-xs">
+                    <span className="w-28 flex-shrink-0 flex items-center gap-1.5 text-text-secondary truncate">
+                      <span>{countryCodeToFlag(c.country)}</span> {countryName(c.country)}
+                    </span>
+                    <div className="flex-1 h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
+                      <div className="h-full rounded-full bg-cyan-400/60" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="text-text-muted w-14 text-right tabular-nums">{c.count.toLocaleString('pt-BR')}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Ads · Meta Pixel ───────────────────────────────────────────── */}
+      <div className="space-y-4">
+        <SectionLabel icon={Megaphone}>Ads · Meta Pixel</SectionLabel>
+
+        <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
+          <div className="px-6 py-5 border-b border-white/[0.04] flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#1877f218', border: '1px solid #1877f238' }}>
+                <Activity size={15} style={{ color: '#1877f2' }} />
+              </div>
+              <div>
+                <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>Meta Pixel · Facebook Ads</h3>
+                <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
+                  {pixelConfigured ? `Pixel ativo: ${fbPixelId}` : 'Pixel não configurado'}
+                </p>
+              </div>
+            </div>
+            <a
+              href={eventsManagerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[#1877f2]/10 text-[#1877f2] border border-[#1877f2]/20 hover:bg-[#1877f2]/15 transition-colors"
+            >
+              Abrir Events Manager <ExternalLink size={11} />
+            </a>
+          </div>
+          <div className="px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: 'PageView', desc: 'Disparado em todas as páginas' },
+              { label: 'ViewContent', desc: 'Páginas de produto' },
+              { label: 'Lead', desc: 'Cadastro guia gratuito' },
+              { label: 'Purchase', desc: 'Checkout concluído' },
+            ].map((ev) => {
+              const match = pixelStats.events.find((e) => e.event.toLowerCase() === ev.label.toLowerCase());
+              const isPurchase = ev.label === 'Purchase';
+              return (
+                <div key={ev.label} className="rounded-xl border border-white/6 bg-white/2 px-4 py-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`w-1.5 h-1.5 rounded-full ${pixelConfigured ? 'bg-green-400 animate-pulse' : 'bg-text-muted/40'}`} />
+                    <p className="text-text-primary text-xs font-medium">{ev.label}</p>
+                  </div>
+                  {pixelConfigured && !pixelStats.error && (
+                    <p className="font-body font-semibold text-text-primary" style={{ fontSize: '1.15rem' }}>
+                      {(match?.count ?? 0).toLocaleString('pt-BR')}
+                    </p>
+                  )}
+                  <p className="text-text-muted" style={{ fontSize: '11px' }}>{ev.desc}</p>
+                  {isPurchase && pixelConfigured && (
+                    purchaseMatchQuality.score !== null ? (
+                      <p className="text-accent mt-1" style={{ fontSize: '11px' }}>
+                        Match quality: {purchaseMatchQuality.score.toFixed(1)}/10
+                      </p>
+                    ) : purchaseMatchQuality.error ? (
+                      <p className="text-text-muted mt-1" style={{ fontSize: '10px' }} title={purchaseMatchQuality.error}>
+                        Match quality indisponível
+                      </p>
+                    ) : null
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {!pixelConfigured && (
+            <div className="px-6 py-4 bg-yellow-400/5 border-t border-yellow-400/10">
+              <p className="text-yellow-400/90 text-xs">
+                Defina <code className="bg-black/30 px-1.5 py-0.5 rounded">NEXT_PUBLIC_FB_PIXEL_ID</code> nas variáveis de ambiente do Vercel para ativar.
+              </p>
+            </div>
+          )}
+          {pixelConfigured && !pixelStats.error && (
+            <div className="px-6 py-3 border-t border-white/[0.04]">
+              <p className="text-text-muted" style={{ fontSize: '11px' }}>Contagens dos últimos {pixelStats.days} dias (limite da API da Meta).</p>
+            </div>
+          )}
+          {pixelConfigured && pixelStats.error && (
+            <div className="px-6 py-4 bg-yellow-400/5 border-t border-yellow-400/10">
+              <p className="text-yellow-400/90 text-xs">
+                Não foi possível buscar os números do Pixel diretamente ({pixelStats.error}). Pode ser necessário gerar um token com mais permissões em Events Manager → Configurações → Conversions API.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Conteúdo & Comunidade ──────────────────────────────────────── */}
+      <div className="space-y-4">
+        <SectionLabel icon={BookOpen}>Conteúdo & Comunidade</SectionLabel>
+
+        {/* Reviews analytics */}
+        {(() => {
+          const reviewed = testimonials.filter((t) => typeof t.rating === 'number' && t.rating! > 0);
+          const totalReviews = reviewed.length;
+          const avgReview = totalReviews > 0
+            ? reviewed.reduce((s, t) => s + (t.rating ?? 0), 0) / totalReviews
+            : 0;
+          const verifiedReviews = reviewed.filter((t) => t.verifiedPurchase).length;
+          const pendingReviews = testimonials.filter((t) => !t.status || t.status === 'pending').length;
+          const dist: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+          reviewed.forEach((t) => {
+            const r = Math.round(t.rating ?? 0);
+            if (r >= 1 && r <= 5) dist[r]++;
+          });
+          const maxDist = Math.max(1, ...Object.values(dist));
+
+          const reviewsByProductTitle = new Map<string, { count: number; sum: number }>();
+          reviewed.forEach((t) => {
+            if (!t.productPurchased) return;
+            const entry = reviewsByProductTitle.get(t.productPurchased) ?? { count: 0, sum: 0 };
+            entry.count++;
+            entry.sum += t.rating ?? 0;
+            reviewsByProductTitle.set(t.productPurchased, entry);
+          });
+          const topReviewed = Array.from(reviewsByProductTitle.entries())
+            .map(([title, v]) => ({ title, count: v.count, avg: v.sum / v.count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5);
+
+          if (totalReviews === 0) return null;
+
+          return (
+            <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
+              <div className="px-5 py-4 border-b border-white/[0.04] flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#fe005018', border: '1px solid #fe005038' }}>
+                    <Star size={15} className="text-accent fill-accent" />
+                  </div>
+                  <div>
+                    <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>Avaliações de produtos</h3>
+                    <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
+                      {totalReviews} avaliações · {verifiedReviews} verificadas · {pendingReviews} pendentes
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/admin/testimonials"
+                  className="text-text-muted hover:text-accent transition-colors text-xs"
+                >
+                  Gerenciar →
+                </Link>
+              </div>
+              <div className="px-5 py-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <div className="flex items-baseline gap-3 mb-4">
+                    <p className="font-heading text-5xl font-light text-text-primary leading-none">{avgReview.toFixed(1)}</p>
+                    <p className="text-text-muted text-sm">/ 5</p>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    {[5, 4, 3, 2, 1].map((s) => {
+                      const n = dist[s] ?? 0;
+                      const pct = totalReviews > 0 ? (n / totalReviews) * 100 : 0;
+                      const width = (n / maxDist) * 100;
+                      return (
+                        <div key={s} className="flex items-center gap-2 text-xs">
+                          <span className="text-text-muted w-6 flex items-center gap-0.5">
+                            {s}<Star size={8} className="text-accent fill-accent" />
+                          </span>
+                          <div className="flex-1 h-1 rounded-full bg-white/[0.04] overflow-hidden">
+                            <div className="h-full bg-accent rounded-full transition-all duration-700" style={{ width: `${width}%` }} />
+                          </div>
+                          <span className="text-text-muted w-10 text-right tabular-nums">{pct.toFixed(0)}%</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-text-muted text-xs uppercase tracking-widest mb-3">Mais avaliados</p>
+                  {topReviewed.length === 0 ? (
+                    <p className="text-text-muted text-xs">Nenhum produto avaliado ainda.</p>
+                  ) : (
+                    <div className="space-y-2.5">
+                      {topReviewed.map((p) => (
+                        <div key={p.title} className="flex items-center justify-between gap-3">
+                          <p className="text-text-secondary text-xs flex-1 truncate">{p.title}</p>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className="text-accent text-xs font-medium tabular-nums flex items-center gap-1">
+                              <Star size={10} className="fill-accent" /> {p.avg.toFixed(1)}
+                            </span>
+                            <span className="text-text-muted text-[10px]">({p.count})</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Articles + Guides */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.04]">
+              <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
+                Artigos publicados
+              </h3>
+              <Link href="/admin/blog" className="text-text-muted hover:text-accent transition-colors" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
+                Ver todos →
+              </Link>
+            </div>
+            <div className="divide-y divide-white/[0.04]">
+              {topPosts.length === 0 ? (
+                <p className="px-5 py-8 text-text-muted text-center" style={{ fontSize: '0.8rem' }}>Nenhum artigo ainda.</p>
+              ) : topPosts.map((post, i) => (
+                <div key={post.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-white/2 transition-colors">
+                  <span className="text-text-muted font-heading" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)', minWidth: '18px' }}>{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-text-secondary font-medium truncate" style={{ fontSize: 'clamp(0.8rem, 0.9vw, 0.875rem)' }}>{post.title}</p>
+                    <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>{post.category} · {post.readTime}min</p>
+                  </div>
+                  {post.featured && (
+                    <span className="text-accent border border-accent/20 bg-accent/5 px-2 py-0.5 rounded-full flex-shrink-0" style={{ fontSize: '10px' }}>Destaque</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.04]">
+              <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
+                Guias mais baixados
+              </h3>
+              <Link href="/admin/guide" className="text-text-muted hover:text-accent transition-colors" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
+                Ver todos →
+              </Link>
+            </div>
+            <div className="divide-y divide-white/[0.04]">
+              {topGuides.length === 0 ? (
+                <p className="px-5 py-8 text-text-muted text-center" style={{ fontSize: '0.8rem' }}>Nenhum guia ainda.</p>
+              ) : topGuides.map((guide, i) => (
+                <div key={guide.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-white/2 transition-colors">
+                  <span className="text-text-muted font-heading" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)', minWidth: '18px' }}>{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-text-secondary font-medium truncate" style={{ fontSize: 'clamp(0.8rem, 0.9vw, 0.875rem)' }}>{guide.title}</p>
+                    <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>{guide.category || 'Geral'}</p>
+                  </div>
+                  <div className="flex items-center gap-1 text-blue-400 flex-shrink-0" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
+                    <Download size={11} /> {guide.downloadCount ?? 0}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Depoimentos aprovados */}
+        <div className="rounded-2xl border border-white/5 bg-surface p-5 max-w-sm">
+          <p className="text-text-muted mb-2" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>Depoimentos aprovados</p>
+          <p className="font-body font-semibold" style={{ fontSize: 'clamp(1.6rem, 2.5vw, 2.2rem)', color: '#10b981' }}>
+            {testimonials.filter((t) => t.status === 'approved' || !t.status).length}
+          </p>
+          <p className="text-text-muted mt-1" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>
+            {testimonials.filter((t) => t.status === 'pending').length} aguardando aprovação
+          </p>
+        </div>
       </div>
     </div>
   );
