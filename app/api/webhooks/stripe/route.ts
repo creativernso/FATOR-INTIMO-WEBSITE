@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     console.warn('[webhook] STRIPE_WEBHOOK_SECRET not set — running without signature verification');
     alertStripeWebhookFailure(
       'missing_secret',
-      'A variável STRIPE_WEBHOOK_SECRET não está definida na Vercel. O webhook está rodando sem verificação de assinatura — qualquer um pode forjar pedidos.',
+      'A variável STRIPE_WEBHOOK_SECRET não está definida na Vercel. O webhook está rodando sem verificação de assinatura: qualquer um pode forjar pedidos.',
     );
     event = JSON.parse(body);
   }

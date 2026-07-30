@@ -356,7 +356,7 @@ export default function AdminTestimonials() {
               <input
                 value={form.videoUrl}
                 onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
-                placeholder="URL do vídeo (opcional) — YouTube, Vimeo ou link .mp4"
+                placeholder="URL do vídeo (opcional): YouTube, Vimeo ou link .mp4"
                 className="w-full bg-surface border border-white/8 rounded-xl px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/30 transition-colors"
               />
               <p className="text-text-muted text-[11px] mt-1">

@@ -406,7 +406,7 @@ export default function AdminBlog() {
                   <input type="datetime-local" className="admin-input" value={form.publishedAt} onChange={(e) => setForm({ ...form, publishedAt: e.target.value })} />
                   {new Date(form.publishedAt).getTime() > Date.now() && (
                     <p className="text-amber-400 mt-1.5 flex items-center gap-1.5" style={{ fontSize: fs('0.68rem', '0.75vw', '0.72rem') }}>
-                      <CalendarClock size={11} /> Agendado — só aparece no site nesse horário.
+                      <CalendarClock size={11} /> Agendado. Só aparece no site nesse horário.
                     </p>
                   )}
                 </div>

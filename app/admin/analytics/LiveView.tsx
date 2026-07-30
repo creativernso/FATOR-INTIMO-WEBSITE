@@ -66,7 +66,7 @@ export function LiveView() {
         <div>
           <p className="text-text-muted uppercase tracking-widest mb-2" style={{ fontSize: '10px' }}>Visitantes agora</p>
           <p className="font-body font-semibold text-green-400" style={{ fontSize: 'clamp(2.2rem, 4vw, 3rem)' }}>
-            {data?.visitorsNow ?? '—'}
+            {data?.visitorsNow ?? '...'}
           </p>
 
           <div className="mt-5 space-y-2">

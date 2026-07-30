@@ -20,7 +20,7 @@ const STEPS = [
   {
     icon: Megaphone,
     title: 'Divulgue',
-    desc: 'Compartilhe nas redes, no WhatsApp, no blog — qualquer lugar onde sua audiência esteja.',
+    desc: 'Compartilhe nas redes, no WhatsApp, no blog: qualquer lugar onde sua audiência esteja.',
   },
   {
     icon: Wallet,

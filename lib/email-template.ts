@@ -576,7 +576,7 @@ export function affiliateApprovedHtml({ name, referralLink, dashboardUrl, commis
           <tr>
             <td style="padding:24px 40px;">
               <p style="margin:0;font-size:13px;line-height:1.7;color:#666666;">
-                Guarde o link do seu painel — ele é pessoal e não deve ser compartilhado. É por ele que você acompanha cliques, vendas e comissões em tempo real.
+                Guarde o link do seu painel: ele é pessoal e não deve ser compartilhado. É por ele que você acompanha cliques, vendas e comissões em tempo real.
               </p>
             </td>
           </tr>
@@ -607,7 +607,7 @@ Seu link de afiliado: ${referralLink}
 
 Seu painel (cliques, vendas, comissões): ${dashboardUrl}
 
-Guarde o link do seu painel — ele é pessoal e não deve ser compartilhado.
+Guarde o link do seu painel: ele é pessoal e não deve ser compartilhado.
 
 Fator Íntimo
 fatorintimo.com`;
@@ -730,7 +730,7 @@ export function cartRecoveryText({ introMessage, productTitle, productPrice, cta
   const price = (productPrice / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
   return `${introMessage}
 
-${productTitle} — R$ ${price}
+${productTitle} · R$ ${price}
 
 ${ctaLabel}: ${ctaUrl}
 

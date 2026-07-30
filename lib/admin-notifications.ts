@@ -235,7 +235,7 @@ export function alertStripeWebhookFailure(reason: string, details: string) {
   lastWebhookAlertAt.set(reason, now);
 
   return sendAdminAlert({
-    subject: '🚨 Stripe webhook falhou — pedidos não estão sendo processados',
+    subject: '🚨 Stripe webhook falhou: pedidos não estão sendo processados',
     title: 'Webhook Stripe com erro',
     body:
       'Um ou mais eventos checkout.session.completed da Stripe não puderam ser processados. ' +
