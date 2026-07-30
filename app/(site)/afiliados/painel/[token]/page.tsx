@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { MousePointerClick, ShoppingBag, Wallet, Clock } from 'lucide-react';
 import { getAffiliateByToken, getReferralsByAffiliate } from '@/lib/affiliates';
+import { getProducts } from '@/lib/db';
 import CopyReferralLink from './CopyReferralLink';
+import ProductLinkPicker from './ProductLinkPicker';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,9 +56,13 @@ export default async function AffiliateDashboardPage({
     );
   }
 
-  const referrals = await getReferralsByAffiliate(affiliate.id);
+  const [referrals, products] = await Promise.all([
+    getReferralsByAffiliate(affiliate.id),
+    getProducts(),
+  ]);
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
   const referralLink = `${baseUrl}/?ref=${affiliate.code}`;
+  const productOptions = products.map((p) => ({ slug: p.slug, title: p.title }));
 
   const totalSales = referrals.reduce((s, r) => s + r.saleAmount, 0);
   const totalCommission = referrals.reduce((s, r) => s + r.commissionAmount, 0);
@@ -74,10 +80,20 @@ export default async function AffiliateDashboardPage({
           <p className="text-text-muted text-sm">Você ganha {affiliate.commissionRate}% de comissão em cada venda pelo seu link.</p>
         </div>
 
-        <div className="mb-8">
+        <div className="mb-6">
           <p className="text-text-muted text-xs mb-2 uppercase tracking-widest">Seu link de afiliado</p>
           <CopyReferralLink link={referralLink} />
         </div>
+
+        {productOptions.length > 0 && (
+          <div className="mb-8">
+            <p className="text-text-muted text-xs mb-2 uppercase tracking-widest">Ou promova um produto específico</p>
+            <ProductLinkPicker baseUrl={baseUrl} code={affiliate.code} products={productOptions} />
+            <p className="text-text-muted text-[11px] mt-1.5">
+              Leva a pessoa direto para a página do produto escolhido, o que costuma converter melhor.
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-3 gap-3 mb-8">
           <div className="rounded-2xl border border-white/5 bg-surface p-4 text-center">
