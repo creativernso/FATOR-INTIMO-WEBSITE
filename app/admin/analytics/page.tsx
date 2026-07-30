@@ -6,6 +6,7 @@ import { getOrders } from '@/lib/orders';
 import { AnalyticsFilterBar } from './AnalyticsFilterBar';
 import { LiveView } from './LiveView';
 import { countryCodeToFlag, countryName } from '@/lib/geo';
+import { getPixelEventCounts, getPurchaseMatchQuality } from '@/lib/meta-insights';
 
 export const dynamic = 'force-dynamic';
 
@@ -71,7 +72,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
   const daysParam = sp.days || '30';
   const days = daysParam === 'all' ? null : parseInt(daysParam, 10);
 
-  const [posts, leads, testimonials, guides, allCommunityPosts, orders, pageViewDocs] = await Promise.all([
+  const [posts, leads, testimonials, guides, allCommunityPosts, orders, pageViewDocs, pixelStats, purchaseMatchQuality] = await Promise.all([
     getPosts(),
     getLeads(),
     getTestimonials(),
@@ -79,6 +80,8 @@ export default async function AnalyticsPage({ searchParams }: Props) {
     getCommunityPosts(),
     getOrders(),
     getPageViewTotals(days ?? 365),
+    getPixelEventCounts(),
+    getPurchaseMatchQuality(),
   ]);
 
   const totalPageViews = pageViewDocs.reduce((s, d) => s + d.total, 0);
@@ -489,20 +492,52 @@ export default async function AnalyticsPage({ searchParams }: Props) {
             { label: 'ViewContent', desc: 'Páginas de produto' },
             { label: 'Lead', desc: 'Cadastro guia gratuito' },
             { label: 'Purchase', desc: 'Checkout concluído' },
-          ].map((ev) => (
-            <div key={ev.label} className="rounded-xl border border-white/6 bg-white/2 px-4 py-3">
-              <div className="flex items-center gap-2 mb-1">
-                <span className={`w-1.5 h-1.5 rounded-full ${pixelConfigured ? 'bg-green-400 animate-pulse' : 'bg-text-muted/40'}`} />
-                <p className="text-text-primary text-xs font-medium">{ev.label}</p>
+          ].map((ev) => {
+            const match = pixelStats.events.find((e) => e.event.toLowerCase() === ev.label.toLowerCase());
+            const isPurchase = ev.label === 'Purchase';
+            return (
+              <div key={ev.label} className="rounded-xl border border-white/6 bg-white/2 px-4 py-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`w-1.5 h-1.5 rounded-full ${pixelConfigured ? 'bg-green-400 animate-pulse' : 'bg-text-muted/40'}`} />
+                  <p className="text-text-primary text-xs font-medium">{ev.label}</p>
+                </div>
+                {pixelConfigured && !pixelStats.error && (
+                  <p className="font-body font-semibold text-text-primary" style={{ fontSize: '1.15rem' }}>
+                    {(match?.count ?? 0).toLocaleString('pt-BR')}
+                  </p>
+                )}
+                <p className="text-text-muted" style={{ fontSize: '11px' }}>{ev.desc}</p>
+                {isPurchase && pixelConfigured && (
+                  purchaseMatchQuality.score !== null ? (
+                    <p className="text-accent mt-1" style={{ fontSize: '11px' }}>
+                      Match quality: {purchaseMatchQuality.score.toFixed(1)}/10
+                    </p>
+                  ) : purchaseMatchQuality.error ? (
+                    <p className="text-text-muted mt-1" style={{ fontSize: '10px' }} title={purchaseMatchQuality.error}>
+                      Match quality indisponível
+                    </p>
+                  ) : null
+                )}
               </div>
-              <p className="text-text-muted" style={{ fontSize: '11px' }}>{ev.desc}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
         {!pixelConfigured && (
           <div className="px-6 py-4 bg-yellow-400/5 border-t border-yellow-400/10">
             <p className="text-yellow-400/90 text-xs">
               Defina <code className="bg-black/30 px-1.5 py-0.5 rounded">NEXT_PUBLIC_FB_PIXEL_ID</code> nas variáveis de ambiente do Vercel para ativar.
+            </p>
+          </div>
+        )}
+        {pixelConfigured && !pixelStats.error && (
+          <div className="px-6 py-3 border-t border-white/[0.04]">
+            <p className="text-text-muted" style={{ fontSize: '11px' }}>Contagens dos últimos {pixelStats.days} dias (limite da API da Meta).</p>
+          </div>
+        )}
+        {pixelConfigured && pixelStats.error && (
+          <div className="px-6 py-4 bg-yellow-400/5 border-t border-yellow-400/10">
+            <p className="text-yellow-400/90 text-xs">
+              Não foi possível buscar os números do Pixel diretamente ({pixelStats.error}). Pode ser necessário gerar um token com mais permissões em Events Manager → Configurações → Conversions API.
             </p>
           </div>
         )}
