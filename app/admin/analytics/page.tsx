@@ -24,6 +24,20 @@ function groupByDay(items: { createdAt?: string; publishedAt?: string; date?: st
   return Object.entries(buckets).map(([date, count]) => ({ date, count }));
 }
 
+function sumByDay(items: { createdAt?: string; amount: number }[], days = 30) {
+  const now = Date.now();
+  const buckets: Record<string, number> = {};
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(now - i * 86400000);
+    buckets[d.toISOString().split('T')[0]] = 0;
+  }
+  for (const item of items) {
+    const day = (item.createdAt || '').split('T')[0];
+    if (day in buckets) buckets[day] += item.amount;
+  }
+  return Object.entries(buckets).map(([date, amount]) => ({ date, amount }));
+}
+
 function filterByDays<T extends { createdAt?: string; publishedAt?: string; date?: string }>(
   items: T[],
   days: number | null,
@@ -96,6 +110,24 @@ export default async function AnalyticsPage({ searchParams }: Props) {
   const chartDays = days && days <= 30 ? days : 14;
   const leadsByDay = groupByDay(filteredLeads, chartDays);
   const maxLeads = Math.max(...leadsByDay.map((d) => d.count), 1);
+
+  const revenueByDay = sumByDay(filteredOrders.map((o) => ({ createdAt: o.createdAt, amount: o.amountTotal / 100 })), chartDays);
+  const maxRevenue = Math.max(...revenueByDay.map((d) => d.amount), 1);
+  const chartRevenueTotal = revenueByDay.reduce((s, d) => s + d.amount, 0);
+
+  // Top selling products by revenue, within the selected period
+  const productSalesMap = new Map<string, { count: number; revenue: number }>();
+  for (const order of filteredOrders) {
+    const key = order.productTitle || 'Produto';
+    const entry = productSalesMap.get(key) ?? { count: 0, revenue: 0 };
+    entry.count++;
+    entry.revenue += order.amountTotal;
+    productSalesMap.set(key, entry);
+  }
+  const topSellingProducts = Array.from(productSalesMap.entries())
+    .map(([title, v]) => ({ title, count: v.count, revenue: v.revenue / 100 }))
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 5);
 
   // Sessions by country, aggregated across the fetched pageview docs
   const countryTotals: Record<string, number> = {};
@@ -242,6 +274,83 @@ export default async function AnalyticsPage({ searchParams }: Props) {
           ))}
         </div>
       </div>
+
+      {/* Revenue chart */}
+      <div className="rounded-2xl border border-white/5 bg-surface p-6 lg:p-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>
+              Receita nos últimos {chartDays} dias
+            </h3>
+            <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>
+              {filteredOrders.length} pedidos no período selecionado
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="font-body font-semibold text-accent" style={{ fontSize: 'clamp(1.2rem, 1.8vw, 1.6rem)' }}>
+              R$ {chartRevenueTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </p>
+            <p className="text-text-muted" style={{ fontSize: 'clamp(0.65rem, 0.75vw, 0.72rem)' }}>
+              últimos {chartDays} dias
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-end gap-1 h-24">
+          {revenueByDay.map(({ date, amount }) => (
+            <div key={date} className="flex-1 flex flex-col items-center gap-1 group">
+              <div
+                className="w-full rounded-t transition-all duration-500"
+                style={{
+                  height: `${Math.max(4, (amount / maxRevenue) * 88)}px`,
+                  background: amount > 0 ? 'rgba(254,0,80,0.5)' : 'rgba(255,255,255,0.05)',
+                  borderTop: amount > 0 ? '1px solid rgba(254,0,80,0.4)' : 'none',
+                }}
+                title={`${date}: R$ ${amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+              />
+              <span className="text-text-muted" style={{ fontSize: '8px', writingMode: 'vertical-rl', transform: 'rotate(180deg)', opacity: 0.5 }}>
+                {date.slice(5)}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Top selling products */}
+      {topSellingProducts.length > 0 && (
+        <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
+          <div className="px-5 py-4 border-b border-white/[0.04] flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#a855f718', border: '1px solid #a855f738' }}>
+                <Package size={15} style={{ color: '#a855f7' }} />
+              </div>
+              <div>
+                <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>Produtos mais vendidos</h3>
+                <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>Por receita, no período selecionado</p>
+              </div>
+            </div>
+            <Link href="/admin/orders" className="text-text-muted hover:text-accent transition-colors" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>
+              Ver pedidos →
+            </Link>
+          </div>
+          <div className="divide-y divide-white/[0.04]">
+            {topSellingProducts.map((p, i) => (
+              <div key={p.title} className="flex items-center gap-4 px-5 py-3.5 hover:bg-white/2 transition-colors">
+                <span className="text-text-muted font-heading" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)', minWidth: '18px' }}>{i + 1}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-text-secondary font-medium truncate" style={{ fontSize: 'clamp(0.8rem, 0.9vw, 0.875rem)' }}>{p.title}</p>
+                  <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>
+                    {p.count} pedido{p.count === 1 ? '' : 's'} · ticket médio R$ {(p.revenue / p.count).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
+                <p className="font-body font-semibold text-green-400 flex-shrink-0" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
+                  R$ {p.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Page views chart */}
       {pageViewDocs.length > 0 && (
