@@ -377,6 +377,20 @@ select {
   border-right-color: var(--border-subtle) !important;
 }
 
+/* The public site's serif h1-h5 rule (and the .font-heading utility) are
+   meant for the editorial front-end, not the functional admin dashboard —
+   force bold sans-serif everywhere inside it instead. */
+.admin-dashboard h1,
+.admin-dashboard h2,
+.admin-dashboard h3,
+.admin-dashboard h4,
+.admin-dashboard h5,
+.admin-dashboard .font-heading {
+  font-family: var(--font-inter) !important;
+  font-weight: 700 !important;
+  letter-spacing: normal !important;
+}
+
 /* ─── Countdown clock hand animations ────────────────────────────────────── */
 @keyframes fi-clock-minute {
   from { transform: rotate(0deg); }

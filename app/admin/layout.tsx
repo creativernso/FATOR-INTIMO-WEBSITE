@@ -102,7 +102,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="h-screen flex bg-background overflow-hidden" style={{ fontFamily: 'var(--font-inter)' }}>
+    <div className="admin-dashboard h-screen flex bg-background overflow-hidden" style={{ fontFamily: 'var(--font-inter)' }}>
 
       {/* Sidebar */}
       <aside
