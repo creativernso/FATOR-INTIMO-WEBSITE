@@ -1,17 +1,34 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { Cookie, X } from 'lucide-react';
 import { getConsent, saveConsent } from '@/lib/cookie-consent';
 
+// On product pages, give the visitor a few seconds to actually look at the
+// product before the banner shows up — it's the page most likely to be a
+// first touch from an ad/affiliate link, so an instant banner is the most
+// disruptive to conversion there. Still shown well before checkout, and
+// no non-essential tracker fires until consent is actually granted either way.
+const PRODUCT_PAGE_DELAY_MS = 6000;
+
 export default function CookieConsent() {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const [customizing, setCustomizing] = useState(false);
   const [analytics, setAnalytics] = useState(true);
   const [marketing, setMarketing] = useState(true);
 
   useEffect(() => {
-    if (!getConsent()) setVisible(true);
+    if (getConsent()) return;
+    const isProductPage = pathname?.startsWith('/products');
+    if (!isProductPage) {
+      setVisible(true);
+      return;
+    }
+    const id = setTimeout(() => setVisible(true), PRODUCT_PAGE_DELAY_MS);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const acceptAll = () => {
