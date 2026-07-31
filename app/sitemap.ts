@@ -1,24 +1,12 @@
 import type { MetadataRoute } from 'next';
 import { getPosts, getProducts, getGuides, getCommunityPosts } from '@/lib/db';
+import { COMMUNITY_CATEGORIES } from '@/lib/community';
 
 const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
 
 // Force this route to be dynamic so it always reflects the latest content.
 export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // also allow a 1-hour cache layer
-
-const COMMUNITY_CATEGORIES = [
-  'identificacao',
-  'reflexoes',
-  'rupturas',
-  'autoconhecimento',
-  'reconstrucao',
-  'cura',
-  'liberdade',
-  'apego',
-  'intimidade',
-  'feminino-masculino',
-];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -33,6 +21,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/comunidade`,   changeFrequency: 'daily',   priority: 0.85, lastModified: now },
     { url: `${SITE_URL}/testimonials`, changeFrequency: 'weekly',  priority: 0.7, lastModified: now },
     { url: `${SITE_URL}/about`,        changeFrequency: 'monthly', priority: 0.5, lastModified: now },
+    { url: `${SITE_URL}/contato`,      changeFrequency: 'yearly',  priority: 0.4, lastModified: now },
+    { url: `${SITE_URL}/afiliados`,    changeFrequency: 'monthly', priority: 0.5, lastModified: now },
     { url: `${SITE_URL}/social`,       changeFrequency: 'monthly', priority: 0.4, lastModified: now },
     { url: `${SITE_URL}/legal/privacidade`,            changeFrequency: 'yearly', priority: 0.3, lastModified: now },
     { url: `${SITE_URL}/legal/termos`,                 changeFrequency: 'yearly', priority: 0.3, lastModified: now },
@@ -45,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Community category landing pages
   const categoryEntries: MetadataRoute.Sitemap = COMMUNITY_CATEGORIES.map((c) => ({
-    url: `${SITE_URL}/comunidade/categoria/${c}`,
+    url: `${SITE_URL}/comunidade/categoria/${c.slug}`,
     changeFrequency: 'daily',
     priority: 0.6,
     lastModified: now,

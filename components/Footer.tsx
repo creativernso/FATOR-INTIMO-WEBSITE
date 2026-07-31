@@ -70,6 +70,7 @@ export default async function Footer() {
     { href: '/guia', label: t('nav.guides') },
     { href: '/comunidade', label: 'Comunidade' },
     { href: '/afiliados', label: 'Programa de Afiliados' },
+    { href: '/contato', label: 'Contato' },
   ];
 
   const legalLinks = [
