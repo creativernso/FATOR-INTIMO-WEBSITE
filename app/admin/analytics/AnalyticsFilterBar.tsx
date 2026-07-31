@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Download } from 'lucide-react';
 
 const OPTIONS = [
+  { label: 'Hoje', value: '1' },
   { label: '7 dias', value: '7' },
   { label: '30 dias', value: '30' },
   { label: '90 dias', value: '90' },
