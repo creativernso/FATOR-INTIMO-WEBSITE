@@ -345,6 +345,24 @@ h1, h2, h3, h4, h5 {
 /* Select options */
 [data-theme="light"] select.admin-input option { background: #ffffff; color: #111111; }
 
+/* Custom dropdown arrow for every <select> on the site. The native arrow
+   renders flush against the field's edge with no reliable cross-browser way
+   to add breathing room via padding alone, so we hide it and draw our own
+   with proper spacing. */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 32px !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 9px 6px !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%236e6e6e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+}
+[data-theme="light"] select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23909090' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+}
+
 /* Admin chrome (sidebar + header), dark: solid black, light: solid white */
 .admin-chrome {
   background: #000000;
