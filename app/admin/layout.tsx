@@ -102,11 +102,11 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="min-h-screen flex bg-background" style={{ fontFamily: 'var(--font-inter)' }}>
+    <div className="h-screen flex bg-background overflow-hidden" style={{ fontFamily: 'var(--font-inter)' }}>
 
       {/* Sidebar */}
       <aside
-        className="admin-sidebar w-[72px] lg:w-[260px] flex-shrink-0 flex flex-col border-r border-white/5 relative admin-chrome"
+        className="admin-sidebar w-[72px] lg:w-[260px] flex-shrink-0 flex flex-col border-r border-white/5 relative admin-chrome overflow-y-auto"
       >
         {/* Top glow */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
