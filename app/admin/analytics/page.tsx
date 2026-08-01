@@ -107,7 +107,6 @@ export default async function AnalyticsPage({ searchParams }: Props) {
   const avgRating = testimonials.filter((t) => t.rating).reduce((a, t) => a + (t.rating ?? 0), 0) / (testimonials.filter((t) => t.rating).length || 1);
 
   const emailLeads = leads.filter((l) => l.email).length;
-  const leadsThisMonth = leads.filter((l) => Date.now() - new Date(l.createdAt).getTime() < 30 * 86400000).length;
   const leadsGrowth = calcGrowth(leads);
   const ordersGrowth = calcGrowth(orders.map((o) => ({ createdAt: o.createdAt })));
   const postsGrowth = calcGrowth(posts.map((p) => ({ publishedAt: p.publishedAt })));
@@ -124,6 +123,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
   const chartDays = days && days <= 30 ? days : 14;
   const leadsByDay = groupByDay(filteredLeads, chartDays);
   const maxLeads = Math.max(...leadsByDay.map((d) => d.count), 1);
+  const chartLeadsTotal = leadsByDay.reduce((s, d) => s + d.count, 0);
 
   const revenueByDay = sumByDay(filteredOrders.map((o) => ({ createdAt: o.createdAt, amount: o.amountTotal / 100 })), chartDays);
   const maxRevenue = Math.max(...revenueByDay.map((d) => d.amount), 1);
@@ -307,14 +307,16 @@ export default async function AnalyticsPage({ searchParams }: Props) {
                   Novos leads nos últimos {chartDays} dias
                 </h3>
                 <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>
-                  {leadsThisMonth} leads nos últimos 30 dias
+                  {chartLeadsTotal} leads no período selecionado
                 </p>
               </div>
               <div className="text-right">
                 <p className="font-body font-semibold text-green-400" style={{ fontSize: 'clamp(1.2rem, 1.8vw, 1.6rem)' }}>
-                  {leadsThisMonth}
+                  {chartLeadsTotal}
                 </p>
-                <p className="text-text-muted" style={{ fontSize: 'clamp(0.65rem, 0.75vw, 0.72rem)' }}>este mês</p>
+                <p className="text-text-muted" style={{ fontSize: 'clamp(0.65rem, 0.75vw, 0.72rem)' }}>
+                  últimos {chartDays} dias
+                </p>
               </div>
             </div>
 
