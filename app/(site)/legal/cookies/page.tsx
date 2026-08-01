@@ -58,7 +58,9 @@ const sections = [
         <P>
           Indispensáveis para o funcionamento da Plataforma, autenticação, segurança, carrinho de
           compras, sessões e preferências básicas. Não podem ser desativados sem comprometer recursos
-          essenciais.
+          essenciais. Isso inclui uma contagem agregada e anônima de páginas visitadas por dia (sem
+          identificar o visitante nem usar cookies de rastreamento), semelhante a um registro de acesso
+          de servidor, usada apenas para entender o volume de uso da Plataforma.
         </P>
         <H3>Funcionais</H3>
         <P>
@@ -67,7 +69,8 @@ const sections = [
         </P>
         <H3>Analíticos</H3>
         <P>
-          Coletam métricas de uso de forma agregada e, sempre que possível, anonimizada. Usamos
+          Coletam métricas de uso identificando o visitante ao longo da sessão (por exemplo, quais páginas
+          você percorre e por quanto tempo), de forma agregada e, sempre que possível, anonimizada. Usamos
           ferramentas como Google Analytics e instrumentação interna para entender quais conteúdos têm
           maior impacto e onde melhorar.
         </P>

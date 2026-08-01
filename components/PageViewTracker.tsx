@@ -37,8 +37,15 @@ export function PageViewTracker() {
     }).catch(() => {});
   }, [analyticsConsent]);
 
+  // Aggregate page-hit counting only (no visitor identity, no persistent
+  // cookie-based profile — just a per-day, per-path tally, closer to a
+  // server access log than to tracking). Fires unconditionally, unlike the
+  // heartbeat/visitor-tracking effects below, which build a per-visitor
+  // profile and stay gated behind analytics consent. Without this, business-
+  // critical actions like starting checkout (never consent-gated) could
+  // happen from a visit that was never counted at all, since a visitor who
+  // decides fast might click "Comprar" before ever seeing the cookie banner.
   useEffect(() => {
-    if (!analyticsConsent) return;
     if (tracked.current.has(pathname)) return;
     tracked.current.add(pathname);
     fetch('/api/analytics/pageview', {
@@ -46,7 +53,7 @@ export function PageViewTracker() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path: pathname, ...getStoredUtm() }),
     }).catch(() => {});
-  }, [pathname, analyticsConsent]);
+  }, [pathname]);
 
   useEffect(() => {
     if (!analyticsConsent) return;
