@@ -10,7 +10,7 @@ import { getConsent, saveConsent } from '@/lib/cookie-consent';
 // first touch from an ad/affiliate link, so an instant banner is the most
 // disruptive to conversion there. Still shown well before checkout, and
 // no non-essential tracker fires until consent is actually granted either way.
-const PRODUCT_PAGE_DELAY_MS = 6000;
+const PRODUCT_PAGE_DELAY_MS = 15000;
 
 export default function CookieConsent() {
   const pathname = usePathname();
@@ -49,22 +49,22 @@ export default function CookieConsent() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[200] p-4 sm:p-6">
+    <div className="fixed bottom-0 left-0 right-0 z-[200] p-2.5 sm:p-6">
       <div
-        className="max-w-2xl mx-auto rounded-2xl border border-white/10 overflow-hidden shadow-2xl shadow-black/40"
+        className="max-w-2xl mx-auto rounded-2xl border border-white/10 overflow-hidden shadow-2xl shadow-black/40 max-h-[85vh] overflow-y-auto"
         style={{ background: '#130e09' }}
       >
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
-        <div className="p-5 sm:p-6">
-          <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0">
-              <Cookie size={16} className="text-accent" />
+        <div className="p-3.5 sm:p-6">
+          <div className="flex items-start gap-2.5 sm:gap-3">
+            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0">
+              <Cookie size={14} className="text-accent sm:hidden" />
+              <Cookie size={16} className="text-accent hidden sm:block" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-text-primary text-sm font-medium mb-1.5">Usamos cookies</p>
-              <p className="text-text-secondary text-xs leading-relaxed">
-                Usamos cookies essenciais para o funcionamento do site, e cookies opcionais de análise e
-                publicidade (incluindo Google AdSense) para melhorar sua experiência. Veja nossa{' '}
+              <p className="text-text-primary text-xs sm:text-sm font-medium mb-1 sm:mb-1.5">Usamos cookies</p>
+              <p className="text-text-secondary text-[11px] sm:text-xs leading-snug sm:leading-relaxed">
+                Cookies essenciais sempre ativos; análise e publicidade só com sua permissão.{' '}
                 <a href="/legal/cookies" className="text-accent hover:underline">Política de Cookies</a>.
               </p>
             </div>
@@ -108,11 +108,11 @@ export default function CookieConsent() {
             </div>
           )}
 
-          <div className="flex flex-wrap items-center gap-2.5 mt-5 pl-12">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 mt-3.5 sm:mt-5 pl-9 sm:pl-12">
             {customizing ? (
               <button
                 onClick={saveCustom}
-                className="bg-accent hover:bg-accent-hover text-white text-xs font-medium px-5 py-2.5 rounded-full transition-all"
+                className="bg-accent hover:bg-accent-hover text-white text-[11px] sm:text-xs font-medium px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all"
               >
                 Salvar preferências
               </button>
@@ -120,19 +120,19 @@ export default function CookieConsent() {
               <>
                 <button
                   onClick={acceptAll}
-                  className="bg-accent hover:bg-accent-hover text-white text-xs font-medium px-5 py-2.5 rounded-full transition-all"
+                  className="flex-1 sm:flex-initial bg-accent hover:bg-accent-hover text-white text-[11px] sm:text-xs font-medium px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all whitespace-nowrap"
                 >
                   Aceitar todos
                 </button>
                 <button
                   onClick={rejectNonEssential}
-                  className="border border-white/15 text-text-secondary hover:text-text-primary hover:border-white/25 text-xs font-medium px-5 py-2.5 rounded-full transition-all"
+                  className="flex-1 sm:flex-initial border border-white/15 text-text-secondary hover:text-text-primary hover:border-white/25 text-[11px] sm:text-xs font-medium px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all whitespace-nowrap"
                 >
-                  Recusar não essenciais
+                  Recusar
                 </button>
                 <button
                   onClick={() => setCustomizing(true)}
-                  className="text-text-muted hover:text-text-primary text-xs px-3 py-2.5 transition-colors"
+                  className="w-full sm:w-auto text-center sm:text-left text-text-muted hover:text-text-primary text-[11px] sm:text-xs px-3 py-1 sm:py-2.5 transition-colors"
                 >
                   Personalizar
                 </button>
@@ -144,9 +144,10 @@ export default function CookieConsent() {
         <button
           onClick={rejectNonEssential}
           aria-label="Fechar e recusar não essenciais"
-          className="absolute top-4 right-4 w-7 h-7 rounded-full text-text-muted hover:text-text-primary hover:bg-white/6 flex items-center justify-center transition-all"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 w-6 h-6 sm:w-7 sm:h-7 rounded-full text-text-muted hover:text-text-primary hover:bg-white/6 flex items-center justify-center transition-all"
         >
-          <X size={14} />
+          <X size={13} className="sm:hidden" />
+          <X size={14} className="hidden sm:block" />
         </button>
       </div>
     </div>
