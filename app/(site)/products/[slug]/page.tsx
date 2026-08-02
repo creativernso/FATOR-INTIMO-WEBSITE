@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -13,9 +14,23 @@ import ProductEvents from './ProductEvents';
 import StarRating from '@/components/StarRating';
 import ReviewSection from '@/components/ReviewSection';
 
-export const dynamic = 'force-dynamic';
+// This is the exact landing page ad traffic hits, so cold-start latency
+// matters a lot here. Nothing on the page is per-visitor (no cookies/auth
+// read, the countdown timer is client-side JS) — everything is just product
+// + testimonial data from Firestore, so ISR is safe and lets Vercel serve a
+// cached response instantly instead of re-rendering from scratch on every
+// single request. Edits made in the admin panel show up within a minute.
+export const revalidate = 60;
 
 const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
+
+// Pre-render every current product at build time so there's never a "first
+// visitor" cold-render for existing products — only a brand-new product
+// added after the last deploy would need a one-time on-demand render.
+export async function generateStaticParams() {
+  const products = await getProducts();
+  return products.map((p) => ({ slug: p.slug }));
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -423,7 +438,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       )}
 
       {/* ── REVIEWS ── (replaces the static testimonials block, now fully interactive) */}
-      <ReviewSection productSlug={product.slug} productTitle={product.title} />
+      <Suspense fallback={null}>
+        <ReviewSection productSlug={product.slug} productTitle={product.title} />
+      </Suspense>
 
       {/* ── FAQ ── */}
       {product.faq && product.faq.length > 0 && (
