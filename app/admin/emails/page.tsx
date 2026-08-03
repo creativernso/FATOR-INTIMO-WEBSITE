@@ -1,16 +1,17 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import {
   Send, Users, Mail, CheckCircle, AlertCircle, Loader, Plus, Trash2,
   BarChart2, Zap, ChevronDown, ChevronUp, Upload, Download, X, FlaskConical,
-  Clock, Play, Pause, Settings,
+  Clock, Play, Pause, Settings, PackageCheck, Star, ShoppingCart, ArrowRight,
 } from 'lucide-react';
-import { EmailCampaign, EmailAutomation, Lead } from '@/lib/types';
+import { EmailCampaign, EmailAutomation, Lead, ReviewSettings, CartRecoverySettings } from '@/lib/types';
 
 const fs = (min: string, mid: string, max: string) => `clamp(${min}, ${mid}, ${max})`;
 
-type Tab = 'campaigns' | 'contacts' | 'automations' | 'analytics';
+type Tab = 'postsale' | 'campaigns' | 'contacts' | 'automations' | 'analytics';
 type Segment = EmailCampaign['segment'];
 
 const SEGMENTS: { val: Segment; label: string; desc: string }[] = [
@@ -63,7 +64,7 @@ function timeAgo(iso: string) {
 }
 
 export default function AdminEmails() {
-  const [tab, setTab] = useState<Tab>('campaigns');
+  const [tab, setTab] = useState<Tab>('postsale');
 
   // ── Campaign state ───────────────────────────────────────
   const [campaigns, setCampaigns] = useState<EmailCampaign[]>([]);
@@ -88,6 +89,10 @@ export default function AdminEmails() {
   const [editingAuto, setEditingAuto] = useState<EmailAutomation | null>(null);
   const [autoSaving, setAutoSaving] = useState(false);
 
+  // ── Post-sale overview state (read-only, configured elsewhere) ──────────
+  const [reviewSettings, setReviewSettings] = useState<ReviewSettings | null>(null);
+  const [cartSettings, setCartSettings] = useState<CartRecoverySettings | null>(null);
+
   // ── Test email ───────────────────────────────────────────
   const [testEmail, setTestEmail] = useState('');
   const [testSending, setTestSending] = useState(false);
@@ -98,6 +103,8 @@ export default function AdminEmails() {
     fetch('/api/leads').then((r) => r.json()).then(setLeads);
     fetch('/api/admin/campaigns').then((r) => r.json()).then((d) => Array.isArray(d) && setCampaigns(d));
     fetch('/api/admin/automations').then((r) => r.json()).then((d) => Array.isArray(d) && setAutomations(d));
+    fetch('/api/admin/review-settings').then((r) => (r.ok ? r.json() : null)).then(setReviewSettings).catch(() => {});
+    fetch('/api/admin/cart-recovery-settings').then((r) => (r.ok ? r.json() : null)).then(setCartSettings).catch(() => {});
   }, []);
 
   const emailLeads = leads.filter((l) => l.email);
@@ -207,8 +214,11 @@ export default function AdminEmails() {
   });
   const sources = ['all', ...Array.from(new Set(leads.map((l) => l.source))).filter(Boolean)];
 
+  const purchaseAutomations = automations.filter((a) => a.trigger === 'purchase');
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tabs: { id: Tab; label: string; icon: any }[] = [
+    { id: 'postsale', label: 'Pós-venda', icon: PackageCheck },
     { id: 'campaigns', label: 'Campanhas', icon: Send },
     { id: 'contacts', label: `Contatos (${emailLeads.length})`, icon: Users },
     { id: 'automations', label: 'Automações', icon: Zap },
@@ -260,6 +270,127 @@ export default function AdminEmails() {
           </button>
         ))}
       </div>
+
+      {/* ── POST-SALE OVERVIEW TAB ──────────────────────── */}
+      {tab === 'postsale' && (
+        <div className="space-y-4">
+          <div className="rounded-2xl border border-white/5 bg-surface p-5">
+            <p className="text-text-muted text-xs leading-relaxed">
+              Visão geral de todo email que um cliente pode receber depois de uma compra. Cada item é configurado
+              onde faz mais sentido no painel — os links abaixo levam direto para lá.
+            </p>
+          </div>
+
+          {/* Transactional confirmation, always on */}
+          <div className="rounded-2xl border border-green-400/15 bg-surface p-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-xl bg-green-400/10 border border-green-400/20 flex items-center justify-center flex-shrink-0">
+                  <PackageCheck size={15} className="text-green-400" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="text-text-primary font-medium text-sm">Confirmação de pedido</p>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full border font-medium text-green-400 bg-green-400/10 border-green-400/20">Sempre ativo</span>
+                  </div>
+                  <p className="text-text-muted text-xs leading-relaxed max-w-xl">
+                    Enviado automaticamente, na hora, para todo pedido pago, com o link de download do produto.
+                    Não é configurável, é o recibo da compra e precisa sempre funcionar.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Purchase-triggered automations, managed right here */}
+          <div className="rounded-2xl border border-white/5 bg-surface p-5">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="w-9 h-9 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0">
+                <Zap size={15} className="text-accent" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-text-primary font-medium text-sm mb-1">Sequência pós-compra (upsell, conteúdo bônus...)</p>
+                <p className="text-text-muted text-xs leading-relaxed max-w-xl">
+                  Emails opcionais, com atraso configurável, disparados depois de uma compra. Gerenciados aqui mesmo,
+                  na aba Automações.
+                </p>
+              </div>
+            </div>
+            {purchaseAutomations.length === 0 ? (
+              <p className="text-text-muted text-xs pl-12">Nenhuma automação de compra configurada ainda.</p>
+            ) : (
+              <div className="space-y-2 pl-12">
+                {purchaseAutomations.map((a) => (
+                  <div key={a.id} className="flex items-center justify-between gap-3 text-xs">
+                    <span className="text-text-secondary truncate">{a.name}</span>
+                    <span className="text-text-muted flex-shrink-0">
+                      {a.delayDays === 0 ? 'imediato' : `${a.delayDays}d depois`} ·{' '}
+                      <span className={a.active ? 'text-green-400' : 'text-text-muted'}>{a.active ? 'Ativo' : 'Inativo'}</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button onClick={() => setTab('automations')} className="mt-4 ml-12 flex items-center gap-1.5 text-accent hover:underline text-xs font-medium">
+              Gerenciar em Automações <ArrowRight size={11} />
+            </button>
+          </div>
+
+          {/* Review requests, configured in Testimonials */}
+          <div className="rounded-2xl border border-white/5 bg-surface p-5">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center flex-shrink-0">
+                <Star size={15} className="text-amber-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-text-primary font-medium text-sm">Pedido de avaliação (pós-compra)</p>
+                  {reviewSettings && (
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${reviewSettings.productEnabled ? 'text-green-400 bg-green-400/10 border-green-400/20' : 'text-text-muted bg-white/5 border-white/10'}`}>
+                      {reviewSettings.productEnabled ? 'Ativo' : 'Inativo'}
+                    </span>
+                  )}
+                </div>
+                <p className="text-text-muted text-xs leading-relaxed max-w-xl">
+                  {reviewSettings
+                    ? `Produto: ${reviewSettings.productDelayDays} dias após a compra. Guia gratuito: ${reviewSettings.guideDelayDays} dias após o download (${reviewSettings.guideEnabled ? 'ativo' : 'inativo'}).`
+                    : 'Carregando...'}
+                </p>
+                <Link href="/admin/testimonials" className="mt-3 inline-flex items-center gap-1.5 text-accent hover:underline text-xs font-medium">
+                  Editar em Avaliações → Automação <ArrowRight size={11} />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Cart recovery, configured in Orders */}
+          <div className="rounded-2xl border border-white/5 bg-surface p-5">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-blue-400/10 border border-blue-400/20 flex items-center justify-center flex-shrink-0">
+                <ShoppingCart size={15} className="text-blue-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-text-primary font-medium text-sm">Recuperação de carrinho abandonado</p>
+                  {cartSettings && (
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${cartSettings.enabled ? 'text-green-400 bg-green-400/10 border-green-400/20' : 'text-text-muted bg-white/5 border-white/10'}`}>
+                      {cartSettings.enabled ? 'Ativo' : 'Inativo'}
+                    </span>
+                  )}
+                </div>
+                <p className="text-text-muted text-xs leading-relaxed max-w-xl">
+                  {cartSettings
+                    ? `1º email: ${cartSettings.delayHours}h após abandono. 2º email: ${cartSettings.secondDelayHours}h depois (${cartSettings.secondEnabled ? 'ativo' : 'inativo'}).`
+                    : 'Carregando... (requer acesso de owner)'}
+                </p>
+                <Link href="/admin/orders" className="mt-3 inline-flex items-center gap-1.5 text-accent hover:underline text-xs font-medium">
+                  Editar em Pedidos → Carrinhos abandonados <ArrowRight size={11} />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── CAMPAIGNS TAB ───────────────────────────────── */}
       {tab === 'campaigns' && (

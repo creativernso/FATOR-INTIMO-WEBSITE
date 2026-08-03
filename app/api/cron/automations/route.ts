@@ -46,15 +46,21 @@ export async function GET(req: NextRequest) {
   }
   if (!resend) return NextResponse.json({ skipped: 'no resend' });
 
-  const [automations, leads, settings] = await Promise.all([
+  const [automations, leads, settings, orders] = await Promise.all([
     getEmailAutomations(),
     getLeads(),
     getReviewSettings(),
+    getOrders(),
   ]);
   const activeAutomations = automations.filter((a) => a.active);
   const results: Record<string, number> = {};
 
   for (const auto of activeAutomations) {
+    // Purchase-triggered automations (upsell/bonus sequences, etc.) are
+    // sourced from orders, not leads, and delayDays === 0 ones already fired
+    // immediately from the Stripe webhook — handled in its own block below.
+    if (auto.trigger === 'purchase') continue;
+
     let targets: typeof leads = [];
     const cutoff = new Date(Date.now() - auto.delayDays * 86400000).toISOString();
     const lastRun = auto.lastRunAt || '1970-01-01T00:00:00Z';
@@ -98,6 +104,49 @@ export async function GET(req: NextRequest) {
       await upsertEmailAutomation({ ...auto, totalSent: auto.totalSent + sent, lastRunAt: new Date().toISOString() });
     }
     results[auto.name] = sent;
+  }
+
+  // ── Purchase-triggered automations, delayed (day 1+ upsell/bonus emails) ──
+  const purchaseAutomations = activeAutomations.filter((a) => a.trigger === 'purchase' && a.delayDays > 0);
+  if (purchaseAutomations.length > 0) {
+    const products = await getProducts();
+    const productById = new Map(products.map((p) => [p.id, p]));
+
+    for (const auto of purchaseAutomations) {
+      const cutoff = new Date(Date.now() - auto.delayDays * 86400000).toISOString();
+      const from = new Date(Date.now() - (auto.delayDays + 1) * 86400000).toISOString();
+      const targets = orders.filter((o) => o.customerEmail && o.createdAt >= from && o.createdAt < cutoff);
+
+      let sent = 0;
+      for (const order of targets) {
+        try {
+          const product = productById.get(order.productId);
+          const vars = {
+            nome: order.customerName?.split(' ')[0] || '',
+            produto: order.productTitle,
+            link: product?.slug ? `${BASE_URL}/products/${product.slug}` : BASE_URL,
+          };
+          const subject = fillTemplate(auto.subject, vars);
+          const body = fillTemplate(auto.body, vars);
+          await resend.emails.send({
+            from: FROM_EMAIL,
+            to: order.customerEmail,
+            subject,
+            html: campaignHtml({ subject, body }),
+            text: campaignText({ subject, body }),
+          });
+          sent++;
+        } catch {
+          // silent
+        }
+        await new Promise((r) => setTimeout(r, 100));
+      }
+
+      if (sent > 0) {
+        await upsertEmailAutomation({ ...auto, totalSent: auto.totalSent + sent, lastRunAt: new Date().toISOString() });
+      }
+      results[auto.name] = sent;
+    }
   }
 
   // ── Review request emails, products ────────────────────────────────────

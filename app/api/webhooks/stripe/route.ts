@@ -176,13 +176,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Trigger purchase automations immediately
+    // Trigger purchase automations that fire immediately (delayDays === 0).
+    // Anything with a delay is picked up by the daily cron instead
+    // (app/api/cron/automations/route.ts), which is what actually respects
+    // delayDays — sending it here regardless of delay would fire every
+    // active "purchase" automation the instant checkout completes.
     if (email && resend) {
       try {
         const automations = await getEmailAutomations();
-        const purchaseAutos = automations.filter((a) => a.active && a.trigger === 'purchase');
+        const purchaseAutos = automations.filter((a) => a.active && a.trigger === 'purchase' && a.delayDays === 0);
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
+        const vars = {
+          nome: name?.split(' ')[0] || '',
+          produto: product?.title ?? '',
+          link: product?.slug ? `${baseUrl}/products/${product.slug}` : baseUrl,
+        };
         for (const auto of purchaseAutos) {
-          const vars = { nome: name?.split(' ')[0] || '' };
           const subject = fillTemplate(auto.subject, vars);
           const body = fillTemplate(auto.body, vars);
           await resend.emails.send({
