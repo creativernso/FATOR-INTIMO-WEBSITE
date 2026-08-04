@@ -27,12 +27,18 @@ function getVisitorId(): string {
   return id;
 }
 
+function hasStartedChat(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem('fi_chat_started') === '1';
+}
+
 export default function LiveChat() {
   const [open, setOpen] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [visitorId, setVisitorId] = useState('');
+  const [hasChatted, setHasChatted] = useState(false);
   const [unread, setUnread] = useState(0);
   const [sending, setSending] = useState(false);
   const [settings, setSettings] = useState<ChatSettings>({ welcomeMessage: DEFAULT_WELCOME, quickReplies: [] });
@@ -42,6 +48,7 @@ export default function LiveChat() {
 
   useEffect(() => {
     setVisitorId(getVisitorId());
+    setHasChatted(hasStartedChat());
   }, []);
 
   // Load chat settings (via Firestore client doc, fall back silently if denied)
@@ -70,12 +77,17 @@ export default function LiveChat() {
     } catch {}
   }, [visitorId, open, minimized]);
 
+  // Only poll once the visitor has actually opened the widget or already has
+  // a conversation going. Polling unconditionally for every page view meant
+  // every single visitor generated a Firestore read every 2.5s, even the
+  // vast majority who never touch the chat bubble at all — that's what was
+  // driving the Firestore read spike, not real chat usage.
   useEffect(() => {
-    if (!visitorId) return;
+    if (!visitorId || (!open && !hasChatted)) return;
     fetchMessages();
     const id = setInterval(fetchMessages, 2500);
     return () => clearInterval(id);
-  }, [visitorId, fetchMessages]);
+  }, [visitorId, open, hasChatted, fetchMessages]);
 
   // Presence heartbeat
   useEffect(() => {
@@ -119,6 +131,10 @@ export default function LiveChat() {
       });
       if (!res.ok) {
         console.error('[chat] send failed:', await res.text());
+      }
+      if (!hasChatted) {
+        localStorage.setItem('fi_chat_started', '1');
+        setHasChatted(true);
       }
       // Refresh messages immediately
       await fetchMessages();
