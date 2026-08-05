@@ -16,9 +16,8 @@ async function assertAdmin() {
 
 async function sendCampaignNow(campaign: EmailCampaign): Promise<EmailCampaign> {
   const allLeads = await getLeads();
-  let targets = allLeads.filter((l) => !!l.email);
-  if (campaign.segment === 'guide_downloaded') targets = allLeads.filter((l) => !!l.email && l.guideDownloaded);
-  if (campaign.segment === 'no_purchase') targets = allLeads.filter((l) => !!l.email);
+  let targets = allLeads.filter((l) => !!l.email && !l.unsubscribedAt);
+  if (campaign.segment === 'guide_downloaded') targets = targets.filter((l) => l.guideDownloaded);
 
   const sendingCampaign: EmailCampaign = { ...campaign, status: 'sending', totalRecipients: targets.length };
   await upsertEmailCampaign(sendingCampaign);
@@ -37,8 +36,8 @@ async function sendCampaignNow(campaign: EmailCampaign): Promise<EmailCampaign> 
         from: FROM_EMAIL,
         to: lead.email,
         subject: filledSubject,
-        html: campaignHtml({ subject: filledSubject, body: filledBody }),
-        text: campaignText({ subject: filledSubject, body: filledBody }),
+        html: campaignHtml({ subject: filledSubject, body: filledBody, unsubscribeEmail: lead.email }),
+        text: campaignText({ subject: filledSubject, body: filledBody, unsubscribeEmail: lead.email }),
       });
       sent++;
     } catch {

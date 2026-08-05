@@ -82,6 +82,15 @@ export async function getLeadByEmail(email: string): Promise<Lead | null> {
   return null;
 }
 
+// Marks a lead as unsubscribed. Always resolves (never throws for an
+// unknown email) so the /unsubscribe page can't be used to enumerate which
+// addresses are on the list.
+export async function unsubscribeLeadByEmail(email: string): Promise<void> {
+  const lead = await getLeadByEmail(email);
+  if (!lead || lead.unsubscribedAt) return;
+  await upsertLead({ ...lead, unsubscribedAt: new Date().toISOString() });
+}
+
 /** Finds the most recent lead with an email for this anonymous browser id. */
 export async function getLeadByVisitorId(visitorId: string): Promise<Lead | null> {
   if (!visitorId) return null;

@@ -29,6 +29,7 @@ function buildCtaEmail(opts: {
   ctaLabel: string;
   ctaUrl: string;
   vars: Record<string, string>;
+  unsubscribeEmail: string;
 }) {
   const subject = fillTemplate(opts.subject, opts.vars);
   const bodyText = fillTemplate(opts.body, opts.vars);
@@ -39,8 +40,8 @@ function buildCtaEmail(opts: {
   const fullBody = `${bodyText}\n\n→ ${opts.ctaLabel}: ${opts.ctaUrl}`;
   return {
     subject,
-    html: campaignHtml({ subject, body: bodyText + `\n\n<a href="${opts.ctaUrl}" style="display:inline-block;background:#fe0050;color:#fff;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:13px;font-weight:600;margin-top:14px;">${opts.ctaLabel} →</a>` }),
-    text: campaignText({ subject, body: fullBody }),
+    html: campaignHtml({ subject, body: bodyText + `\n\n<a href="${opts.ctaUrl}" style="display:inline-block;background:#fe0050;color:#fff;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:13px;font-weight:600;margin-top:14px;">${opts.ctaLabel} →</a>`, unsubscribeEmail: opts.unsubscribeEmail }),
+    text: campaignText({ subject, body: fullBody, unsubscribeEmail: opts.unsubscribeEmail }),
   };
 }
 
@@ -59,6 +60,11 @@ export async function GET(req: NextRequest) {
   ]);
   const activeAutomations = automations.filter((a) => a.active);
   const results: Record<string, number> = {};
+  // Orders/checkouts don't carry their own unsubscribe flag — cross-reference
+  // by email against the leads collection, which does.
+  const unsubscribedEmails = new Set(
+    leads.filter((l) => l.unsubscribedAt && l.email).map((l) => l.email!.toLowerCase())
+  );
 
   for (const auto of activeAutomations) {
     // Purchase-triggered automations (upsell/bonus sequences, etc.) are
@@ -82,16 +88,16 @@ export async function GET(req: NextRequest) {
 
     if (auto.trigger === 'signup') {
       const from = new Date(Date.now() - (auto.delayDays + 1) * 86400000).toISOString();
-      targets = leads.filter((l) => l.email && l.createdAt >= from && l.createdAt < cutoff);
+      targets = leads.filter((l) => l.email && !l.unsubscribedAt && l.createdAt >= from && l.createdAt < cutoff);
     } else if (auto.trigger === 'guide_download') {
       const from = new Date(Date.now() - (auto.delayDays + 1) * 86400000).toISOString();
-      targets = leads.filter((l) => l.email && l.guideDownloaded && l.createdAt >= from && l.createdAt < cutoff);
+      targets = leads.filter((l) => l.email && !l.unsubscribedAt && l.guideDownloaded && l.createdAt >= from && l.createdAt < cutoff);
     } else if (auto.trigger === 'inactive_30d') {
       const inactive = new Date(Date.now() - 30 * 86400000).toISOString();
-      targets = leads.filter((l) => l.email && l.createdAt < inactive && (!auto.lastRunAt || l.createdAt > lastRun));
+      targets = leads.filter((l) => l.email && !l.unsubscribedAt && l.createdAt < inactive && (!auto.lastRunAt || l.createdAt > lastRun));
     } else if (auto.trigger === 'inactive_60d') {
       const inactive = new Date(Date.now() - 60 * 86400000).toISOString();
-      targets = leads.filter((l) => l.email && l.createdAt < inactive && (!auto.lastRunAt || l.createdAt > lastRun));
+      targets = leads.filter((l) => l.email && !l.unsubscribedAt && l.createdAt < inactive && (!auto.lastRunAt || l.createdAt > lastRun));
     }
 
     let sent = 0;
@@ -105,8 +111,8 @@ export async function GET(req: NextRequest) {
           from: FROM_EMAIL,
           to: lead.email,
           subject,
-          html: campaignHtml({ subject, body }),
-          text: campaignText({ subject, body }),
+          html: campaignHtml({ subject, body, unsubscribeEmail: lead.email }),
+          text: campaignText({ subject, body, unsubscribeEmail: lead.email }),
         });
         sent++;
       } catch {
@@ -130,7 +136,9 @@ export async function GET(req: NextRequest) {
     for (const auto of purchaseAutomations) {
       const cutoff = new Date(Date.now() - auto.delayDays * 86400000).toISOString();
       const from = new Date(Date.now() - (auto.delayDays + 1) * 86400000).toISOString();
-      const targets = orders.filter((o) => o.customerEmail && o.createdAt >= from && o.createdAt < cutoff);
+      const targets = orders.filter(
+        (o) => o.customerEmail && !unsubscribedEmails.has(o.customerEmail.toLowerCase()) && o.createdAt >= from && o.createdAt < cutoff
+      );
 
       let sent = 0;
       for (const order of targets) {
@@ -147,8 +155,8 @@ export async function GET(req: NextRequest) {
             from: FROM_EMAIL,
             to: order.customerEmail,
             subject,
-            html: campaignHtml({ subject, body }),
-            text: campaignText({ subject, body }),
+            html: campaignHtml({ subject, body, unsubscribeEmail: order.customerEmail }),
+            text: campaignText({ subject, body, unsubscribeEmail: order.customerEmail }),
           });
           sent++;
         } catch {
@@ -175,6 +183,7 @@ export async function GET(req: NextRequest) {
       for (const order of orders) {
         if (order.reviewRequestSentAt) continue;
         if (!order.customerEmail) continue;
+        if (unsubscribedEmails.has(order.customerEmail.toLowerCase())) continue;
         if ((order.amountTotal ?? 0) <= 0) continue;
         if (new Date(order.createdAt).getTime() > cutoffMs) continue;
 
@@ -191,6 +200,7 @@ export async function GET(req: NextRequest) {
             produto: order.productTitle,
             link: ctaUrl,
           },
+          unsubscribeEmail: order.customerEmail,
         });
         try {
           await resend.emails.send({
@@ -223,6 +233,7 @@ export async function GET(req: NextRequest) {
       for (const lead of leads) {
         if (lead.reviewRequestSentAt) continue;
         if (!lead.email) continue;
+        if (lead.unsubscribedAt) continue;
         if (!lead.guideDownloaded) continue;
         if (!lead.guideSlug) continue;
         if (new Date(lead.createdAt).getTime() > cutoffMs) continue;
@@ -240,6 +251,7 @@ export async function GET(req: NextRequest) {
             guia: guide.title,
             link: ctaUrl,
           },
+          unsubscribeEmail: lead.email,
         });
         try {
           await resend.emails.send({
@@ -371,7 +383,7 @@ export async function GET(req: NextRequest) {
           const vars = { titulo: video.title, link: videoUrl };
           const subject = fillTemplate(youtubeAuto.subject, vars);
           const body = fillTemplate(youtubeAuto.body, vars);
-          const emailLeads = leads.filter((l) => !!l.email);
+          const emailLeads = leads.filter((l) => !!l.email && !l.unsubscribedAt);
           let sent = 0;
           for (const lead of emailLeads) {
             try {
@@ -379,8 +391,8 @@ export async function GET(req: NextRequest) {
                 from: FROM_EMAIL,
                 to: lead.email!,
                 subject,
-                html: campaignHtml({ subject, body }),
-                text: campaignText({ subject, body }),
+                html: campaignHtml({ subject, body, unsubscribeEmail: lead.email }),
+                text: campaignText({ subject, body, unsubscribeEmail: lead.email }),
               });
               sent++;
             } catch {

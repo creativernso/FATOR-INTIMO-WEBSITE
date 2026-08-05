@@ -778,6 +778,7 @@ export default function AdminEmails() {
                 srcDoc={campaignHtml({
                   subject: fillTemplate(previewAuto.subject, PREVIEW_VARS[previewAuto.trigger]),
                   body: fillTemplate(previewAuto.body, PREVIEW_VARS[previewAuto.trigger]),
+                  unsubscribeEmail: 'maria@exemplo.com',
                 })}
               />
             </div>

@@ -172,6 +172,10 @@ export async function POST(req: NextRequest) {
             createdAt: existing?.createdAt ?? new Date().toISOString(),
             guideDownloaded: existing?.guideDownloaded,
             reviewRequestSentAt: existing?.reviewRequestSentAt,
+            // A purchase isn't re-consenting to marketing — keep whatever
+            // opt-out status the lead already had, or it'd get silently
+            // wiped by this upsert on every buy.
+            unsubscribedAt: existing?.unsubscribedAt,
           });
         } catch (err) {
           console.error('[webhook] failed to upsert lead for buyer:', err);
@@ -193,8 +197,10 @@ export async function POST(req: NextRequest) {
     // active "purchase" automation the instant checkout completes.
     if (email && resend) {
       try {
-        const automations = await getEmailAutomations();
-        const purchaseAutos = automations.filter((a) => a.active && a.trigger === 'purchase' && a.delayDays === 0);
+        const buyerLead = await getLeadByEmail(email);
+        const purchaseAutos = buyerLead?.unsubscribedAt
+          ? []
+          : (await getEmailAutomations()).filter((a) => a.active && a.trigger === 'purchase' && a.delayDays === 0);
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
         const vars = {
           nome: name?.split(' ')[0] || '',
@@ -208,8 +214,8 @@ export async function POST(req: NextRequest) {
             from: FROM_EMAIL,
             to: email,
             subject,
-            html: campaignHtml({ subject, body }),
-            text: campaignText({ subject, body }),
+            html: campaignHtml({ subject, body, unsubscribeEmail: email }),
+            text: campaignText({ subject, body, unsubscribeEmail: email }),
           });
           await new Promise((r) => setTimeout(r, 100));
         }

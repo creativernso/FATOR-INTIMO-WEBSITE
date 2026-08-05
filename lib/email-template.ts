@@ -300,9 +300,19 @@ interface CampaignEmailData {
   subject: string;
   body: string;
   recipientName?: string;
+  // Recipient's address, used to build a working, pre-filled unsubscribe
+  // link. Without it the footer still links somewhere real, just without
+  // the email pre-filled — every real send should pass this.
+  unsubscribeEmail?: string;
 }
 
-export function campaignHtml({ subject, body, recipientName }: CampaignEmailData): string {
+function unsubscribeUrl(email?: string): string {
+  return email
+    ? `https://www.fatorintimo.com/unsubscribe?email=${encodeURIComponent(email)}`
+    : 'https://www.fatorintimo.com/unsubscribe';
+}
+
+export function campaignHtml({ subject, body, recipientName, unsubscribeEmail }: CampaignEmailData): string {
   const bodyHtml = body.replace(/\n/g, '<br/>');
   return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -339,8 +349,8 @@ export function campaignHtml({ subject, body, recipientName }: CampaignEmailData
           <tr>
             <td style="padding:24px 40px;border-top:1px solid rgba(255,255,255,0.05);">
               <p style="margin:0;font-size:12px;color:#555555;text-align:center;">
-                Fator Íntimo · <a href="https://fatorintimo.com" style="color:#fe0050;text-decoration:none;">fatorintimo.com</a><br/>
-                <a href="https://fatorintimo.com/unsubscribe" style="color:#444444;text-decoration:none;font-size:11px;">Cancelar inscrição</a>
+                Fator Íntimo · <a href="https://www.fatorintimo.com" style="color:#fe0050;text-decoration:none;">fatorintimo.com</a><br/>
+                <a href="${unsubscribeUrl(unsubscribeEmail)}" style="color:#444444;text-decoration:none;font-size:11px;">Cancelar inscrição</a>
               </p>
             </td>
           </tr>
@@ -352,8 +362,8 @@ export function campaignHtml({ subject, body, recipientName }: CampaignEmailData
 </html>`;
 }
 
-export function campaignText({ subject, body, recipientName }: CampaignEmailData): string {
-  return `${subject}\n\n${recipientName ? `Olá, ${recipientName},\n\n` : ''}${body}\n\nFator Íntimo\nfatorintimo.com`;
+export function campaignText({ subject, body, recipientName, unsubscribeEmail }: CampaignEmailData): string {
+  return `${subject}\n\n${recipientName ? `Olá, ${recipientName},\n\n` : ''}${body}\n\nFator Íntimo\nwww.fatorintimo.com\n\nCancelar inscrição: ${unsubscribeUrl(unsubscribeEmail)}`;
 }
 
 // ─── Community welcome email ─────────────────────────────────────────────────

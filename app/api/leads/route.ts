@@ -86,8 +86,8 @@ export async function POST(req: NextRequest) {
           from: FROM_EMAIL,
           to: newLead.email!,
           subject,
-          html: campaignHtml({ subject, body }),
-          text: campaignText({ subject, body }),
+          html: campaignHtml({ subject, body, unsubscribeEmail: newLead.email }),
+          text: campaignText({ subject, body, unsubscribeEmail: newLead.email }),
         });
       }
     } catch {}

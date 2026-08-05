@@ -84,6 +84,7 @@ export interface Lead {
   createdAt: string;
   guideDownloaded?: boolean;
   reviewRequestSentAt?: string; // when the post-download review email was sent
+  unsubscribedAt?: string; // set when the lead clicks "Cancelar inscrição" — excluded from all marketing/automation sends from then on
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
