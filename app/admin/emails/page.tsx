@@ -5,9 +5,23 @@ import Link from 'next/link';
 import {
   Send, Users, Mail, CheckCircle, AlertCircle, Loader, Plus, Trash2,
   BarChart2, Zap, ChevronDown, ChevronUp, Upload, Download, X, FlaskConical,
-  Clock, Play, Pause, Settings, PackageCheck, Star, ShoppingCart, ArrowRight,
+  Clock, Play, Pause, Settings, PackageCheck, Star, ShoppingCart, ArrowRight, Eye,
 } from 'lucide-react';
 import { EmailCampaign, EmailAutomation, Lead, ReviewSettings, CartRecoverySettings } from '@/lib/types';
+import { campaignHtml, fillTemplate } from '@/lib/email-template';
+
+// Sample values for the placeholders each trigger type actually receives at
+// send time (see app/api/webhooks/stripe/route.ts and
+// app/api/cron/automations/route.ts) — just for an accurate-looking preview,
+// never sent anywhere.
+const PREVIEW_VARS: Record<EmailAutomation['trigger'], Record<string, string>> = {
+  signup: { nome: 'Maria' },
+  guide_download: { nome: 'Maria' },
+  inactive_30d: { nome: 'Maria' },
+  inactive_60d: { nome: 'Maria' },
+  purchase: { nome: 'Maria', produto: 'O Amor Que Dói', link: 'https://www.fatorintimo.com/products/o-amor-que-doi' },
+  youtube_video: { titulo: 'Como identificar um padrão de apego ansioso', link: 'https://www.youtube.com/watch?v=exemplo' },
+};
 
 const fs = (min: string, mid: string, max: string) => `clamp(${min}, ${mid}, ${max})`;
 
@@ -89,6 +103,7 @@ export default function AdminEmails() {
   const [automations, setAutomations] = useState<EmailAutomation[]>([]);
   const [editingAuto, setEditingAuto] = useState<EmailAutomation | null>(null);
   const [autoSaving, setAutoSaving] = useState(false);
+  const [previewAuto, setPreviewAuto] = useState<EmailAutomation | null>(null);
 
   // ── Post-sale overview state (read-only, configured elsewhere) ──────────
   const [reviewSettings, setReviewSettings] = useState<ReviewSettings | null>(null);
@@ -633,6 +648,9 @@ export default function AdminEmails() {
                         <button onClick={() => saveAutomation(editingAuto)} disabled={autoSaving} className="flex items-center gap-2 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all">
                           <CheckCircle size={13} /> {autoSaving ? 'Salvando...' : 'Salvar'}
                         </button>
+                        <button onClick={() => setPreviewAuto(editingAuto)} className="flex items-center gap-2 border border-white/10 hover:border-white/20 text-text-muted hover:text-text-primary px-4 py-2 rounded-xl text-sm transition-all">
+                          <Eye size={13} /> Visualizar
+                        </button>
                         <button onClick={() => setEditingAuto(null)} className="text-text-muted hover:text-text-primary text-sm transition-colors">Cancelar</button>
                       </div>
                     </div>
@@ -653,6 +671,9 @@ export default function AdminEmails() {
                         <p className="text-text-muted text-xs mt-0.5 italic truncate">{auto.subject}</p>
                       </div>
                       <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <button onClick={() => setPreviewAuto(auto)} className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/5 transition-all">
+                          <Eye size={13} />
+                        </button>
                         <button onClick={() => toggleAuto(auto)} className={`p-2 rounded-lg transition-all ${auto.active ? 'text-green-400 hover:bg-green-400/8' : 'text-text-muted hover:text-text-primary hover:bg-white/5'}`}>
                           {auto.active ? <Pause size={13} /> : <Play size={13} />}
                         </button>
@@ -732,6 +753,33 @@ export default function AdminEmails() {
               {campaigns.filter((c) => c.status === 'sent').length === 0 && (
                 <div className="p-10 text-center"><p className="text-text-muted text-sm">Nenhuma campanha enviada ainda.</p></div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── AUTOMATION PREVIEW MODAL ────────────────────── */}
+      {previewAuto && (
+        <div className="fixed inset-0 z-[300] bg-black/70 flex items-center justify-center p-4" onClick={() => setPreviewAuto(null)}>
+          <div className="w-full max-w-2xl max-h-[85vh] rounded-2xl border border-white/10 bg-surface overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.04] flex-shrink-0">
+              <div>
+                <p className="text-text-primary text-sm font-medium">Pré-visualização</p>
+                <p className="text-text-muted text-xs mt-0.5">{previewAuto.name} · com dados de exemplo</p>
+              </div>
+              <button onClick={() => setPreviewAuto(null)} className="w-7 h-7 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/6 flex items-center justify-center">
+                <X size={14} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden bg-white/2">
+              <iframe
+                title="Pré-visualização do email"
+                className="w-full h-full min-h-[420px] border-0"
+                srcDoc={campaignHtml({
+                  subject: fillTemplate(previewAuto.subject, PREVIEW_VARS[previewAuto.trigger]),
+                  body: fillTemplate(previewAuto.body, PREVIEW_VARS[previewAuto.trigger]),
+                })}
+              />
             </div>
           </div>
         </div>
