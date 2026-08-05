@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth } from '@/lib/firebase-admin';
-import { toggleCommunityPostReaction, getCommunityPost } from '@/lib/db';
+import { toggleCommunityPostReaction, getCommunityPost, getCommunityUser } from '@/lib/db';
 
 async function verifyToken(req: NextRequest) {
   const auth = req.headers.get('authorization');
@@ -14,6 +14,10 @@ type Params = { params: Promise<{ id: string }> };
 export async function POST(req: NextRequest, { params }: Params) {
   const decoded = await verifyToken(req);
   if (!decoded) return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 });
+
+  const user = await getCommunityUser(decoded.uid);
+  if (!user) return NextResponse.json({ error: 'Perfil não encontrado.' }, { status: 403 });
+  if (user.banned) return NextResponse.json({ error: 'Conta suspensa.' }, { status: 403 });
 
   const { id } = await params;
   const post = await getCommunityPost(id);

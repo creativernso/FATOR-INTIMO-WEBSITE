@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { upsertTestimonial, createNotification } from '@/lib/db';
 import { alertNewTestimonial } from '@/lib/admin-notifications';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { v4 as uuid } from 'uuid';
 
 export async function POST(req: NextRequest) {
+  const allowed = await checkRateLimit(`testimonial_submit:${getClientIp(req)}`, 5, 3600);
+  if (!allowed) return NextResponse.json({ error: 'Muitos envios. Aguarde um pouco.' }, { status: 429 });
+
   const body = await req.json();
   const { name, role, age, headline, content, transformation, rating, productPurchased, socialHandle, anonymous, avatar } = body;
 
@@ -16,15 +20,15 @@ export async function POST(req: NextRequest) {
 
   await upsertTestimonial({
     id: uuid(),
-    name: anonymous ? 'Anônimo' : name.trim(),
-    role: role?.trim() || '',
+    name: (anonymous ? 'Anônimo' : name.trim()).slice(0, 100),
+    role: (role?.trim() || '').slice(0, 100),
     age: age ? Number(age) : undefined,
-    headline: headline?.trim() || undefined,
-    content: content.trim(),
-    transformation: transformation?.trim() || '',
+    headline: headline?.trim().slice(0, 120) || undefined,
+    content: content.trim().slice(0, 3000),
+    transformation: (transformation?.trim() || '').slice(0, 3000),
     rating: rating ? Number(rating) : undefined,
-    productPurchased: productPurchased?.trim() || '',
-    socialHandle: socialHandle?.trim() || undefined,
+    productPurchased: (productPurchased?.trim() || '').slice(0, 100),
+    socialHandle: socialHandle?.trim().slice(0, 100) || undefined,
     avatar: avatar || undefined,
     anonymous: !!anonymous,
     status: 'pending',

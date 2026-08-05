@@ -5,6 +5,7 @@ import { alertNewCommunityComment } from '@/lib/admin-notifications';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { communityNewCommentHtml, communityNewCommentText } from '@/lib/email-template';
 import { CommunityComment } from '@/lib/types';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { v4 as uuid } from 'uuid';
 
 async function verifyToken(req: NextRequest) {
@@ -25,6 +26,9 @@ export async function GET(_: NextRequest, { params }: Params) {
 export async function POST(req: NextRequest, { params }: Params) {
   const decoded = await verifyToken(req);
   if (!decoded) return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 });
+
+  const allowed = await checkRateLimit(`community_comment:${decoded.uid}`, 15, 600);
+  if (!allowed) return NextResponse.json({ error: 'Muitos comentários. Aguarde um pouco.' }, { status: 429 });
 
   const { id: postId } = await params;
   const post = await getCommunityPost(postId);

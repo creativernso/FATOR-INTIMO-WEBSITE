@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { getProducts, markCheckoutStarted, getLeadByVisitorId } from '@/lib/db';
 import { extractFbCookies } from '@/lib/meta-capi';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 export async function POST(req: NextRequest) {
   if (!stripe) {
     return NextResponse.json({ error: 'Pagamentos não configurados.' }, { status: 503 });
   }
+
+  const allowed = await checkRateLimit(`checkout_create:${getClientIp(req)}`, 15, 300);
+  if (!allowed) return NextResponse.json({ error: 'Muitas tentativas. Aguarde um pouco.' }, { status: 429 });
 
   const { productId, visitorId, affiliateCode, utmSource, utmMedium, utmCampaign, utmContent } = await req.json();
   const products = await getProducts();

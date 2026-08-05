@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth } from '@/lib/firebase-admin';
 import { getCommunityPosts, upsertCommunityPost, getCommunityUser, upsertCommunityUser, createNotification } from '@/lib/db';
 import { alertNewCommunityPost } from '@/lib/admin-notifications';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { CommunityPost } from '@/lib/types';
 import { v4 as uuid } from 'uuid';
 
@@ -23,6 +24,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const decoded = await verifyToken(req);
   if (!decoded) return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 });
+
+  const allowed = await checkRateLimit(`community_post:${decoded.uid}`, 5, 600);
+  if (!allowed) return NextResponse.json({ error: 'Muitas publicações. Aguarde um pouco.' }, { status: 429 });
 
   const body = await req.json();
   const { title, body: bodyText, category, tags, anonymous, images } = body;

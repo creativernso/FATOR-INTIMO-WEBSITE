@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth } from '@/lib/firebase-admin';
 import { upsertCommunityReport, createNotification } from '@/lib/db';
 import { alertCommunityReport } from '@/lib/admin-notifications';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { CommunityReport } from '@/lib/types';
 import { v4 as uuid } from 'uuid';
 
 export async function POST(req: NextRequest) {
+  const allowed = await checkRateLimit(`community_report:${getClientIp(req)}`, 10, 600);
+  if (!allowed) return NextResponse.json({ error: 'Muitas denúncias. Aguarde um pouco.' }, { status: 429 });
+
   const auth = req.headers.get('authorization');
   let reporterId: string | undefined;
   if (auth?.startsWith('Bearer ')) {

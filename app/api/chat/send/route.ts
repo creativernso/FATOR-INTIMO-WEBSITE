@@ -4,6 +4,7 @@ import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getChatSettings } from '@/lib/db';
 import { alertNewChatMessage } from '@/lib/admin-notifications';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 async function isAdminSession(): Promise<boolean> {
   const session = (await cookies()).get('fi_session')?.value;
@@ -30,6 +31,12 @@ export async function POST(req: NextRequest) {
     // visitor's widget as an official message from the site.
     const wantsAdmin = from === 'admin';
     const sender = wantsAdmin && (await isAdminSession()) ? 'admin' : 'visitor';
+
+    if (sender === 'visitor') {
+      const allowed = await checkRateLimit(`chat_send:${getClientIp(req)}`, 20, 300);
+      if (!allowed) return NextResponse.json({ error: 'Muitas mensagens. Aguarde um pouco.' }, { status: 429 });
+    }
+
     const db = getAdminDb();
 
     // Touch the parent session doc (presence + last activity). unreadFromVisitor

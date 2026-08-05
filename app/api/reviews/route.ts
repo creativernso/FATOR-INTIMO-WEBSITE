@@ -9,6 +9,7 @@ import {
 } from '@/lib/db';
 import { getOrders } from '@/lib/orders';
 import { alertNewReview } from '@/lib/admin-notifications';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import type { Testimonial } from '@/lib/types';
 import { v4 as uuid } from 'uuid';
 
@@ -78,6 +79,9 @@ export async function GET(req: NextRequest) {
 // POST /api/reviews
 // Body: { productSlug?, guideSlug?, name, email, location, content, rating, headline, photoUrl, anonymous }
 export async function POST(req: NextRequest) {
+  const allowed = await checkRateLimit(`review_submit:${getClientIp(req)}`, 5, 3600);
+  if (!allowed) return NextResponse.json({ error: 'Muitos envios. Aguarde um pouco.' }, { status: 429 });
+
   const body = await req.json();
   const productSlug: string | undefined = body.productSlug?.trim() || undefined;
   const guideSlug: string | undefined = body.guideSlug?.trim() || undefined;

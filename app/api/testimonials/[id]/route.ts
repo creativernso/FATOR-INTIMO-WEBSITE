@@ -11,17 +11,6 @@ async function verifyAdmin() {
   catch { return false; }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const body = await req.json();
-  const testimonials = await getTestimonials();
-  const existing = testimonials.find((t) => t.id === id);
-  if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-  const updated = { ...existing, ...body, id };
-  await upsertTestimonial(updated);
-  return NextResponse.json(updated);
-}
-
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!(await verifyAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const { id } = await params;

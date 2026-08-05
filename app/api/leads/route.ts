@@ -1,16 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { getAdminAuth } from '@/lib/firebase-admin';
 import { getLeads, upsertLead, getLeadByEmail, getGuideConfig, createNotification, getEmailAutomations } from '@/lib/db';
 import { resend, FROM_EMAIL, sendTransactional } from '@/lib/resend';
 import { guideDeliveryHtml, guideDeliveryText, campaignHtml, campaignText, fillTemplate } from '@/lib/email-template';
 import { alertNewLead } from '@/lib/admin-notifications';
 import { sendMetaEvent, extractFbCookies } from '@/lib/meta-capi';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { v4 as uuid } from 'uuid';
 
+async function verifyAdmin() {
+  const session = (await cookies()).get('fi_session')?.value;
+  if (!session) return false;
+  try { await getAdminAuth().verifySessionCookie(session, true); return true; }
+  catch { return false; }
+}
+
+// This returns every lead's name/email/whatsapp/UTM data — full contact
+// list, admin-only.
 export async function GET() {
+  if (!(await verifyAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   return NextResponse.json(await getLeads());
 }
 
 export async function POST(req: NextRequest) {
+  const allowed = await checkRateLimit(`leads_create:${getClientIp(req)}`, 8, 600);
+  if (!allowed) return NextResponse.json({ error: 'Muitas tentativas. Aguarde um pouco.' }, { status: 429 });
+
   const body = await req.json();
   // Merge into an existing lead by email instead of always creating a new
   // doc — a resubmission (double-click, retry) used to create a second lead

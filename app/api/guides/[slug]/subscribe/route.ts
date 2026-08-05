@@ -5,9 +5,13 @@ import { resend, sendTransactional } from '@/lib/resend';
 import { guideDeliveryHtml, guideDeliveryText } from '@/lib/email-template';
 import { alertGuideDownload } from '@/lib/admin-notifications';
 import { sendMetaEvent, extractFbCookies } from '@/lib/meta-capi';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { v4 as uuid } from 'uuid';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+  const allowed = await checkRateLimit(`guide_subscribe:${getClientIp(req)}`, 8, 600);
+  if (!allowed) return NextResponse.json({ error: 'Muitas tentativas. Aguarde um pouco.' }, { status: 429 });
+
   const { slug } = await params;
 
   const guide = await getGuideBySlug(slug);
