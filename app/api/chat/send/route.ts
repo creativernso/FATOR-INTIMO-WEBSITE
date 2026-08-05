@@ -1,8 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminDb } from '@/lib/firebase-admin';
+import { cookies } from 'next/headers';
+import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getChatSettings } from '@/lib/db';
 import { alertNewChatMessage } from '@/lib/admin-notifications';
+
+async function isAdminSession(): Promise<boolean> {
+  const session = (await cookies()).get('fi_session')?.value;
+  if (!session) return false;
+  try {
+    await getAdminAuth().verifySessionCookie(session, true);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,7 +25,11 @@ export async function POST(req: NextRequest) {
     const cleanText = text.trim().slice(0, 2000);
     if (!cleanText) return NextResponse.json({ error: 'Empty message' }, { status: 400 });
 
-    const sender = from === 'admin' ? 'admin' : 'visitor';
+    // `from` is client-supplied — without this check, anyone could POST
+    // { from: 'admin' } to any visitorId and have it render in that
+    // visitor's widget as an official message from the site.
+    const wantsAdmin = from === 'admin';
+    const sender = wantsAdmin && (await isAdminSession()) ? 'admin' : 'visitor';
     const db = getAdminDb();
 
     // Touch the parent session doc (presence + last activity). unreadFromVisitor

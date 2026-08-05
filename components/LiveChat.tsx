@@ -21,7 +21,11 @@ function getVisitorId(): string {
   if (typeof window === 'undefined') return '';
   let id = localStorage.getItem('fi_chat_visitor_id');
   if (!id) {
-    id = `visitor_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    // A cryptographically random UUID, not a guessable timestamp + short
+    // Math.random() suffix — this ID doubles as the read/write key for the
+    // conversation (/api/chat/messages, /api/chat/send), so it needs to be
+    // effectively unguessable, not just unique.
+    id = `visitor_${crypto.randomUUID()}`;
     localStorage.setItem('fi_chat_visitor_id', id);
   }
   return id;

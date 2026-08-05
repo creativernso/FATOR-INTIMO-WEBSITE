@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLeads, upsertLead, getGuideConfig, createNotification, getEmailAutomations } from '@/lib/db';
+import { getLeads, upsertLead, getLeadByEmail, getGuideConfig, createNotification, getEmailAutomations } from '@/lib/db';
 import { resend, FROM_EMAIL, sendTransactional } from '@/lib/resend';
 import { guideDeliveryHtml, guideDeliveryText, campaignHtml, campaignText, fillTemplate } from '@/lib/email-template';
 import { alertNewLead } from '@/lib/admin-notifications';
@@ -12,19 +12,24 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
+  // Merge into an existing lead by email instead of always creating a new
+  // doc — a resubmission (double-click, retry) used to create a second lead
+  // with a fresh createdAt, which independently qualified for the immediate
+  // signup automation below, sending the welcome email twice.
+  const existing = body.email ? await getLeadByEmail(body.email) : null;
   const newLead = {
-    id: uuid(),
-    name: body.name || '',
-    email: body.email || undefined,
-    whatsapp: body.whatsapp || undefined,
-    source: body.source || 'unknown',
-    createdAt: new Date().toISOString(),
-    guideDownloaded: false,
-    utmSource: body.utmSource || undefined,
-    utmMedium: body.utmMedium || undefined,
-    utmCampaign: body.utmCampaign || undefined,
-    utmContent: body.utmContent || undefined,
-    visitorId: body.visitorId || undefined,
+    id: existing?.id ?? uuid(),
+    name: body.name || existing?.name || '',
+    email: body.email || existing?.email || undefined,
+    whatsapp: body.whatsapp || existing?.whatsapp || undefined,
+    source: existing?.source ?? (body.source || 'unknown'),
+    createdAt: existing?.createdAt ?? new Date().toISOString(),
+    guideDownloaded: existing?.guideDownloaded ?? false,
+    utmSource: existing?.utmSource ?? (body.utmSource || undefined),
+    utmMedium: existing?.utmMedium ?? (body.utmMedium || undefined),
+    utmCampaign: existing?.utmCampaign ?? (body.utmCampaign || undefined),
+    utmContent: existing?.utmContent ?? (body.utmContent || undefined),
+    visitorId: body.visitorId || existing?.visitorId || undefined,
   };
   await upsertLead(newLead);
   await createNotification(
@@ -67,8 +72,9 @@ export async function POST(req: NextRequest) {
     console.error('[leads] Meta CAPI Lead failed:', err);
   }
 
-  // Trigger immediate (delayDays=0) signup automations
-  if (resend && newLead.email) {
+  // Trigger immediate (delayDays=0) signup automations — only for a lead
+  // that's genuinely new, so resubmitting the same email doesn't re-send it.
+  if (resend && newLead.email && !existing) {
     try {
       const automations = await getEmailAutomations();
       const immediateAutos = automations.filter((a) => a.active && a.trigger === 'signup' && a.delayDays === 0);

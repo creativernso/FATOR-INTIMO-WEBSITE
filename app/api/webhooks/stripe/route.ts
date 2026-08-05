@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { resend, FROM_EMAIL, sendTransactional } from '@/lib/resend';
-import { saveOrder, saveAbandonedCheckout } from '@/lib/orders';
+import { saveOrder, saveAbandonedCheckout, getOrderBySession } from '@/lib/orders';
 import { getProducts, createNotification, getEmailAutomations, upsertLead, getLeadByEmail } from '@/lib/db';
 import { purchaseConfirmationHtml, purchaseConfirmationText, campaignHtml, campaignText, fillTemplate } from '@/lib/email-template';
 import { alertNewOrder, alertStripeWebhookFailure } from '@/lib/admin-notifications';
@@ -40,6 +40,16 @@ export async function POST(req: NextRequest) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
+
+    // Stripe redelivers this event on any non-2xx/slow response, and this
+    // handler does a lot of awaited work (order save, affiliate commission,
+    // automation emails, transactional email) before returning — a transient
+    // failure partway through would otherwise cause a redelivery to create a
+    // second order, credit the affiliate twice, and resend every email.
+    if (await getOrderBySession(session.id)) {
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+
     const { productId, utmSource, utmMedium, utmCampaign, utmContent, fbp, fbc, clientIp, userAgent, affiliateCode } = session.metadata ?? {};
     const email = session.customer_details?.email ?? '';
     const name = session.customer_details?.name ?? '';

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getGuideBySlug, upsertLead, createNotification, incrementGuideDownloads } from '@/lib/db';
+import { getGuideBySlug, upsertLead, getLeadByEmail, createNotification, incrementGuideDownloads } from '@/lib/db';
 import { Lead } from '@/lib/types';
 import { resend, sendTransactional } from '@/lib/resend';
 import { guideDeliveryHtml, guideDeliveryText } from '@/lib/email-template';
@@ -18,17 +18,23 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
   if (!email?.trim() && !whatsapp?.trim())
     return NextResponse.json({ error: 'E-mail ou WhatsApp obrigatório.' }, { status: 400 });
 
+  // Merge into an existing lead by email instead of always creating a new
+  // doc — a repeat download used to create a second lead with a fresh
+  // createdAt, independently eligible for the guide_download cron
+  // automation's time window and so able to receive it twice.
+  const cleanEmail = email?.trim() || undefined;
+  const existing = cleanEmail ? await getLeadByEmail(cleanEmail) : null;
   const lead: Lead = {
-    id: uuid(),
+    id: existing?.id ?? uuid(),
     name: name.trim(),
-    email: email?.trim() || undefined,
+    email: cleanEmail,
     whatsapp: whatsapp?.trim() || undefined,
     source: `guide/${slug}`,
     guideSlug: slug,
     guideName: guide.title,
     tags: guide.tags ?? [],
-    createdAt: new Date().toISOString(),
-    guideDownloaded: false,
+    createdAt: existing?.createdAt ?? new Date().toISOString(),
+    guideDownloaded: existing?.guideDownloaded ?? false,
     utmSource: utmSource || undefined,
     utmMedium: utmMedium || undefined,
     utmCampaign: utmCampaign || undefined,

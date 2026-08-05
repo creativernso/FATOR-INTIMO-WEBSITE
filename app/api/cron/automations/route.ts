@@ -61,6 +61,12 @@ export async function GET(req: NextRequest) {
     // immediately from the Stripe webhook — handled in its own block below.
     if (auto.trigger === 'purchase') continue;
 
+    // Same reasoning for signup: delayDays===0 ones are sent immediately in
+    // app/api/leads/route.ts. Without this, the very lead that just got the
+    // immediate email is also inside today's window (createdAt < now), so
+    // the next cron run resent it to every new signup.
+    if (auto.trigger === 'signup' && auto.delayDays === 0) continue;
+
     let targets: typeof leads = [];
     const cutoff = new Date(Date.now() - auto.delayDays * 86400000).toISOString();
     const lastRun = auto.lastRunAt || '1970-01-01T00:00:00Z';
