@@ -8,10 +8,9 @@ export const resend = process.env.RESEND_API_KEY
 export const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Fator Íntimo <noreply@fatorintimo.com>';
 
 // Transactional sender — receipts, downloads, password resets, etc.
-// A personal-feeling display name nudges Gmail toward the Primary tab
-// instead of Promotions. Override via env if needed.
+// Override via env if needed.
 export const TRANSACTIONAL_FROM =
-  process.env.RESEND_TRANSACTIONAL_FROM || 'Rafael · Fator Íntimo <noreply@fatorintimo.com>';
+  process.env.RESEND_TRANSACTIONAL_FROM || 'Fator Íntimo <noreply@fatorintimo.com>';
 
 // Public reply inbox — must be a real mailbox you can actually answer from.
 // Setting Reply-To improves deliverability (recipients can reply, which
