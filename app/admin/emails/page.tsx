@@ -19,7 +19,13 @@ const PREVIEW_VARS: Record<EmailAutomation['trigger'], Record<string, string>> =
   guide_download: { nome: 'Maria' },
   inactive_30d: { nome: 'Maria' },
   inactive_60d: { nome: 'Maria' },
-  purchase: { nome: 'Maria', produto: 'O Amor Que Dói', link: 'https://www.fatorintimo.com/products/o-amor-que-doi' },
+  purchase: {
+    nome: 'Maria',
+    produto: 'O Amor Que Dói',
+    link: 'https://www.fatorintimo.com/products/o-amor-que-doi',
+    upsell_produto: 'Falar Sem Machucar',
+    upsell_link: 'https://www.fatorintimo.com/products/falar-sem-machucar',
+  },
   youtube_video: { titulo: 'Como identificar um padrão de apego ansioso', link: 'https://www.youtube.com/watch?v=exemplo' },
 };
 

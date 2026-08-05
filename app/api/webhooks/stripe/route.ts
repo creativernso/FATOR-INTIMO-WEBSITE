@@ -202,10 +202,17 @@ export async function POST(req: NextRequest) {
           ? []
           : (await getEmailAutomations()).filter((a) => a.active && a.trigger === 'purchase' && a.delayDays === 0);
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com';
+        // First configured upsell pairing for the product just bought, or a
+        // generic fallback to the catalog if none is set for it.
+        const upsellProduct = product?.upsellProductIds?.length
+          ? allProducts.find((p) => p.id === product.upsellProductIds![0])
+          : undefined;
         const vars = {
           nome: name?.split(' ')[0] || '',
           produto: product?.title ?? '',
           link: product?.slug ? `${baseUrl}/products/${product.slug}` : baseUrl,
+          upsell_produto: upsellProduct?.title ?? 'nossos outros materiais',
+          upsell_link: upsellProduct?.slug ? `${baseUrl}/products/${upsellProduct.slug}` : `${baseUrl}/products`,
         };
         for (const auto of purchaseAutos) {
           const subject = fillTemplate(auto.subject, vars);

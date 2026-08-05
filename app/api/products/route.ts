@@ -1,13 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { getAdminAuth } from '@/lib/firebase-admin';
 import { getProducts, upsertProduct } from '@/lib/db';
 import { broadcastProduct } from '@/lib/broadcast';
 import { v4 as uuid } from 'uuid';
+
+async function verifyAdmin() {
+  const session = (await cookies()).get('fi_session')?.value;
+  if (!session) return false;
+  try { await getAdminAuth().verifySessionCookie(session, true); return true; }
+  catch { return false; }
+}
 
 export async function GET() {
   return NextResponse.json(await getProducts());
 }
 
 export async function POST(req: NextRequest) {
+  if (!(await verifyAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const body = await req.json();
   const slugify = (s: string) =>
     s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -34,6 +44,7 @@ export async function POST(req: NextRequest) {
     countdownEnabled: Boolean(body.countdownEnabled),
     countdownEndsAt: body.countdownEndsAt || undefined,
     countdownText: body.countdownText || undefined,
+    upsellProductIds: Array.isArray(body.upsellProductIds) ? body.upsellProductIds : [],
   };
   await upsertProduct(newProduct);
 

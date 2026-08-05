@@ -144,10 +144,15 @@ export async function GET(req: NextRequest) {
       for (const order of targets) {
         try {
           const product = productById.get(order.productId);
+          const upsellProduct = product?.upsellProductIds?.length
+            ? productById.get(product.upsellProductIds[0])
+            : undefined;
           const vars = {
             nome: order.customerName?.split(' ')[0] || '',
             produto: order.productTitle,
             link: product?.slug ? `${BASE_URL}/products/${product.slug}` : BASE_URL,
+            upsell_produto: upsellProduct?.title ?? 'nossos outros materiais',
+            upsell_link: upsellProduct?.slug ? `${BASE_URL}/products/${upsellProduct.slug}` : `${BASE_URL}/products`,
           };
           const subject = fillTemplate(auto.subject, vars);
           const body = fillTemplate(auto.body, vars);

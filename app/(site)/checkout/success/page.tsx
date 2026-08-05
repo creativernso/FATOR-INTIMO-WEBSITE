@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { CheckCircle, Mail, Instagram, Youtube, ArrowRight } from 'lucide-react';
 import { stripe } from '@/lib/stripe';
 import { getProducts } from '@/lib/db';
@@ -37,7 +38,11 @@ export default async function SuccessPage({
   if (!isPaid && !isPending) redirect('/products');
 
   const productId = session.metadata?.productId;
-  const product = productId ? (await getProducts()).find((p) => p.id === productId) : null;
+  const allProducts = await getProducts();
+  const product = productId ? allProducts.find((p) => p.id === productId) : null;
+  const upsellProducts = product?.upsellProductIds?.length
+    ? allProducts.filter((p) => product.upsellProductIds!.includes(p.id))
+    : [];
   const email = session.customer_details?.email ?? '';
   const name = session.customer_details?.name ?? '';
 
@@ -111,6 +116,34 @@ export default async function SuccessPage({
             </div>
           </div>
         </div>
+
+        {/* Cross-sell, only for products with a configured upsell pairing */}
+        {isPaid && upsellProducts.length > 0 && (
+          <div className="rounded-2xl border border-white/5 bg-surface p-7 mb-5">
+            <p className="text-text-primary text-sm font-medium mb-1">Você também pode gostar</p>
+            <p className="text-text-muted text-xs mb-5">
+              Continue aprofundando essa jornada com mais um passo.
+            </p>
+            <div className="space-y-3">
+              {upsellProducts.map((up) => (
+                <Link
+                  key={up.id}
+                  href={`/products/${up.slug}`}
+                  className="flex items-center gap-4 rounded-xl border border-white/8 hover:border-accent/30 p-3 transition-all group"
+                >
+                  <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-white/5">
+                    <Image src={up.coverImage} alt={up.title} fill className="object-cover" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-text-primary text-sm font-medium truncate">{up.title}</p>
+                    <p className="text-text-muted text-xs mt-0.5">R${up.price},00</p>
+                  </div>
+                  <ArrowRight size={14} className="text-text-muted group-hover:text-accent transition-colors flex-shrink-0" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Social follow card */}
         <div className="rounded-2xl border border-white/5 bg-surface p-7 mb-5">

@@ -25,6 +25,7 @@ const emptyForm = {
   countdownEnabled: false,
   countdownEndsAt: '',
   countdownText: '',
+  upsellProductIds: [] as string[],
 };
 
 const categories = ['Atração', 'Intimidade', 'Autoconhecimento', 'Comunicação', 'Relacionamentos'];
@@ -71,6 +72,7 @@ export default function AdminProducts() {
       countdownEnabled: product.countdownEnabled || false,
       countdownEndsAt: product.countdownEndsAt || '',
       countdownText: product.countdownText || '',
+      upsellProductIds: product.upsellProductIds || [],
     });
     setEditingId(product.id);
     setShowForm(true);
@@ -360,6 +362,39 @@ export default function AdminProducts() {
                       <label className="text-text-muted text-xs mb-1.5 block">Texto do countdown</label>
                       <input className="admin-input" value={form.countdownText} onChange={(e) => setForm({ ...form, countdownText: e.target.value })} placeholder="Oferta válida por tempo limitado" />
                     </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Upsell / cross-sell */}
+              <div className="border-t border-white/[0.04] pt-5">
+                <p className="text-text-primary text-xs font-medium mb-1 tracking-wide uppercase opacity-60">Upsell pós-compra</p>
+                <p className="text-text-muted text-xs mb-3">
+                  Produtos recomendados a quem comprar este, na página de sucesso e no email de acompanhamento.
+                </p>
+                {products.filter((p) => p.id !== editingId).length === 0 ? (
+                  <p className="text-text-muted text-xs">Cadastre outros produtos para poder recomendá-los aqui.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {products.filter((p) => p.id !== editingId).map((p) => {
+                      const checked = form.upsellProductIds.includes(p.id);
+                      return (
+                        <label key={p.id} className="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-white/8 hover:border-white/16 cursor-pointer transition-all">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) => {
+                              const next = e.target.checked
+                                ? [...form.upsellProductIds, p.id]
+                                : form.upsellProductIds.filter((id) => id !== p.id);
+                              setForm({ ...form, upsellProductIds: next });
+                            }}
+                            className="accent-accent"
+                          />
+                          <span className="text-text-secondary text-xs">{p.title}</span>
+                        </label>
+                      );
+                    })}
                   </div>
                 )}
               </div>

@@ -40,6 +40,9 @@ export interface Product {
   countdownEnabled?: boolean;
   countdownEndsAt?: string;   // ISO date string
   countdownText?: string;
+  // Cross-sell: other product IDs to recommend after this one is bought
+  // (checkout success page + post-purchase automation emails)
+  upsellProductIds?: string[];
 }
 
 export interface Testimonial {
