@@ -119,9 +119,10 @@ export default async function SuccessPage({
 
         {/* Cross-sell, only for products with a configured upsell pairing */}
         {isPaid && upsellProducts.length > 0 && (
-          <div className="rounded-2xl border border-white/5 bg-surface p-7 mb-5">
-            <p className="text-text-primary text-sm font-medium mb-1">Você também pode gostar</p>
-            <p className="text-text-muted text-xs mb-5">
+          <div className="relative rounded-2xl border border-accent/20 bg-surface overflow-hidden mb-5 p-7">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
+            <p className="font-body text-2xl font-medium text-text-primary mb-1.5">Você também pode gostar</p>
+            <p className="text-text-muted text-sm mb-5">
               Continue aprofundando essa jornada com mais um passo.
             </p>
             <div className="space-y-3">
