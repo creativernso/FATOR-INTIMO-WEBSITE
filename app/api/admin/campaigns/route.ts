@@ -14,6 +14,53 @@ async function assertAdmin() {
   await getAdminAuth().verifySessionCookie(session, true);
 }
 
+// Shared by a brand-new "send now" campaign and by sending an existing draft
+// (e.g. one auto-created by the YouTube-upload watcher) — same recipient
+// targeting and send loop either way.
+async function sendCampaignNow(campaign: EmailCampaign): Promise<EmailCampaign> {
+  const allLeads = await getLeads();
+  let targets = allLeads.filter((l) => !!l.email);
+  if (campaign.segment === 'guide_downloaded') targets = allLeads.filter((l) => !!l.email && l.guideDownloaded);
+  if (campaign.segment === 'no_purchase') targets = allLeads.filter((l) => !!l.email);
+
+  const sendingCampaign: EmailCampaign = { ...campaign, status: 'sending', totalRecipients: targets.length };
+  await upsertEmailCampaign(sendingCampaign);
+
+  let sent = 0;
+  let failed = 0;
+
+  for (let i = 0; i < targets.length; i++) {
+    const lead = targets[i];
+    if (!lead.email) continue;
+    try {
+      const vars = { nome: lead.name?.split(' ')[0] || '' };
+      const filledSubject = fillTemplate(campaign.subject, vars);
+      const filledBody = fillTemplate(campaign.body, vars);
+      await resend!.emails.send({
+        from: FROM_EMAIL,
+        to: lead.email,
+        subject: filledSubject,
+        html: campaignHtml({ subject: filledSubject, body: filledBody }),
+        text: campaignText({ subject: filledSubject, body: filledBody }),
+      });
+      sent++;
+    } catch {
+      failed++;
+    }
+    if (i % 10 === 9) await new Promise((r) => setTimeout(r, 200));
+  }
+
+  const updated: EmailCampaign = {
+    ...sendingCampaign,
+    status: targets.length > 0 && failed === targets.length ? 'failed' : 'sent',
+    sentCount: sent,
+    failedCount: failed,
+    sentAt: new Date().toISOString(),
+  };
+  await upsertEmailCampaign(updated);
+  return updated;
+}
+
 export async function GET() {
   try {
     await assertAdmin();
@@ -28,6 +75,26 @@ export async function DELETE(req: NextRequest) {
   const { id } = await req.json();
   if (id) await deleteEmailCampaign(id);
   return NextResponse.json({ ok: true });
+}
+
+// Sends an existing draft campaign (e.g. auto-created by the YouTube-upload
+// watcher) — the admin reviews it in the dashboard first, this just fires it.
+export async function PATCH(req: NextRequest) {
+  try { await assertAdmin(); } catch { return NextResponse.json({ error: 'Unauthorized' }, { status: 401 }); }
+  if (!resend) return NextResponse.json({ error: 'Email não configurado.' }, { status: 503 });
+
+  const { id } = await req.json();
+  if (!id) return NextResponse.json({ error: 'ID obrigatório.' }, { status: 400 });
+
+  const campaigns = await getEmailCampaigns();
+  const campaign = campaigns.find((c) => c.id === id);
+  if (!campaign) return NextResponse.json({ error: 'Campanha não encontrada.' }, { status: 404 });
+  if (campaign.status !== 'draft') {
+    return NextResponse.json({ error: 'Só é possível enviar campanhas em rascunho.' }, { status: 400 });
+  }
+
+  const updated = await sendCampaignNow(campaign);
+  return NextResponse.json(updated);
 }
 
 export async function POST(req: NextRequest) {
@@ -60,46 +127,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(campaign);
   }
 
-  // Immediate send
-  const allLeads = await getLeads();
-  let targets = allLeads.filter((l) => !!l.email);
-  if (segment === 'guide_downloaded') targets = allLeads.filter((l) => !!l.email && l.guideDownloaded);
-  if (segment === 'no_purchase') targets = allLeads.filter((l) => !!l.email);
-
-  campaign.totalRecipients = targets.length;
-  await upsertEmailCampaign(campaign);
-
-  let sent = 0;
-  let failed = 0;
-
-  for (let i = 0; i < targets.length; i++) {
-    const lead = targets[i];
-    if (!lead.email) continue;
-    try {
-      const vars = { nome: lead.name?.split(' ')[0] || '' };
-      const filledSubject = fillTemplate(subject, vars);
-      const filledBody = fillTemplate(emailBody, vars);
-      await resend.emails.send({
-        from: FROM_EMAIL,
-        to: lead.email,
-        subject: filledSubject,
-        html: campaignHtml({ subject: filledSubject, body: filledBody }),
-        text: campaignText({ subject: filledSubject, body: filledBody }),
-      });
-      sent++;
-    } catch {
-      failed++;
-    }
-    if (i % 10 === 9) await new Promise((r) => setTimeout(r, 200));
-  }
-
-  const updated: EmailCampaign = {
-    ...campaign,
-    status: failed === targets.length ? 'failed' : 'sent',
-    sentCount: sent,
-    failedCount: failed,
-    sentAt: new Date().toISOString(),
-  };
-  await upsertEmailCampaign(updated);
+  const updated = await sendCampaignNow(campaign);
   return NextResponse.json(updated);
 }

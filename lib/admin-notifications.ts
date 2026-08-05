@@ -165,6 +165,17 @@ export function alertNewOrder(productTitle: string, amount: number, customerEmai
   });
 }
 
+export function alertNewYoutubeVideo(videoTitle: string, videoUrl: string) {
+  return sendAdminAlert({
+    subject: `Novo vídeo publicado: ${videoTitle}`,
+    title: 'Novo vídeo no canal 🎬',
+    body: `"${videoTitle}" acabou de ser detectado no YouTube. Um rascunho de email para sua lista já está pronto, revise e envie quando quiser.`,
+    ctaLabel: 'Revisar e enviar',
+    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com'}/admin/emails`,
+    meta: { Vídeo: videoTitle, Link: videoUrl },
+  });
+}
+
 export function alertNewComment(postTitle: string, author: string) {
   return sendAdminAlert({
     subject: 'Novo comentário para aprovar',

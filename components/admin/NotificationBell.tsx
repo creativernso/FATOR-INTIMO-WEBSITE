@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Bell, ShoppingBag, BookOpen, Users, MessageSquare, FileText, AlertTriangle, Heart, Check, X, UserPlus, LucideIcon } from 'lucide-react';
+import { Bell, ShoppingBag, BookOpen, Users, MessageSquare, FileText, AlertTriangle, Heart, Check, X, UserPlus, Youtube, LucideIcon } from 'lucide-react';
 import { AdminNotification } from '@/lib/types';
 
 const TYPE_CONFIG: Record<AdminNotification['type'], { icon: LucideIcon; color: string; bg: string }> = {
@@ -14,6 +14,7 @@ const TYPE_CONFIG: Record<AdminNotification['type'], { icon: LucideIcon; color: 
   testimonial:          { icon: FileText,      color: 'text-sky-400',    bg: 'bg-sky-400/10'    },
   checkout_abandoned:   { icon: AlertTriangle, color: 'text-orange-400', bg: 'bg-orange-400/10' },
   affiliate_application:{ icon: UserPlus,      color: 'text-pink-400',   bg: 'bg-pink-400/10'   },
+  youtube_video:         { icon: Youtube,       color: 'text-red-400',    bg: 'bg-red-400/10'    },
 };
 
 function timeAgo(iso: string) {

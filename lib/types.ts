@@ -163,7 +163,7 @@ export interface Comment {
 
 export interface AdminNotification {
   id: string;
-  type: 'purchase' | 'guide_download' | 'community_join' | 'community_post' | 'community_report' | 'comment' | 'testimonial' | 'checkout_abandoned' | 'affiliate_application';
+  type: 'purchase' | 'guide_download' | 'community_join' | 'community_post' | 'community_report' | 'comment' | 'testimonial' | 'checkout_abandoned' | 'affiliate_application' | 'youtube_video';
   title: string;
   body: string;
   read: boolean;

@@ -139,6 +139,23 @@ export default function AdminEmails() {
     setCampaigns((p) => p.filter((c) => c.id !== id));
   };
 
+  const [sendingDraftId, setSendingDraftId] = useState<string | null>(null);
+  const sendDraftCampaign = async (id: string) => {
+    if (!confirm('Enviar esta campanha agora para todos os contatos do segmento?')) return;
+    setSendingDraftId(id);
+    try {
+      const res = await fetch('/api/admin/campaigns', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      const data = await res.json();
+      if (res.ok) {
+        setCampaigns((prev) => prev.map((c) => (c.id === data.id ? data : c)));
+      } else {
+        alert(data.error || 'Erro ao enviar.');
+      }
+    } finally {
+      setSendingDraftId(null);
+    }
+  };
+
   // ── CSV import ───────────────────────────────────────────
   const handleCSVImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -509,6 +526,15 @@ export default function AdminEmails() {
                           <p className="text-green-400 font-medium" style={{ fontSize: '0.8rem' }}>{c.sentCount} enviados</p>
                           {c.failedCount > 0 && <p className="text-red-400" style={{ fontSize: '0.7rem' }}>{c.failedCount} falhas</p>}
                         </div>
+                      )}
+                      {c.status === 'draft' && (
+                        <button
+                          onClick={() => sendDraftCampaign(c.id)}
+                          disabled={sendingDraftId === c.id}
+                          className="flex items-center gap-1.5 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex-shrink-0"
+                        >
+                          {sendingDraftId === c.id ? <Loader size={11} className="animate-spin" /> : <Send size={11} />} Enviar
+                        </button>
                       )}
                       <button onClick={() => deleteCampaign(c.id)} className="opacity-0 group-hover:opacity-100 p-2 rounded-lg text-text-muted hover:text-red-400 hover:bg-red-400/8 transition-all">
                         <Trash2 size={13} />

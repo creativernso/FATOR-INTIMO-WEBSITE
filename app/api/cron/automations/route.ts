@@ -8,10 +8,18 @@ import {
   getReviewSettings,
   markLeadReviewRequestSent,
   getCartRecoverySettings,
+  getYoutubeWatcherState,
+  saveYoutubeWatcherState,
+  upsertEmailCampaign,
+  createNotification,
 } from '@/lib/db';
 import { getOrders, markOrderReviewRequestSent, getAbandonedCheckouts, markAbandonedCheckoutRecoveryEmailSent, markAbandonedCheckoutSecondEmailSent, AbandonedCheckout } from '@/lib/orders';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { campaignHtml, campaignText, cartRecoveryHtml, cartRecoveryText, fillTemplate } from '@/lib/email-template';
+import { getLatestVideos } from '@/lib/youtube';
+import { alertNewYoutubeVideo } from '@/lib/admin-notifications';
+import { EmailCampaign } from '@/lib/types';
+import { v4 as uuid } from 'uuid';
 
 // Vercel cron, runs daily at 09:00 UTC
 // Configure in vercel.json: { "crons": [{ "path": "/api/cron/automations", "schedule": "0 9 * * *" }] }
@@ -343,6 +351,45 @@ export async function GET(req: NextRequest) {
     console.error('[cron/automations] cart recovery emails failed:', err);
   }
 
+  // ── YouTube: new-upload detection (drafts an email, doesn't auto-send) ───
+  let youtubeVideoDetected = false;
+  try {
+    const [latest, watcher] = await Promise.all([getLatestVideos(1), getYoutubeWatcherState()]);
+    const video = latest[0];
+    if (video?.id && video.id !== watcher.lastVideoId) {
+      // Only draft a campaign once we already had a baseline — otherwise the
+      // very first run after this feature ships would treat the channel's
+      // existing latest video as "new" and draft an email for old content.
+      if (watcher.lastVideoId) {
+        const subject = `Novo vídeo no canal: ${video.title}`;
+        const body = `Saiu vídeo novo no canal do Fator Íntimo!\n\n${video.title}\n\nAssista aqui: https://www.youtube.com/watch?v=${video.id}`;
+        const campaign: EmailCampaign = {
+          id: uuid(),
+          subject,
+          body,
+          segment: 'all',
+          status: 'draft',
+          sentCount: 0,
+          failedCount: 0,
+          totalRecipients: 0,
+          createdAt: new Date().toISOString(),
+        };
+        await upsertEmailCampaign(campaign);
+        await createNotification(
+          'youtube_video',
+          'Novo vídeo detectado no YouTube',
+          `"${video.title}" foi publicado. Um rascunho de email já está pronto em Emails > Campanhas, revise e envie quando quiser.`,
+          { videoTitle: video.title, videoUrl: `https://www.youtube.com/watch?v=${video.id}` }
+        );
+        alertNewYoutubeVideo(video.title, `https://www.youtube.com/watch?v=${video.id}`);
+        youtubeVideoDetected = true;
+      }
+      await saveYoutubeWatcherState({ lastVideoId: video.id, lastCheckedAt: new Date().toISOString() });
+    }
+  } catch (err) {
+    console.error('[cron/automations] youtube watch failed:', err);
+  }
+
   return NextResponse.json({
     ran: activeAutomations.length,
     results,
@@ -350,5 +397,6 @@ export async function GET(req: NextRequest) {
     guideReviewRequestsSent,
     cartRecoveryEmailsSent,
     cartSecondEmailsSent,
+    youtubeVideoDetected,
   });
 }

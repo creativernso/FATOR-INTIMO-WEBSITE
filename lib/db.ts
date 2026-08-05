@@ -600,6 +600,22 @@ export async function saveCartRecoverySettings(settings: CartRecoverySettings): 
   });
 }
 
+// ─── YouTube watcher (tracks the last video seen, for new-upload alerts) ─────
+
+export interface YoutubeWatcherState {
+  lastVideoId?: string;
+  lastCheckedAt?: string;
+}
+
+export async function getYoutubeWatcherState(): Promise<YoutubeWatcherState> {
+  const snap = await db().collection('youtubeWatcher').doc('default').get();
+  return snap.exists ? (snap.data() as YoutubeWatcherState) : {};
+}
+
+export async function saveYoutubeWatcherState(state: YoutubeWatcherState): Promise<void> {
+  await db().collection('youtubeWatcher').doc('default').set(state, { merge: true });
+}
+
 // ─── Admin team ─────────────────────────────────────────────────────────────
 
 export async function getAdminUsers(): Promise<AdminUser[]> {
