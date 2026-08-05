@@ -14,9 +14,6 @@ async function assertAdmin() {
   await getAdminAuth().verifySessionCookie(session, true);
 }
 
-// Shared by a brand-new "send now" campaign and by sending an existing draft
-// (e.g. one auto-created by the YouTube-upload watcher) — same recipient
-// targeting and send loop either way.
 async function sendCampaignNow(campaign: EmailCampaign): Promise<EmailCampaign> {
   const allLeads = await getLeads();
   let targets = allLeads.filter((l) => !!l.email);
@@ -75,26 +72,6 @@ export async function DELETE(req: NextRequest) {
   const { id } = await req.json();
   if (id) await deleteEmailCampaign(id);
   return NextResponse.json({ ok: true });
-}
-
-// Sends an existing draft campaign (e.g. auto-created by the YouTube-upload
-// watcher) — the admin reviews it in the dashboard first, this just fires it.
-export async function PATCH(req: NextRequest) {
-  try { await assertAdmin(); } catch { return NextResponse.json({ error: 'Unauthorized' }, { status: 401 }); }
-  if (!resend) return NextResponse.json({ error: 'Email não configurado.' }, { status: 503 });
-
-  const { id } = await req.json();
-  if (!id) return NextResponse.json({ error: 'ID obrigatório.' }, { status: 400 });
-
-  const campaigns = await getEmailCampaigns();
-  const campaign = campaigns.find((c) => c.id === id);
-  if (!campaign) return NextResponse.json({ error: 'Campanha não encontrada.' }, { status: 404 });
-  if (campaign.status !== 'draft') {
-    return NextResponse.json({ error: 'Só é possível enviar campanhas em rascunho.' }, { status: 400 });
-  }
-
-  const updated = await sendCampaignNow(campaign);
-  return NextResponse.json(updated);
 }
 
 export async function POST(req: NextRequest) {

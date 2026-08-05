@@ -10,7 +10,6 @@ import {
   getCartRecoverySettings,
   getYoutubeWatcherState,
   saveYoutubeWatcherState,
-  upsertEmailCampaign,
   createNotification,
 } from '@/lib/db';
 import { getOrders, markOrderReviewRequestSent, getAbandonedCheckouts, markAbandonedCheckoutRecoveryEmailSent, markAbandonedCheckoutSecondEmailSent, AbandonedCheckout } from '@/lib/orders';
@@ -18,8 +17,6 @@ import { resend, FROM_EMAIL } from '@/lib/resend';
 import { campaignHtml, campaignText, cartRecoveryHtml, cartRecoveryText, fillTemplate } from '@/lib/email-template';
 import { getLatestVideos } from '@/lib/youtube';
 import { alertNewYoutubeVideo } from '@/lib/admin-notifications';
-import { EmailCampaign } from '@/lib/types';
-import { v4 as uuid } from 'uuid';
 
 // Vercel cron, runs daily at 09:00 UTC
 // Configure in vercel.json: { "crons": [{ "path": "/api/cron/automations", "schedule": "0 9 * * *" }] }
@@ -68,6 +65,10 @@ export async function GET(req: NextRequest) {
     // sourced from orders, not leads, and delayDays === 0 ones already fired
     // immediately from the Stripe webhook — handled in its own block below.
     if (auto.trigger === 'purchase') continue;
+
+    // Event-triggered by a YouTube upload, not by lead age — handled in its
+    // own block below, only when a genuinely new video is detected.
+    if (auto.trigger === 'youtube_video') continue;
 
     // Same reasoning for signup: delayDays===0 ones are sent immediately in
     // app/api/leads/route.ts. Without this, the very lead that just got the
@@ -351,37 +352,52 @@ export async function GET(req: NextRequest) {
     console.error('[cron/automations] cart recovery emails failed:', err);
   }
 
-  // ── YouTube: new-upload detection (drafts an email, doesn't auto-send) ───
+  // ── YouTube: new-upload detection → sends automatically via the
+  // 'youtube_video' automation (if active), so the subject/body stay
+  // editable from Emails > Automações for the next video without needing
+  // approval each time. No admin action required to fire the email.
   let youtubeVideoDetected = false;
   try {
     const [latest, watcher] = await Promise.all([getLatestVideos(1), getYoutubeWatcherState()]);
     const video = latest[0];
     if (video?.id && video.id !== watcher.lastVideoId) {
-      // Only draft a campaign once we already had a baseline — otherwise the
-      // very first run after this feature ships would treat the channel's
-      // existing latest video as "new" and draft an email for old content.
+      // Only send once we already had a baseline — otherwise the very first
+      // run after this feature ships would treat the channel's existing
+      // latest video as "new" and email everyone about old content.
       if (watcher.lastVideoId) {
-        const subject = `Novo vídeo no canal: ${video.title}`;
-        const body = `Saiu vídeo novo no canal do Fator Íntimo!\n\n${video.title}\n\nAssista aqui: https://www.youtube.com/watch?v=${video.id}`;
-        const campaign: EmailCampaign = {
-          id: uuid(),
-          subject,
-          body,
-          segment: 'all',
-          status: 'draft',
-          sentCount: 0,
-          failedCount: 0,
-          totalRecipients: 0,
-          createdAt: new Date().toISOString(),
-        };
-        await upsertEmailCampaign(campaign);
+        const videoUrl = `https://www.youtube.com/watch?v=${video.id}`;
+        const youtubeAuto = activeAutomations.find((a) => a.trigger === 'youtube_video');
+        if (youtubeAuto) {
+          const vars = { titulo: video.title, link: videoUrl };
+          const subject = fillTemplate(youtubeAuto.subject, vars);
+          const body = fillTemplate(youtubeAuto.body, vars);
+          const emailLeads = leads.filter((l) => !!l.email);
+          let sent = 0;
+          for (const lead of emailLeads) {
+            try {
+              await resend.emails.send({
+                from: FROM_EMAIL,
+                to: lead.email!,
+                subject,
+                html: campaignHtml({ subject, body }),
+                text: campaignText({ subject, body }),
+              });
+              sent++;
+            } catch {
+              // silent, this video's window has passed either way — no retry
+            }
+            await new Promise((r) => setTimeout(r, 100));
+          }
+          await upsertEmailAutomation({ ...youtubeAuto, totalSent: youtubeAuto.totalSent + sent, lastRunAt: new Date().toISOString() });
+          results[youtubeAuto.name] = sent;
+        }
         await createNotification(
           'youtube_video',
-          'Novo vídeo detectado no YouTube',
-          `"${video.title}" foi publicado. Um rascunho de email já está pronto em Emails > Campanhas, revise e envie quando quiser.`,
-          { videoTitle: video.title, videoUrl: `https://www.youtube.com/watch?v=${video.id}` }
+          'Novo vídeo publicado no YouTube',
+          `"${video.title}" foi detectado e o email de notificação ${youtubeAuto ? 'foi enviado à lista' : 'NÃO foi enviado (nenhuma automação ativa para este gatilho)'}.`,
+          { videoTitle: video.title, videoUrl }
         );
-        alertNewYoutubeVideo(video.title, `https://www.youtube.com/watch?v=${video.id}`);
+        alertNewYoutubeVideo(video.title, videoUrl);
         youtubeVideoDetected = true;
       }
       await saveYoutubeWatcherState({ lastVideoId: video.id, lastCheckedAt: new Date().toISOString() });

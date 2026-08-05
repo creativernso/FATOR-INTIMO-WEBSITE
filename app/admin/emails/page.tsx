@@ -34,6 +34,7 @@ const TRIGGER_LABELS: Record<EmailAutomation['trigger'], string> = {
   purchase: 'Após compra',
   inactive_30d: 'Inativo por 30 dias',
   inactive_60d: 'Inativo por 60 dias',
+  youtube_video: 'Novo vídeo no YouTube',
 };
 
 const DEFAULT_AUTOMATIONS: Omit<EmailAutomation, 'id' | 'totalSent' | 'createdAt'>[] = [
@@ -137,23 +138,6 @@ export default function AdminEmails() {
     if (!confirm('Excluir campanha?')) return;
     await fetch('/api/admin/campaigns', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
     setCampaigns((p) => p.filter((c) => c.id !== id));
-  };
-
-  const [sendingDraftId, setSendingDraftId] = useState<string | null>(null);
-  const sendDraftCampaign = async (id: string) => {
-    if (!confirm('Enviar esta campanha agora para todos os contatos do segmento?')) return;
-    setSendingDraftId(id);
-    try {
-      const res = await fetch('/api/admin/campaigns', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
-      const data = await res.json();
-      if (res.ok) {
-        setCampaigns((prev) => prev.map((c) => (c.id === data.id ? data : c)));
-      } else {
-        alert(data.error || 'Erro ao enviar.');
-      }
-    } finally {
-      setSendingDraftId(null);
-    }
   };
 
   // ── CSV import ───────────────────────────────────────────
@@ -527,15 +511,6 @@ export default function AdminEmails() {
                           {c.failedCount > 0 && <p className="text-red-400" style={{ fontSize: '0.7rem' }}>{c.failedCount} falhas</p>}
                         </div>
                       )}
-                      {c.status === 'draft' && (
-                        <button
-                          onClick={() => sendDraftCampaign(c.id)}
-                          disabled={sendingDraftId === c.id}
-                          className="flex items-center gap-1.5 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex-shrink-0"
-                        >
-                          {sendingDraftId === c.id ? <Loader size={11} className="animate-spin" /> : <Send size={11} />} Enviar
-                        </button>
-                      )}
                       <button onClick={() => deleteCampaign(c.id)} className="opacity-0 group-hover:opacity-100 p-2 rounded-lg text-text-muted hover:text-red-400 hover:bg-red-400/8 transition-all">
                         <Trash2 size={13} />
                       </button>
@@ -670,7 +645,11 @@ export default function AdminEmails() {
                             {auto.active ? 'Ativo' : 'Inativo'}
                           </span>
                         </div>
-                        <p className="text-text-muted text-xs">{TRIGGER_LABELS[auto.trigger]} · {auto.delayDays} dia{auto.delayDays !== 1 ? 's' : ''} depois · {auto.totalSent} enviados</p>
+                        <p className="text-text-muted text-xs">
+                          {TRIGGER_LABELS[auto.trigger]}
+                          {auto.trigger !== 'youtube_video' && <> · {auto.delayDays} dia{auto.delayDays !== 1 ? 's' : ''} depois</>}
+                          {' '}· {auto.totalSent} enviados
+                        </p>
                         <p className="text-text-muted text-xs mt-0.5 italic truncate">{auto.subject}</p>
                       </div>
                       <div className="flex items-center gap-1.5 flex-shrink-0">

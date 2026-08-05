@@ -252,7 +252,7 @@ export interface EmailCampaign {
 export interface EmailAutomation {
   id: string;
   name: string;
-  trigger: 'signup' | 'guide_download' | 'purchase' | 'inactive_30d' | 'inactive_60d';
+  trigger: 'signup' | 'guide_download' | 'purchase' | 'inactive_30d' | 'inactive_60d' | 'youtube_video';
   delayDays: number;
   subject: string;
   body: string;
