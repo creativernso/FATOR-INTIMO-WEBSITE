@@ -16,7 +16,11 @@ export async function POST(req: NextRequest) {
     const sender = from === 'admin' ? 'admin' : 'visitor';
     const db = getAdminDb();
 
-    // Touch the parent session doc (presence + last activity)
+    // Touch the parent session doc (presence + last activity). unreadFromVisitor
+    // is maintained here instead of being recomputed from the messages
+    // subcollection on every admin poll — that used to mean a separate
+    // Firestore query per session, every few seconds, just to count trailing
+    // visitor messages.
     await db.collection('chatSessions').doc(visitorId).set(
       {
         visitorId,
@@ -24,6 +28,7 @@ export async function POST(req: NextRequest) {
         lastSeen: FieldValue.serverTimestamp(),
         lastMessage: cleanText,
         lastAt: FieldValue.serverTimestamp(),
+        unreadFromVisitor: sender === 'visitor' ? FieldValue.increment(1) : 0,
       },
       { merge: true },
     );

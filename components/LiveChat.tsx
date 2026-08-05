@@ -89,9 +89,10 @@ export default function LiveChat() {
     return () => clearInterval(id);
   }, [visitorId, open, hasChatted, fetchMessages]);
 
-  // Presence heartbeat
+  // Presence heartbeat. Same gating as the message poll above: a visitor who
+  // never opens the widget shouldn't create/touch a chatSessions doc at all.
   useEffect(() => {
-    if (!visitorId) return;
+    if (!visitorId || (!open && !hasChatted)) return;
     const ping = (online: boolean) =>
       fetch('/api/chat/presence', {
         method: 'POST',
@@ -108,7 +109,7 @@ export default function LiveChat() {
       window.removeEventListener('beforeunload', handleUnload);
       ping(false);
     };
-  }, [visitorId]);
+  }, [visitorId, open, hasChatted]);
 
   useEffect(() => {
     if (open && !minimized) {

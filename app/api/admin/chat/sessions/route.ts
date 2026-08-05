@@ -29,58 +29,36 @@ export async function GET() {
 
   try {
     const db = getAdminDb();
+    // lastMessage/lastAt/unreadFromVisitor are denormalized onto the session
+    // doc by /api/chat/send, so this is a single collection read — no more
+    // per-session message subquery (that used to run once per visitor, every
+    // few seconds, for every session including ones with zero messages).
     const sessionsSnap = await db.collection('chatSessions').get();
 
     const summaries: SessionSummary[] = [];
 
-    // Each session is processed independently: one malformed/failing session
-    // must not blank out the entire list for every other conversation.
     for (const sessionDoc of sessionsSnap.docs) {
       const visitorId = sessionDoc.id;
-      try {
-        const data = sessionDoc.data() || {};
-        const lastSeenTs = data.lastSeen;
-        const lastSeen = lastSeenTs && typeof lastSeenTs.toDate === 'function'
-          ? lastSeenTs.toDate().toISOString()
-          : '';
+      const data = sessionDoc.data() || {};
+      if (!data.lastAt) continue;
 
-        // Fetch the most recent message and any unread (admin-side) visitor messages
-        const msgsSnap = await db
-          .collection('chatSessions')
-          .doc(visitorId)
-          .collection('messages')
-          .orderBy('createdAt', 'desc')
-          .limit(50)
-          .get();
+      const lastSeenTs = data.lastSeen;
+      const lastSeen = lastSeenTs && typeof lastSeenTs.toDate === 'function'
+        ? lastSeenTs.toDate().toISOString()
+        : '';
+      const lastAtTs = data.lastAt;
+      const lastAt = lastAtTs && typeof lastAtTs.toDate === 'function'
+        ? lastAtTs.toDate().toISOString()
+        : new Date().toISOString();
 
-        if (msgsSnap.empty) continue;
-
-        const latest = msgsSnap.docs[0].data();
-        const latestTs = latest.createdAt;
-        const lastAt = latestTs && typeof latestTs.toDate === 'function'
-          ? latestTs.toDate().toISOString()
-          : new Date().toISOString();
-
-        // Count consecutive visitor messages at the end (i.e. visitor messages
-        // after the last admin reply) as "unread from visitor"
-        let unreadFromVisitor = 0;
-        for (const d of msgsSnap.docs) {
-          const m = d.data();
-          if (m.from === 'admin') break;
-          if (m.from === 'visitor') unreadFromVisitor++;
-        }
-
-        summaries.push({
-          visitorId,
-          lastMessage: latest.text as string,
-          lastAt,
-          online: !!data.online && lastSeen ? (Date.now() - new Date(lastSeen).getTime() < 3 * 60 * 1000) : false,
-          lastSeen,
-          unreadFromVisitor,
-        });
-      } catch (err) {
-        console.error(`[admin/chat/sessions] failed to process session ${visitorId}:`, err);
-      }
+      summaries.push({
+        visitorId,
+        lastMessage: (data.lastMessage as string) || '',
+        lastAt,
+        online: !!data.online && lastSeen ? (Date.now() - new Date(lastSeen).getTime() < 3 * 60 * 1000) : false,
+        lastSeen,
+        unreadFromVisitor: (data.unreadFromVisitor as number) || 0,
+      });
     }
 
     summaries.sort((a, b) => b.lastAt.localeCompare(a.lastAt));
