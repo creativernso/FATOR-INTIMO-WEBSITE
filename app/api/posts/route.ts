@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { getAdminAuth } from '@/lib/firebase-admin';
 import { getPosts, upsertPost, getLeads, createNotification } from '@/lib/db';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { newArticleHtml, newArticleText } from '@/lib/email-template';
 import { sendAdminAlert } from '@/lib/admin-notifications';
 import { v4 as uuid } from 'uuid';
+
+async function verifyAdmin() {
+  const session = (await cookies()).get('fi_session')?.value;
+  if (!session) return false;
+  try { await getAdminAuth().verifySessionCookie(session, true); return true; }
+  catch { return false; }
+}
 
 function slugify(s: string): string {
   return s
@@ -19,6 +28,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!(await verifyAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const body = await req.json();
   const rawSlug = body.slug || body.title || uuid();
   const newPost = {

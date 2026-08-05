@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { getAdminAuth } from '@/lib/firebase-admin';
 import { getPosts, upsertPost, deletePost } from '@/lib/db';
+
+async function verifyAdmin() {
+  const session = (await cookies()).get('fi_session')?.value;
+  if (!session) return false;
+  try { await getAdminAuth().verifySessionCookie(session, true); return true; }
+  catch { return false; }
+}
 
 function slugify(s: string): string {
   return s
@@ -13,6 +22,7 @@ function slugify(s: string): string {
 // The dynamic param is named `slug` for Next.js routing consistency, but the
 // admin dashboard passes a post id here. We look up by id first, then by slug.
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+  if (!(await verifyAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const { slug: idOrSlug } = await params;
   const body = await req.json();
   const posts = await getPosts();
@@ -29,6 +39,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ slug
 }
 
 export async function DELETE(_: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+  if (!(await verifyAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const { slug: idOrSlug } = await params;
   const posts = await getPosts();
   const existing = posts.find((p) => p.id === idOrSlug) || posts.find((p) => p.slug === idOrSlug);

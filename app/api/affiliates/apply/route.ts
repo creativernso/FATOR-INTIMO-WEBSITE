@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { saveAffiliate, getAffiliateByCode, getAffiliateByEmail } from '@/lib/affiliates';
 import { createNotification } from '@/lib/db';
 import { alertNewAffiliateApplication } from '@/lib/admin-notifications';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import type { Affiliate } from '@/lib/types';
 
 const DEFAULT_COMMISSION_RATE = 20;
@@ -30,6 +31,9 @@ async function generateUniqueCode(name: string): Promise<string> {
 }
 
 export async function POST(req: NextRequest) {
+  const allowed = await checkRateLimit(`affiliate_apply:${getClientIp(req)}`, 5, 3600);
+  if (!allowed) return NextResponse.json({ error: 'Muitas tentativas. Aguarde um pouco.' }, { status: 429 });
+
   const body = await req.json();
   const { name, email, socialHandle, message, pixKey } = body;
 
