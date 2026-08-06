@@ -4,8 +4,9 @@ export type VideoEmbed =
   | { type: 'direct'; src: string };
 
 export function getVideoEmbed(url: string): VideoEmbed | null {
-  // YouTube
-  const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  // YouTube (including Shorts, e.g. youtube.com/shorts/VIDEO_ID — the
+  // vertical format people naturally paste for a UGC-style testimonial)
+  const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   if (ytMatch) {
     return {
       type: 'youtube',
