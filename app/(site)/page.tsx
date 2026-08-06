@@ -44,11 +44,11 @@ export default async function Home() {
   const t = createT(locale);
 
   const topics = [
-    { icon: '◈', title: t('home.topics.t1_title'), desc: t('home.topics.t1_desc') },
-    { icon: '◉', title: t('home.topics.t2_title'), desc: t('home.topics.t2_desc') },
+    { icon: '◎', title: t('home.topics.t1_title'), desc: t('home.topics.t1_desc') },
+    { icon: '◎', title: t('home.topics.t2_title'), desc: t('home.topics.t2_desc') },
     { icon: '◎', title: t('home.topics.t3_title'), desc: t('home.topics.t3_desc') },
-    { icon: '◈', title: t('home.topics.t4_title'), desc: t('home.topics.t4_desc') },
-    { icon: '◉', title: t('home.topics.t5_title'), desc: t('home.topics.t5_desc') },
+    { icon: '◎', title: t('home.topics.t4_title'), desc: t('home.topics.t4_desc') },
+    { icon: '◎', title: t('home.topics.t5_title'), desc: t('home.topics.t5_desc') },
     { icon: '◎', title: t('home.topics.t6_title'), desc: t('home.topics.t6_desc') },
   ];
 
