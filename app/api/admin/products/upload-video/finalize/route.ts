@@ -9,7 +9,7 @@ async function verifyAdmin() {
   catch { return false; }
 }
 
-const MAX_SIZE = 60 * 1024 * 1024;
+const MAX_SIZE = 150 * 1024 * 1024;
 
 // The client's declared contentType on the signed PUT proves nothing about
 // what was actually uploaded, so this step reads back just the first few

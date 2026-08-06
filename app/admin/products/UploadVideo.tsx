@@ -98,7 +98,7 @@ export default function UploadVideo({ onUploaded }: Props) {
       </button>
       {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
       <p className="text-text-muted text-xs mt-1 flex items-center gap-1">
-        <Video size={10} /> Máx. 60MB · MP4 ou WEBM · reproduzido sem logo/marca do YouTube
+        <Video size={10} /> Máx. 150MB · MP4 ou WEBM · reproduzido sem logo/marca do YouTube
       </p>
     </div>
   );
