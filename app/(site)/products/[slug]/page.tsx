@@ -212,7 +212,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 )}
               </div>
 
-              <p className="text-text-secondary text-base leading-relaxed">{product.description}</p>
+              <p className="text-text-secondary text-base leading-relaxed whitespace-pre-line">{product.description}</p>
 
               {/* Price + Countdown + Buy, single bordered block */}
               <div className="flex flex-col gap-4">
