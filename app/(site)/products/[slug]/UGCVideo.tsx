@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Play } from 'lucide-react';
+import { Play, X } from 'lucide-react';
 import { getVideoEmbed } from '@/lib/video-embed';
 
 interface Props {
@@ -35,16 +35,27 @@ export default function UGCVideo({ url }: Props) {
   return (
     <div className="relative mx-auto w-full max-w-[300px] sm:max-w-[340px] aspect-[9/16] rounded-2xl overflow-hidden border border-white/8 bg-surface">
       {playing && embed ? (
-        embed.type === 'direct' ? (
-          <video src={embed.src} autoPlay controls playsInline className="w-full h-full object-cover" />
-        ) : (
-          <iframe
-            src={embed.src}
-            className="w-full h-full"
-            allow="autoplay; fullscreen; picture-in-picture"
-            allowFullScreen
-          />
-        )
+        <>
+          {embed.type === 'direct' ? (
+            <video src={embed.src} autoPlay controls playsInline className="w-full h-full object-cover" />
+          ) : (
+            <iframe
+              src={embed.src}
+              className="w-full h-full"
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
+            />
+          )}
+          {/* controls=0 strips YouTube/Vimeo's own UI, so this is the only
+              way to stop/exit the video once it's playing */}
+          <button
+            onClick={() => setPlaying(false)}
+            aria-label="Fechar vídeo"
+            className="absolute top-3 right-3 z-10 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-white transition-colors"
+          >
+            <X size={14} />
+          </button>
+        </>
       ) : (
         <>
           {/* Preview frame */}
