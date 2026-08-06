@@ -14,21 +14,53 @@ export default function UploadVideo({ onUploaded }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
+    if (file.type !== 'video/mp4' && file.type !== 'video/webm') {
+      setError('Apenas vídeos MP4 ou WEBM são permitidos.');
+      return;
+    }
     setUploading(true);
     setError('');
     setDone(false);
 
-    const form = new FormData();
-    form.append('file', file);
-
     try {
-      const res = await fetch('/api/admin/products/upload-video', { method: 'POST', body: form });
-      const data = await res.json();
-      if (res.ok) {
+      // 1) Ask for a short-lived signed URL to upload straight to storage —
+      // sending the file itself through our own API route would hit
+      // Vercel's ~4.5MB serverless body limit long before 60MB.
+      const initRes = await fetch('/api/admin/products/upload-video/init', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contentType: file.type }),
+      });
+      const initData = await initRes.json();
+      if (!initRes.ok) {
+        setError(initData.error || 'Erro ao preparar upload.');
+        return;
+      }
+
+      // 2) Upload the actual bytes directly to storage.
+      const putRes = await fetch(initData.uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
+      if (!putRes.ok) {
+        setError('Erro ao enviar o vídeo.');
+        return;
+      }
+
+      // 3) Tell our server it's there so it can verify the real file
+      // signature and make it public.
+      const finalizeRes = await fetch('/api/admin/products/upload-video/finalize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filePath: initData.filePath }),
+      });
+      const finalizeData = await finalizeRes.json();
+      if (finalizeRes.ok) {
         setDone(true);
-        onUploaded(data.url);
+        onUploaded(finalizeData.url);
       } else {
-        setError(data.error || 'Erro ao fazer upload.');
+        setError(finalizeData.error || 'Erro ao validar vídeo.');
       }
     } catch {
       setError('Erro de conexão.');
