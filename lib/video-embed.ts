@@ -14,7 +14,7 @@ export function getVideoEmbed(url: string): VideoEmbed | null {
     return {
       type: 'youtube',
       videoId: ytMatch[1],
-      src: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&rel=0&modestbranding=1&controls=0&iv_load_policy=3&playsinline=1`,
+      src: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&rel=0&modestbranding=1&controls=0&iv_load_policy=3&playsinline=1&hl=pt-BR&cc_lang_pref=pt-BR`,
     };
   }
   // Vimeo
