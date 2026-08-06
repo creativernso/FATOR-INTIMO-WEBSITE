@@ -36,6 +36,8 @@ export interface Product {
   downloadUrl?: string;
   // Sales video
   videoUrl?: string;
+  // Vertical (9:16) UGC testimonial video, shown right after the first buy button
+  ugcVideoUrl?: string;
   // Urgency countdown
   countdownEnabled?: boolean;
   countdownEndsAt?: string;   // ISO date string

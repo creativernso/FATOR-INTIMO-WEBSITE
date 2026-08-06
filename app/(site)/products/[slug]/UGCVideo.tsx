@@ -5,13 +5,13 @@ import { Play } from 'lucide-react';
 import { getVideoEmbed } from '@/lib/video-embed';
 
 interface Props {
-  url: string;
+  url?: string;
 }
 
-export default function SalesVideo({ url }: Props) {
+export default function UGCVideo({ url }: Props) {
   const [playing, setPlaying] = useState(false);
   const [thumb, setThumb] = useState<string | null>(null);
-  const embed = getVideoEmbed(url);
+  const embed = url ? getVideoEmbed(url) : null;
 
   useEffect(() => {
     if (!embed) return;
@@ -29,15 +29,14 @@ export default function SalesVideo({ url }: Props) {
         cancelled = true;
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
 
-  if (!embed) return null;
-
   return (
-    <div className="rounded-2xl overflow-hidden border border-white/8 bg-surface aspect-video relative">
-      {playing ? (
+    <div className="relative mx-auto w-full max-w-[300px] sm:max-w-[340px] aspect-[9/16] rounded-2xl overflow-hidden border border-white/8 bg-surface">
+      {playing && embed ? (
         embed.type === 'direct' ? (
-          <video src={embed.src} autoPlay controls className="w-full h-full object-cover" />
+          <video src={embed.src} autoPlay controls playsInline className="w-full h-full object-cover" />
         ) : (
           <iframe
             src={embed.src}
@@ -49,7 +48,7 @@ export default function SalesVideo({ url }: Props) {
       ) : (
         <>
           {/* Preview frame */}
-          {embed.type === 'direct' ? (
+          {embed?.type === 'direct' ? (
             <video
               src={`${embed.src}#t=0.5`}
               muted
@@ -64,9 +63,8 @@ export default function SalesVideo({ url }: Props) {
               alt="Pré-visualização do vídeo"
               className="absolute inset-0 w-full h-full object-cover"
               onError={(e) => {
-                if (embed.type === 'youtube') {
+                if (embed?.type === 'youtube') {
                   const img = e.currentTarget as HTMLImageElement;
-                  // Fall back to hqdefault if maxres isn't available
                   if (!img.src.endsWith('/hqdefault.jpg')) {
                     img.src = `https://img.youtube.com/vi/${embed.videoId}/hqdefault.jpg`;
                   }
@@ -74,16 +72,23 @@ export default function SalesVideo({ url }: Props) {
               }}
             />
           ) : null}
+
           <button
-            onClick={() => setPlaying(true)}
-            className="absolute inset-0 flex flex-col items-center justify-center gap-4 group bg-black/40 hover:bg-black/30 transition-colors"
+            onClick={() => embed && setPlaying(true)}
+            disabled={!embed}
+            className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/20 transition-colors group disabled:cursor-default disabled:hover:bg-black/30"
             aria-label="Reproduzir vídeo"
           >
-            <div className="w-16 h-16 rounded-full bg-accent/90 hover:bg-accent flex items-center justify-center shadow-xl shadow-accent/30 group-hover:scale-110 transition-transform">
+            <div className="w-16 h-16 rounded-full bg-accent/90 group-enabled:group-hover:bg-accent flex items-center justify-center shadow-xl shadow-accent/30 group-enabled:group-hover:scale-110 transition-transform">
               <Play size={22} className="text-white ml-1" fill="white" />
             </div>
-            <p className="text-white/70 text-sm font-medium tracking-wide">Assistir apresentação</p>
           </button>
+
+          {!embed && (
+            <p className="absolute bottom-5 left-0 right-0 text-center text-white/50 text-xs tracking-wide">
+              Vídeo em breve
+            </p>
+          )}
         </>
       )}
     </div>

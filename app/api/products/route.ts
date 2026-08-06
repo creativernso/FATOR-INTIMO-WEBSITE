@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
     faq: Array.isArray(body.faq) ? body.faq : [],
     downloadUrl: body.downloadUrl || '',
     videoUrl: body.videoUrl || undefined,
+    ugcVideoUrl: body.ugcVideoUrl || undefined,
     countdownEnabled: Boolean(body.countdownEnabled),
     countdownEndsAt: body.countdownEndsAt || undefined,
     countdownText: body.countdownText || undefined,

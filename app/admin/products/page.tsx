@@ -22,6 +22,7 @@ const emptyForm = {
   whatYouLearn: '',
   forWho: '',
   videoUrl: '',
+  ugcVideoUrl: '',
   countdownEnabled: false,
   countdownEndsAt: '',
   countdownText: '',
@@ -70,6 +71,7 @@ export default function AdminProducts() {
       whatYouLearn: (product.whatYouLearn || []).join('\n'),
       forWho: (product.forWho || []).join('\n'),
       videoUrl: product.videoUrl || '',
+      ugcVideoUrl: product.ugcVideoUrl || '',
       countdownEnabled: product.countdownEnabled || false,
       countdownEndsAt: product.countdownEndsAt || '',
       countdownText: product.countdownText || '',
@@ -321,6 +323,16 @@ export default function AdminProducts() {
                 <p className="text-text-primary text-xs font-medium mb-3 tracking-wide uppercase opacity-60">Vídeo de vendas</p>
                 <label className="text-text-muted text-xs mb-1.5 block">URL do vídeo (YouTube, Vimeo ou MP4)</label>
                 <input className="admin-input" value={form.videoUrl} onChange={(e) => setForm({ ...form, videoUrl: e.target.value })} placeholder="https://youtube.com/watch?v=... ou https://vimeo.com/..." />
+              </div>
+
+              {/* UGC vertical video */}
+              <div className="border-t border-white/[0.04] pt-5">
+                <p className="text-text-primary text-xs font-medium mb-1 tracking-wide uppercase opacity-60">Vídeo vertical (depoimento)</p>
+                <p className="text-text-muted text-xs mb-3">
+                  Vídeo 9:16 exibido logo após o primeiro botão de compra, na seção "Ainda está em dúvida?".
+                </p>
+                <label className="text-text-muted text-xs mb-1.5 block">URL do vídeo (YouTube, Vimeo ou MP4)</label>
+                <input className="admin-input" value={form.ugcVideoUrl} onChange={(e) => setForm({ ...form, ugcVideoUrl: e.target.value })} placeholder="https://youtube.com/shorts/... ou https://exemplo.com/video.mp4" />
               </div>
 
               {/* Countdown */}
