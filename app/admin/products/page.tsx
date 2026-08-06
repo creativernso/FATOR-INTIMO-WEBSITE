@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Product } from '@/lib/types';
 import { Pencil, Trash2, Plus, X, Check, Star, Package } from 'lucide-react';
 import UploadPDF from './UploadPDF';
+import UploadVideo from './UploadVideo';
 import ImageUpload from '@/components/admin/ImageUpload';
 
 const emptyForm = {
@@ -329,9 +330,12 @@ export default function AdminProducts() {
               <div className="border-t border-white/[0.04] pt-5">
                 <p className="text-text-primary text-xs font-medium mb-1 tracking-wide uppercase opacity-60">Vídeo vertical (depoimento)</p>
                 <p className="text-text-muted text-xs mb-3">
-                  Vídeo 9:16 exibido logo após o primeiro botão de compra, na seção "Ainda está em dúvida?".
+                  Vídeo 9:16 exibido logo após o primeiro botão de compra, na seção "Ainda está em dúvida?". Recomendado: envie o arquivo do vídeo, YouTube/Vimeo sempre mostram o título e o canal por cima do vídeo.
                 </p>
-                <label className="text-text-muted text-xs mb-1.5 block">URL do vídeo (YouTube, Vimeo ou MP4)</label>
+                <div className="mb-3">
+                  <UploadVideo onUploaded={(url) => setForm((f) => ({ ...f, ugcVideoUrl: url }))} />
+                </div>
+                <label className="text-text-muted text-xs mb-1.5 block">Ou cole a URL (YouTube, Vimeo ou MP4)</label>
                 <input className="admin-input" value={form.ugcVideoUrl} onChange={(e) => setForm({ ...form, ugcVideoUrl: e.target.value })} placeholder="https://youtube.com/shorts/... ou https://exemplo.com/video.mp4" />
               </div>
 
