@@ -40,6 +40,8 @@ export interface Product {
   countdownEnabled?: boolean;
   countdownEndsAt?: string;   // ISO date string
   countdownText?: string;
+  // Custom text for the main buy button (falls back to "Começar agora")
+  buyButtonText?: string;
   // Cross-sell: other product IDs to recommend after this one is bought
   // (checkout success page + post-purchase automation emails)
   upsellProductIds?: string[];

@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
     countdownEnabled: Boolean(body.countdownEnabled),
     countdownEndsAt: body.countdownEndsAt || undefined,
     countdownText: body.countdownText || undefined,
+    buyButtonText: body.buyButtonText || undefined,
     upsellProductIds: Array.isArray(body.upsellProductIds) ? body.upsellProductIds : [],
   };
   await upsertProduct(newProduct);

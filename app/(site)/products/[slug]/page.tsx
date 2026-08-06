@@ -238,7 +238,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 )}
 
                 {stripeReady ? (
-                  <BuyButton productId={product.id} />
+                  <BuyButton productId={product.id} label={product.buyButtonText || undefined} />
                 ) : (
                   <div className="w-full flex items-center justify-center gap-2 bg-accent/30 border border-accent/20 text-accent/60 font-medium py-4 px-8 rounded-xl text-base cursor-not-allowed">
                     Pagamentos em breve

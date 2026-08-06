@@ -25,6 +25,7 @@ const emptyForm = {
   countdownEnabled: false,
   countdownEndsAt: '',
   countdownText: '',
+  buyButtonText: '',
   upsellProductIds: [] as string[],
 };
 
@@ -72,6 +73,7 @@ export default function AdminProducts() {
       countdownEnabled: product.countdownEnabled || false,
       countdownEndsAt: product.countdownEndsAt || '',
       countdownText: product.countdownText || '',
+      buyButtonText: product.buyButtonText || '',
       upsellProductIds: product.upsellProductIds || [],
     });
     setEditingId(product.id);
@@ -364,6 +366,15 @@ export default function AdminProducts() {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* Buy button text */}
+              <div className="border-t border-white/[0.04] pt-5">
+                <p className="text-text-primary text-xs font-medium mb-1 tracking-wide uppercase opacity-60">Botão de compra</p>
+                <p className="text-text-muted text-xs mb-3">
+                  Texto do botão principal na página do produto.
+                </p>
+                <input className="admin-input" value={form.buyButtonText} onChange={(e) => setForm({ ...form, buyButtonText: e.target.value })} placeholder="Começar agora" />
               </div>
 
               {/* Upsell / cross-sell */}
