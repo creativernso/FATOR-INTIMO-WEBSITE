@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Post } from '@/lib/types';
-import { Pencil, Trash2, Plus, X, Check, Star, Clock, FileText, CalendarClock, List, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Pencil, Trash2, Plus, X, Check, Star, Clock, FileText, CalendarClock, List, CalendarDays, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
 
 // <input type="datetime-local"> needs "YYYY-MM-DDTHH:mm" in the viewer's
@@ -56,6 +56,7 @@ export default function AdminBlog() {
   const [saving, setSaving] = useState(false);
   const [view, setView] = useState<'list' | 'calendar'>('list');
   const [calendarMonth, setCalendarMonth] = useState(() => startOfMonth(new Date()));
+  const [views, setViews] = useState<Record<string, number>>({});
 
   const fetchPosts = async () => {
     const res = await fetch('/api/posts');
@@ -66,6 +67,14 @@ export default function AdminBlog() {
   };
 
   useEffect(() => { fetchPosts(); }, []);
+  useEffect(() => {
+    fetch('/api/admin/analytics/post-views').then((r) => (r.ok ? r.json() : {})).then(setViews).catch(() => {});
+  }, []);
+
+  // usePathname() gives a leading-slash path like "/blog/my-post", and
+  // incrementPageView turns every "/" into "__" — so the leading slash
+  // becomes a leading "__" too, giving a key like "__blog__my-post".
+  const viewsFor = (slug: string) => views[`__blog__${slug}`] || 0;
 
   const openNew = () => { setForm({ ...emptyForm }); setEditingId(null); setShowForm(true); };
   const openNewOnDate = (date: Date) => {
@@ -201,8 +210,13 @@ export default function AdminBlog() {
                           </span>
                         )}
                       </p>
-                      <p className="text-text-muted mt-0.5 flex items-center gap-1.5" style={{ fontSize: fs('0.7rem', '0.78vw', '0.75rem') }}>
-                        <Clock size={10} /> {post.readTime}min leitura
+                      <p className="text-text-muted mt-0.5 flex items-center gap-3" style={{ fontSize: fs('0.7rem', '0.78vw', '0.75rem') }}>
+                        <span className="flex items-center gap-1.5">
+                          <Clock size={10} /> {post.readTime}min leitura
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <Eye size={10} /> {viewsFor(post.slug).toLocaleString('pt-BR')} visualizações
+                        </span>
                       </p>
                     </td>
                     <td className="px-5 lg:px-6 py-4 hidden sm:table-cell">

@@ -397,11 +397,18 @@ export async function incrementPageView(path: string, country?: string, campaign
   const today = new Date().toISOString().split('T')[0];
   const ref = db().collection('pageviews').doc(today);
   const safePath = path.replace(/[^a-zA-Z0-9/_-]/g, '').slice(0, 80) || '/';
-  const key = `paths.${safePath.replace(/\//g, '__')}`;
+  const key = safePath.replace(/\//g, '__');
+  // `paths` must be a real nested object here, not a dotted string key at
+  // the top level — .set(..., {merge:true}) treats a key like
+  // "paths.blog__x" as one literal field NAME containing a dot (dot-path
+  // merging is an .update()-only behavior), so that used to silently create
+  // a flat "paths.blog__x" field instead of nesting under paths. countries/
+  // campaigns below were never affected since they were already built as
+  // real nested objects.
   const update: Record<string, unknown> = {
     date: today,
     total: FieldValue.increment(1),
-    [key]: FieldValue.increment(1),
+    paths: { [key]: FieldValue.increment(1) },
     updatedAt: new Date().toISOString(),
   };
   if (country) update.countries = { [country]: FieldValue.increment(1) };
@@ -422,6 +429,38 @@ export async function getPageViewTotals(
       campaigns: data.campaigns as Record<string, number> | undefined,
     };
   });
+}
+
+// Every pageviews/{date} doc carries a `paths` map (see incrementPageView),
+// keyed by the visited path with every `/` swapped for `__` (including the
+// leading one) — e.g. a visit to /blog/my-post increments
+// paths.__blog__my-post. Summed across `days`, this gives a per-path view
+// count (used for per-article stats in the admin blog list) without
+// needing a separate counter per post.
+export async function getPageViewsByPath(days = 90): Promise<Record<string, number>> {
+  const snap = await db().collection('pageviews').orderBy('date', 'desc').limit(days).get();
+  const totals: Record<string, number> = {};
+  for (const doc of snap.docs) {
+    const data = doc.data();
+    // Properly-nested paths (fixed write, going forward).
+    const paths = data.paths as Record<string, number> | undefined;
+    if (paths) {
+      for (const [key, count] of Object.entries(paths)) {
+        totals[key] = (totals[key] || 0) + (count || 0);
+      }
+    }
+    // Backward compatibility: older docs have this data under literal
+    // top-level field names like "paths.blog__my-post" instead (a past bug
+    // in incrementPageView — merge() doesn't dot-path a plain string key
+    // the way update() does), so pick those up too.
+    for (const [fieldName, count] of Object.entries(data)) {
+      if (fieldName.startsWith('paths.') && typeof count === 'number') {
+        const key = fieldName.slice('paths.'.length);
+        totals[key] = (totals[key] || 0) + count;
+      }
+    }
+  }
+  return totals;
 }
 
 // ─── Live visitors ──────────────────────────────────────────────────────────
