@@ -133,6 +133,14 @@ export async function getLikes(postSlug: string): Promise<number> {
   const doc = await db().collection('reactions').doc(postSlug).get();
   return doc.exists ? (doc.data()?.likes ?? 0) : 0;
 }
+// One read for every post's like count, instead of a query per post
+// (used on the blog listing page, which renders many cards at once).
+export async function getAllLikes(): Promise<Record<string, number>> {
+  const snap = await db().collection('reactions').get();
+  const totals: Record<string, number> = {};
+  for (const doc of snap.docs) totals[doc.id] = doc.data()?.likes ?? 0;
+  return totals;
+}
 export async function incrementLike(postSlug: string): Promise<number> {
   const ref = db().collection('reactions').doc(postSlug);
   await ref.set({ likes: (await ref.get()).data()?.likes + 1 || 1 }, { merge: true });

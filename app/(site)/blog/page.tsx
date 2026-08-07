@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { ArrowRight, Clock, Search } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import BlogCard from '@/components/BlogCard';
-import { getPosts } from '@/lib/db';
+import { getPosts, getComments, getAllLikes, getPageViewsByPath } from '@/lib/db';
 import { getLocale, createT } from '@/lib/i18n';
 import { buildPageMetadata } from '@/lib/seo';
 
@@ -27,6 +27,27 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
   const sorted = [...posts].sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   );
+
+  // One fetch each for the whole listing, then grouped per-post client-side —
+  // avoids a like/comment/view query per card.
+  const [allComments, likesBySlug, viewsByPath] = await Promise.all([
+    getComments(),
+    getAllLikes(),
+    getPageViewsByPath(),
+  ]);
+  const commentCountBySlug: Record<string, number> = {};
+  for (const c of allComments) {
+    if (!c.approved) continue;
+    commentCountBySlug[c.postSlug] = (commentCountBySlug[c.postSlug] || 0) + 1;
+  }
+  const statsBySlug: Record<string, { likes: number; comments: number; views: number }> = {};
+  for (const p of posts) {
+    statsBySlug[p.slug] = {
+      likes: likesBySlug[p.slug] || 0,
+      comments: commentCountBySlug[p.slug] || 0,
+      views: viewsByPath[`__blog__${p.slug}`] || 0,
+    };
+  }
 
   const searchResults = query
     ? sorted.filter((p) => {
@@ -155,7 +176,7 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
                       <div key={post.id} className="sticky" style={{ top: `${68 + i * 14}px`, zIndex: 10 + i }}>
                         <div className="mb-3"
                           style={{ transform: `scale(${1 - (featured.length - 1 - i) * 0.018})`, transformOrigin: 'top center' }}>
-                          <BlogCard post={post} featured />
+                          <BlogCard post={post} featured stats={statsBySlug[post.slug]} />
                         </div>
                       </div>
                     ))}
@@ -164,7 +185,7 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
                   <div className="hidden md:grid md:grid-cols-3 gap-6 mb-14">
                     {featured.map((post, i) => (
                       <AnimateOnScroll key={post.id} delay={i * 80}>
-                        <BlogCard post={post} featured />
+                        <BlogCard post={post} featured stats={statsBySlug[post.slug]} />
                       </AnimateOnScroll>
                     ))}
                   </div>

@@ -1,14 +1,21 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Clock } from 'lucide-react';
+import { ArrowRight, Clock, Heart, MessageCircle, Eye } from 'lucide-react';
 import { Post } from '@/lib/types';
+
+interface CardStats {
+  likes: number;
+  comments: number;
+  views: number;
+}
 
 interface Props {
   post: Post;
   featured?: boolean;
+  stats?: CardStats;
 }
 
-export default function BlogCard({ post, featured = false }: Props) {
+export default function BlogCard({ post, featured = false, stats }: Props) {
   if (featured) {
     return (
       <Link href={`/blog/${post.slug}`} className="group block">
@@ -35,6 +42,19 @@ export default function BlogCard({ post, featured = false }: Props) {
             <p className="text-text-secondary text-sm leading-relaxed line-clamp-2">
               {post.excerpt}
             </p>
+            {stats && (
+              <div className="flex items-center gap-3.5 mt-4 text-text-muted" style={{ fontSize: '11px' }}>
+                <span className="flex items-center gap-1">
+                  <Heart size={11} /> {stats.likes}
+                </span>
+                <span className="flex items-center gap-1">
+                  <MessageCircle size={11} /> {stats.comments}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Eye size={11} /> {stats.views}
+                </span>
+              </div>
+            )}
             <div className="flex items-center gap-2 mt-5 text-accent text-sm font-medium">
               <span>Ler artigo</span>
               <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
