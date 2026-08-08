@@ -127,9 +127,6 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
 
         {/* Nav */}
         <nav className="flex-1 p-2 lg:p-3 space-y-0.5 pt-3">
-          <p className="hidden lg:block text-[10px] tracking-widest uppercase px-3 mb-1.5 text-text-muted opacity-60">
-            Navegação
-          </p>
           {visibleNavItems.map((item) => {
             const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
             return (
