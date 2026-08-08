@@ -425,18 +425,21 @@ export async function incrementPageView(path: string, country?: string, campaign
 }
 
 export async function getPageViewTotals(
-  days = 30
+  days = 30,
+  exactRange?: { from: string; to: string }
 ): Promise<{ date: string; total: number; countries?: Record<string, number>; campaigns?: Record<string, number> }[]> {
   const snap = await db().collection('pageviews').orderBy('date', 'desc').limit(days).get();
-  return snap.docs.map((d) => {
-    const data = d.data();
-    return {
-      date: data.date as string,
-      total: (data.total as number) || 0,
-      countries: data.countries as Record<string, number> | undefined,
-      campaigns: data.campaigns as Record<string, number> | undefined,
-    };
-  });
+  return snap.docs
+    .map((d) => {
+      const data = d.data();
+      return {
+        date: data.date as string,
+        total: (data.total as number) || 0,
+        countries: data.countries as Record<string, number> | undefined,
+        campaigns: data.campaigns as Record<string, number> | undefined,
+      };
+    })
+    .filter((d) => !exactRange || (d.date >= exactRange.from && d.date <= exactRange.to));
 }
 
 // Every pageviews/{date} doc carries a `paths` map (see incrementPageView),
@@ -445,11 +448,16 @@ export async function getPageViewTotals(
 // paths.__blog__my-post. Summed across `days`, this gives a per-path view
 // count (used for per-article stats in the admin blog list) without
 // needing a separate counter per post.
-export async function getPageViewsByPath(days = 90): Promise<Record<string, number>> {
+export async function getPageViewsByPath(
+  days = 90,
+  exactRange?: { from: string; to: string }
+): Promise<Record<string, number>> {
   const snap = await db().collection('pageviews').orderBy('date', 'desc').limit(days).get();
   const totals: Record<string, number> = {};
   for (const doc of snap.docs) {
     const data = doc.data();
+    const docDate = data.date as string;
+    if (exactRange && (docDate < exactRange.from || docDate > exactRange.to)) continue;
     // Properly-nested paths (fixed write, going forward).
     const paths = data.paths as Record<string, number> | undefined;
     if (paths) {
@@ -627,6 +635,29 @@ export async function getPopupConfig(): Promise<PopupConfig> {
 export const savePopupConfig = async (config: PopupConfig): Promise<void> => {
   await db().collection('popup_config').doc('main').set(config);
 };
+
+// ─── Exchange rates (display-only currency conversion for the admin
+// dashboard — all real transactions are charged in BRL via Stripe) ───────────
+export interface ExchangeRates {
+  brlPerUsd: number;
+  brlPerEur: number;
+  updatedAt?: string;
+}
+
+const DEFAULT_EXCHANGE_RATES: ExchangeRates = { brlPerUsd: 5.2, brlPerEur: 5.6 };
+
+export async function getExchangeRates(): Promise<ExchangeRates> {
+  const doc = await db().collection('settings').doc('exchangeRates').get();
+  if (doc.exists) return { ...DEFAULT_EXCHANGE_RATES, ...(doc.data() as ExchangeRates) };
+  return DEFAULT_EXCHANGE_RATES;
+}
+
+export async function saveExchangeRates(rates: { brlPerUsd: number; brlPerEur: number }): Promise<void> {
+  await db().collection('settings').doc('exchangeRates').set({
+    ...rates,
+    updatedAt: new Date().toISOString(),
+  });
+}
 
 // ─── Cart recovery settings ────────────────────────────────────────────────────
 

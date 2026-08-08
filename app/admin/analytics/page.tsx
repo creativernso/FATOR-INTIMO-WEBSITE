@@ -5,16 +5,17 @@ import { getPosts, getLeads, getTestimonials, getGuides, getCommunityPosts, getP
 import { getOrders, getAbandonedCheckouts } from '@/lib/orders';
 import { AnalyticsFilterBar } from './AnalyticsFilterBar';
 import { LiveView } from './LiveView';
+import { CurrencyProvider, CurrencySelector, Money } from './Currency';
 import { countryCodeToFlag, countryName } from '@/lib/geo';
 import { getPixelEventCounts, getPurchaseMatchQuality } from '@/lib/meta-insights';
 
 export const dynamic = 'force-dynamic';
 
-function groupByDay(items: { createdAt?: string; publishedAt?: string; date?: string }[], days = 30) {
-  const now = Date.now();
+function groupByDay(items: { createdAt?: string; publishedAt?: string; date?: string }[], days = 30, endDate = new Date()) {
+  const end = endDate.getTime();
   const buckets: Record<string, number> = {};
   for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(now - i * 86400000);
+    const d = new Date(end - i * 86400000);
     buckets[d.toISOString().split('T')[0]] = 0;
   }
   for (const item of items) {
@@ -25,11 +26,11 @@ function groupByDay(items: { createdAt?: string; publishedAt?: string; date?: st
   return Object.entries(buckets).map(([date, count]) => ({ date, count }));
 }
 
-function sumByDay(items: { createdAt?: string; amount: number }[], days = 30) {
-  const now = Date.now();
+function sumByDay(items: { createdAt?: string; amount: number }[], days = 30, endDate = new Date()) {
+  const end = endDate.getTime();
   const buckets: Record<string, number> = {};
   for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(now - i * 86400000);
+    const d = new Date(end - i * 86400000);
     buckets[d.toISOString().split('T')[0]] = 0;
   }
   for (const item of items) {
@@ -39,15 +40,14 @@ function sumByDay(items: { createdAt?: string; amount: number }[], days = 30) {
   return Object.entries(buckets).map(([date, amount]) => ({ date, amount }));
 }
 
-function filterByDays<T extends { createdAt?: string; publishedAt?: string; date?: string }>(
+function filterByRange<T extends { createdAt?: string; publishedAt?: string; date?: string }>(
   items: T[],
-  days: number | null,
+  start: Date | null,
+  end: Date,
 ): T[] {
-  if (!days) return items;
-  const cutoff = Date.now() - days * 86400000;
   return items.filter((i) => {
     const ts = new Date(i.createdAt || i.publishedAt || i.date || '').getTime();
-    return ts >= cutoff;
+    return (!start || ts >= start.getTime()) && ts <= end.getTime();
   });
 }
 
@@ -83,12 +83,43 @@ function SectionLabel({ icon: Icon, children }: { icon: LucideIcon; children: Re
   );
 }
 
-type Props = { searchParams: Promise<{ days?: string }> };
+type Props = { searchParams: Promise<{ days?: string; from?: string; to?: string }> };
 
 export default async function AnalyticsPage({ searchParams }: Props) {
   const sp = await searchParams;
   const daysParam = sp.days || '30';
-  const days = daysParam === 'all' ? null : parseInt(daysParam, 10);
+  const hasCustomRange = !!(sp.from && sp.to);
+
+  const now = new Date();
+  let rangeStart: Date | null;
+  let rangeEnd: Date = now;
+
+  if (hasCustomRange) {
+    rangeStart = new Date(`${sp.from}T00:00:00`);
+    rangeEnd = new Date(`${sp.to}T23:59:59.999`);
+  } else if (daysParam === 'all') {
+    rangeStart = null;
+  } else if (daysParam === 'yesterday') {
+    const y = new Date(now);
+    y.setDate(y.getDate() - 1);
+    rangeStart = new Date(y.getFullYear(), y.getMonth(), y.getDate(), 0, 0, 0);
+    rangeEnd = new Date(y.getFullYear(), y.getMonth(), y.getDate(), 23, 59, 59, 999);
+  } else if (daysParam === 'month') {
+    rangeStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
+  } else {
+    const n = parseInt(daysParam, 10) || 30;
+    rangeStart = new Date(now.getTime() - n * 86400000);
+  }
+
+  // How many pageviews/{date} docs to pull to cover the selected range —
+  // Firestore fetch always walks backward from "today", so this must reach
+  // all the way to rangeStart even when rangeEnd is in the past.
+  const fetchDays = rangeStart ? Math.min(730, Math.ceil((now.getTime() - rangeStart.getTime()) / 86400000) + 2) : 730;
+  const exactDateRange = hasCustomRange
+    ? { from: sp.from!, to: sp.to! }
+    : rangeStart
+      ? { from: rangeStart.toISOString().slice(0, 10), to: rangeEnd.toISOString().slice(0, 10) }
+      : undefined;
 
   const [posts, leads, testimonials, guides, allCommunityPosts, orders, pageViewDocs, pixelStats, purchaseMatchQuality, products, abandonedCheckouts, productViews] = await Promise.all([
     getPosts(),
@@ -97,19 +128,19 @@ export default async function AnalyticsPage({ searchParams }: Props) {
     getGuides(),
     getCommunityPosts(),
     getOrders(),
-    getPageViewTotals(days ?? 365),
+    getPageViewTotals(fetchDays, exactDateRange),
     getPixelEventCounts(),
     getPurchaseMatchQuality(),
     getProducts(),
     getAbandonedCheckouts(),
-    getPageViewsByPath(days ?? 365),
+    getPageViewsByPath(fetchDays, exactDateRange),
   ]);
 
   const totalPageViews = pageViewDocs.reduce((s, d) => s + d.total, 0);
 
   // Apply date filter where relevant
-  const filteredLeads = filterByDays(leads, days);
-  const filteredOrders = filterByDays(orders.map((o) => ({ ...o, createdAt: o.createdAt })), days);
+  const filteredLeads = filterByRange(leads, rangeStart, rangeEnd);
+  const filteredOrders = filterByRange(orders.map((o) => ({ ...o, createdAt: o.createdAt })), rangeStart, rangeEnd);
 
   const totalRevenue = filteredOrders.reduce((s, o) => s + o.amountTotal, 0) / 100;
   const totalGuideDownloads = guides.reduce((s, g) => s + (g.downloadCount ?? 0), 0);
@@ -130,12 +161,13 @@ export default async function AnalyticsPage({ searchParams }: Props) {
     ? `https://business.facebook.com/events_manager2/list/pixel/${fbPixelId}/overview`
     : 'https://business.facebook.com/events_manager2/';
 
-  const chartDays = days && days <= 30 ? days : 14;
-  const leadsByDay = groupByDay(filteredLeads, chartDays);
+  const spanDays = rangeStart ? Math.max(1, Math.ceil((rangeEnd.getTime() - rangeStart.getTime()) / 86400000)) : 14;
+  const chartDays = rangeStart ? Math.min(spanDays, 60) : 14;
+  const leadsByDay = groupByDay(filteredLeads, chartDays, rangeEnd);
   const maxLeads = Math.max(...leadsByDay.map((d) => d.count), 1);
   const chartLeadsTotal = leadsByDay.reduce((s, d) => s + d.count, 0);
 
-  const revenueByDay = sumByDay(filteredOrders.map((o) => ({ createdAt: o.createdAt, amount: o.amountTotal / 100 })), chartDays);
+  const revenueByDay = sumByDay(filteredOrders.map((o) => ({ createdAt: o.createdAt, amount: o.amountTotal / 100 })), chartDays, rangeEnd);
   const maxRevenue = Math.max(...revenueByDay.map((d) => d.amount), 1);
   const chartRevenueTotal = revenueByDay.reduce((s, d) => s + d.amount, 0);
 
@@ -156,7 +188,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
   // Conversion funnel per product: views → checkout started → purchased.
   // "Checkout started" = every Stripe Checkout Session ever created for the
   // product, whether it completed (order) or expired (abandonedCheckout).
-  const filteredAbandoned = filterByDays(abandonedCheckouts, days);
+  const filteredAbandoned = filterByRange(abandonedCheckouts, rangeStart, rangeEnd);
   const pct = (n: number | null) => (n === null ? '–' : `${n.toFixed(1)}%`);
   const funnelByProduct = products
     .map((p) => {
@@ -217,19 +249,20 @@ export default async function AnalyticsPage({ searchParams }: Props) {
     }))
     .sort((a, b) => b.revenue - a.revenue || b.leads - a.leads);
 
-  const stats = [
-    { label: 'Page Views', value: totalPageViews.toLocaleString('pt-BR'), icon: Eye, accent: '#06b6d4', growth: null, href: '/admin/analytics' },
-    { label: 'Receita Total', value: `R$ ${totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, icon: TrendingUp, accent: '#fe0050', growth: ordersGrowth, href: '/admin/orders' },
-    { label: 'Leads Totais', value: filteredLeads.length, icon: Users, accent: '#10b981', growth: leadsGrowth, href: '/admin/leads' },
-    { label: 'Email Leads', value: emailLeads, icon: MessageSquare, accent: '#3b82f6', growth: null, href: '/admin/leads' },
-    { label: 'Pedidos', value: filteredOrders.length, icon: ShoppingBag, accent: '#a855f7', growth: ordersGrowth, href: '/admin/orders' },
-    { label: 'Artigos', value: posts.length, icon: FileText, accent: '#f59e0b', growth: postsGrowth, href: '/admin/blog' },
-    { label: 'Downloads Guias', value: totalGuideDownloads, icon: Download, accent: '#06b6d4', growth: null, href: '/admin/guide' },
-    { label: 'Posts Comunidade', value: approvedCommunityPosts.length, icon: Heart, accent: '#ec4899', growth: null, href: '/admin/comunidade' },
-    { label: 'Avaliação Média', value: `⭐ ${avgRating.toFixed(1)}`, icon: Star, accent: '#f59e0b', growth: null, href: '/admin/testimonials' },
+  const stats: { label: string; value: string | number | null; money: number | null; icon: LucideIcon; accent: string; growth: number | null; href: string }[] = [
+    { label: 'Page Views', value: totalPageViews.toLocaleString('pt-BR'), money: null, icon: Eye, accent: '#06b6d4', growth: null, href: '/admin/analytics' },
+    { label: 'Receita Total', value: null, money: totalRevenue, icon: TrendingUp, accent: '#fe0050', growth: ordersGrowth, href: '/admin/orders' },
+    { label: 'Leads Totais', value: filteredLeads.length, money: null, icon: Users, accent: '#10b981', growth: leadsGrowth, href: '/admin/leads' },
+    { label: 'Email Leads', value: emailLeads, money: null, icon: MessageSquare, accent: '#3b82f6', growth: null, href: '/admin/leads' },
+    { label: 'Pedidos', value: filteredOrders.length, money: null, icon: ShoppingBag, accent: '#a855f7', growth: ordersGrowth, href: '/admin/orders' },
+    { label: 'Artigos', value: posts.length, money: null, icon: FileText, accent: '#f59e0b', growth: postsGrowth, href: '/admin/blog' },
+    { label: 'Downloads Guias', value: totalGuideDownloads, money: null, icon: Download, accent: '#06b6d4', growth: null, href: '/admin/guide' },
+    { label: 'Posts Comunidade', value: approvedCommunityPosts.length, money: null, icon: Heart, accent: '#ec4899', growth: null, href: '/admin/comunidade' },
+    { label: 'Avaliação Média', value: `⭐ ${avgRating.toFixed(1)}`, money: null, icon: Star, accent: '#f59e0b', growth: null, href: '/admin/testimonials' },
   ];
 
   return (
+    <CurrencyProvider>
     <div className="space-y-8 lg:space-y-10">
 
       {/* Header */}
@@ -245,9 +278,12 @@ export default async function AnalyticsPage({ searchParams }: Props) {
             Visão consolidada do desempenho da plataforma.
           </p>
         </div>
-        <Suspense fallback={null}>
-          <AnalyticsFilterBar current={daysParam} />
-        </Suspense>
+        <div className="flex items-center gap-3 flex-wrap">
+          <Suspense fallback={null}>
+            <AnalyticsFilterBar current={daysParam} from={sp.from} to={sp.to} />
+          </Suspense>
+          <CurrencySelector />
+        </div>
       </div>
 
       <LiveView />
@@ -276,7 +312,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
                   )}
                 </div>
                 <p className="font-body font-semibold text-text-primary" style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2.2rem)', color: stat.accent }}>
-                  {stat.value}
+                  {stat.money !== null ? <Money value={stat.money} /> : stat.value}
                 </p>
                 <p className="text-text-muted mt-1" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.78rem)' }}>
                   {stat.label}
@@ -305,7 +341,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
               </div>
               <div className="text-right">
                 <p className="font-body font-semibold text-accent" style={{ fontSize: 'clamp(1.2rem, 1.8vw, 1.6rem)' }}>
-                  R$ {chartRevenueTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  <Money value={chartRevenueTotal} />
                 </p>
                 <p className="text-text-muted" style={{ fontSize: 'clamp(0.65rem, 0.75vw, 0.72rem)' }}>
                   últimos {chartDays} dias
@@ -399,11 +435,11 @@ export default async function AnalyticsPage({ searchParams }: Props) {
                   <div className="flex-1 min-w-0">
                     <p className="text-text-secondary font-medium truncate" style={{ fontSize: 'clamp(0.8rem, 0.9vw, 0.875rem)' }}>{p.title}</p>
                     <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.68rem, 0.78vw, 0.72rem)' }}>
-                      {p.count} pedido{p.count === 1 ? '' : 's'} · ticket médio R$ {(p.revenue / p.count).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      {p.count} pedido{p.count === 1 ? '' : 's'} · ticket médio <Money value={p.revenue / p.count} />
                     </p>
                   </div>
                   <p className="font-body font-semibold text-green-400 flex-shrink-0" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
-                    R$ {p.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    <Money value={p.revenue} />
                   </p>
                 </div>
               ))}
@@ -477,7 +513,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
                     </p>
                   </div>
                   <p className="font-body font-semibold text-green-400 flex-shrink-0" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
-                    R$ {c.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    <Money value={c.revenue} />
                   </p>
                 </div>
               ))}
@@ -847,5 +883,6 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         </div>
       </div>
     </div>
+    </CurrencyProvider>
   );
 }
