@@ -126,8 +126,8 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 p-2 lg:p-4 space-y-1 pt-4">
-          <p className="hidden lg:block text-[10px] tracking-widest uppercase px-3 mb-3 text-text-muted opacity-60">
+        <nav className="flex-1 p-2 lg:p-3 space-y-0.5 pt-3">
+          <p className="hidden lg:block text-[10px] tracking-widest uppercase px-3 mb-1.5 text-text-muted opacity-60">
             Navegação
           </p>
           {visibleNavItems.map((item) => {
@@ -136,16 +136,16 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`relative flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all duration-200 group ${
+                className={`relative flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 group ${
                   isActive
                     ? 'bg-accent/10 text-accent'
                     : 'text-text-muted hover:text-text-primary hover:bg-white/5'
                 }`}
               >
                 {isActive && (
-                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-accent rounded-full" />
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-accent rounded-full" />
                 )}
-                <item.icon size={16} className="flex-shrink-0" />
+                <item.icon size={15} className="flex-shrink-0" />
                 <span className="hidden lg:block font-medium flex-1">{item.label}</span>
                 {(badgeMap[item.href] ?? 0) > 0 && (
                   <span className="hidden lg:flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-accent text-white rounded-full font-bold animate-pulse" style={{ fontSize: '9px' }}>
@@ -161,11 +161,11 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         </nav>
 
         {/* Footer */}
-        <div className="p-2 lg:p-4 border-t border-white/[0.04] space-y-1">
+        <div className="p-2 lg:p-3 border-t border-white/[0.04] space-y-0.5">
           <Link
             href="/"
             target="_blank"
-            className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-text-muted hover:text-text-primary hover:bg-white/5 transition-all"
+            className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm text-text-muted hover:text-text-primary hover:bg-white/5 transition-all"
           >
             <ExternalLink size={15} className="flex-shrink-0" />
             <span className="hidden lg:block">Ver site</span>

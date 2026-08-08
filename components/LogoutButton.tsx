@@ -18,7 +18,7 @@ export default function LogoutButton({ iconOnly = false }: { iconOnly?: boolean 
   return (
     <button
       onClick={handleLogout}
-      className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-text-muted hover:text-red-400 hover:bg-red-400/5 transition-all ${iconOnly ? 'justify-center' : 'w-full'}`}
+      className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm text-text-muted hover:text-red-400 hover:bg-red-400/5 transition-all ${iconOnly ? 'justify-center' : 'w-full'}`}
     >
       <LogOut size={15} className="flex-shrink-0" />
       {!iconOnly && <span>Sair</span>}
