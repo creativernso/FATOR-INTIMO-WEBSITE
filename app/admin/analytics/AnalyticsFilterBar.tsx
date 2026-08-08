@@ -2,26 +2,27 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Download, Calendar } from 'lucide-react';
+import { Download, Calendar, ChevronDown, Check } from 'lucide-react';
 
-const OPTIONS = [
+const PRESET_OPTIONS = [
   { label: 'Hoje', value: '1' },
   { label: 'Ontem', value: 'yesterday' },
   { label: '7 dias', value: '7' },
   { label: '30 dias', value: '30' },
   { label: '90 dias', value: '90' },
   { label: 'Este mês', value: 'month' },
-  { label: 'Total', value: 'all' },
 ];
 
 export function AnalyticsFilterBar({ current, from, to }: { current: string; from?: string; to?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showCustom, setShowCustom] = useState(false);
+  const [showPresets, setShowPresets] = useState(false);
   const [fromInput, setFromInput] = useState(from || '');
   const [toInput, setToInput] = useState(to || '');
 
   const isCustom = !!(from && to);
+  const activePreset = PRESET_OPTIONS.find((o) => !isCustom && o.value === current);
 
   const setDays = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -30,6 +31,7 @@ export function AnalyticsFilterBar({ current, from, to }: { current: string; fro
     params.delete('to');
     router.push(`/admin/analytics?${params.toString()}`);
     setShowCustom(false);
+    setShowPresets(false);
   };
 
   const applyCustom = () => {
@@ -45,19 +47,47 @@ export function AnalyticsFilterBar({ current, from, to }: { current: string; fro
   return (
     <div className="flex items-center gap-3 flex-wrap">
       <div className="flex gap-1.5 flex-wrap items-center">
-        {OPTIONS.map((opt) => (
+        <div className="relative">
           <button
-            key={opt.value}
-            onClick={() => setDays(opt.value)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-              !isCustom && current === opt.value
+            onClick={() => setShowPresets((s) => !s)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              activePreset
                 ? 'bg-accent text-white'
                 : 'bg-white/5 text-text-muted hover:bg-white/10 border border-white/8'
             }`}
           >
-            {opt.label}
+            {activePreset?.label ?? 'Período'}
+            <ChevronDown size={12} />
           </button>
-        ))}
+          {showPresets && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setShowPresets(false)} />
+              <div className="absolute left-0 mt-2 w-40 rounded-xl border border-white/10 bg-surface shadow-xl z-20 py-1 overflow-hidden">
+                {PRESET_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setDays(opt.value)}
+                    className="w-full flex items-center justify-between px-3.5 py-2 text-xs text-text-secondary hover:bg-white/5 transition-colors"
+                  >
+                    {opt.label}
+                    {!isCustom && current === opt.value && <Check size={12} className="text-accent" />}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        <button
+          onClick={() => setDays('all')}
+          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+            !isCustom && current === 'all'
+              ? 'bg-accent text-white'
+              : 'bg-white/5 text-text-muted hover:bg-white/10 border border-white/8'
+          }`}
+        >
+          Total
+        </button>
 
         <div className="relative">
           <button
