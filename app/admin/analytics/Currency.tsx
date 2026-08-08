@@ -124,7 +124,7 @@ export function CurrencySelector() {
     <div className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-text-muted hover:bg-white/10 border border-white/8 transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-text-muted hover:bg-white/10 border border-white/5 transition-colors"
       >
         {active.symbol} {active.code}
         <ChevronDown size={12} />

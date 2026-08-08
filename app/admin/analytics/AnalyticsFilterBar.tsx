@@ -53,7 +53,7 @@ export function AnalyticsFilterBar({ current, from, to }: { current: string; fro
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
               activePreset
                 ? 'bg-accent text-white'
-                : 'bg-white/5 text-text-muted hover:bg-white/10 border border-white/8'
+                : 'bg-white/5 text-text-muted hover:bg-white/10 border border-white/5'
             }`}
           >
             {activePreset?.label ?? 'Período'}
@@ -83,7 +83,7 @@ export function AnalyticsFilterBar({ current, from, to }: { current: string; fro
           className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
             !isCustom && current === 'all'
               ? 'bg-accent text-white'
-              : 'bg-white/5 text-text-muted hover:bg-white/10 border border-white/8'
+              : 'bg-white/5 text-text-muted hover:bg-white/10 border border-white/5'
           }`}
         >
           Total
@@ -95,7 +95,7 @@ export function AnalyticsFilterBar({ current, from, to }: { current: string; fro
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
               isCustom
                 ? 'bg-accent text-white'
-                : 'bg-white/5 text-text-muted hover:bg-white/10 border border-white/8'
+                : 'bg-white/5 text-text-muted hover:bg-white/10 border border-white/5'
             }`}
           >
             <Calendar size={12} />
@@ -142,7 +142,7 @@ export function AnalyticsFilterBar({ current, from, to }: { current: string; fro
 
       <a
         href="/api/admin/leads/export"
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-text-muted hover:bg-white/10 border border-white/8 transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-text-muted hover:bg-white/10 border border-white/5 transition-colors"
       >
         <Download size={12} /> Exportar CSV
       </a>
