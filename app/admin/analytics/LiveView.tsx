@@ -43,7 +43,7 @@ export function LiveView() {
   ];
 
   return (
-    <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
+    <div className="rounded-2xl border border-[#3a3a40] bg-surface overflow-hidden">
       <div className="px-6 py-5 border-b border-white/[0.04] flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#10b98118', border: '1px solid #10b98138' }}>
@@ -86,7 +86,7 @@ export function LiveView() {
 
         <div className="grid grid-cols-3 gap-3 content-start">
           {funnel.map((f) => (
-            <div key={f.label} className="rounded-xl border border-white/6 bg-white/2 px-3 py-4 flex flex-col items-center text-center">
+            <div key={f.label} className="rounded-xl border border-[#3a3a40] bg-white/2 px-3 py-4 flex flex-col items-center text-center">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-2" style={{ background: `${f.accent}18`, border: `1px solid ${f.accent}28` }}>
                 <f.icon size={14} style={{ color: f.accent }} />
               </div>
