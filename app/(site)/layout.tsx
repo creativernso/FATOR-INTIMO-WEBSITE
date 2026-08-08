@@ -1,6 +1,6 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import LiveChat from '@/components/LiveChat';
+import WhatsAppButton from '@/components/WhatsAppButton';
 import SitePopup from '@/components/SitePopup';
 import CookieConsent from '@/components/CookieConsent';
 import { PageViewTracker } from '@/components/PageViewTracker';
@@ -14,7 +14,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <Navbar />
       <main>{children}</main>
       <Footer />
-      <LiveChat />
+      <WhatsAppButton />
       <SitePopup />
       <CookieConsent />
     </>

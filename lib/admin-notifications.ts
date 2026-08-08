@@ -209,28 +209,6 @@ export function alertCommunityReport(reason: string, reporter: string, target: s
   });
 }
 
-// ── Chat alerts with throttling ───────────────────────────────────────────────
-// We don't want one email per visitor message during a fast back-and-forth.
-// Instead, send at most one alert per visitor every CHAT_ALERT_COOLDOWN ms.
-const CHAT_ALERT_COOLDOWN = 10 * 60 * 1000; // 10 minutes
-const lastChatAlertAt = new Map<string, number>();
-
-export function alertNewChatMessage(visitorId: string, firstLineOfMessage: string) {
-  const now = Date.now();
-  const last = lastChatAlertAt.get(visitorId) ?? 0;
-  if (now - last < CHAT_ALERT_COOLDOWN) return Promise.resolve();
-  lastChatAlertAt.set(visitorId, now);
-
-  return sendAdminAlert({
-    subject: 'Nova mensagem no Live Chat',
-    title: 'Visitante iniciou uma conversa',
-    body: `"${firstLineOfMessage.slice(0, 140)}"`,
-    ctaLabel: 'Responder agora',
-    ctaUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.fatorintimo.com'}/admin/chat`,
-    meta: { Visitante: visitorId.slice(0, 24), Mensagem: firstLineOfMessage.slice(0, 100) },
-  });
-}
-
 // ── Stripe webhook health watchdog ────────────────────────────────────────────
 // Fired when checkout.session.completed delivery fails for any reason — wrong
 // signing secret, exception thrown by saveOrder, etc. Throttled per failure

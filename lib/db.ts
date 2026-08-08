@@ -1,7 +1,7 @@
 import { getAdminDb } from './firebase-admin';
 import type { Query } from 'firebase-admin/firestore';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
-import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification, MarqueePhrase, EmailCampaign, EmailAutomation, ChatSettings, ReviewSettings, PopupConfig, CartRecoverySettings, AdminUser } from './types';
+import { Post, Product, Testimonial, Lead, Guide, GuideConfig, Comment, CommunityUser, CommunityPost, CommunityComment, CommunityReport, AdminNotification, MarqueePhrase, EmailCampaign, EmailAutomation, ReviewSettings, PopupConfig, CartRecoverySettings, AdminUser } from './types';
 
 const db = () => getAdminDb();
 
@@ -379,24 +379,6 @@ export async function upsertEmailAutomation(automation: EmailAutomation): Promis
 
 export async function deleteEmailAutomation(id: string): Promise<void> {
   await db().collection('emailAutomations').doc(id).delete();
-}
-
-// ─── Chat Settings ────────────────────────────────────────────────────────────
-
-const DEFAULT_CHAT_SETTINGS: ChatSettings = {
-  welcomeMessage: 'Olá! Recebemos sua mensagem e entraremos em contato em breve. 💬',
-  offlineMessage: 'Deixe sua mensagem e responderemos em breve.',
-  quickReplies: [],
-};
-
-export async function getChatSettings(): Promise<ChatSettings> {
-  const snap = await db().collection('chatSettings').doc('default').get();
-  if (!snap.exists) return DEFAULT_CHAT_SETTINGS;
-  return { ...DEFAULT_CHAT_SETTINGS, ...(snap.data() as ChatSettings) };
-}
-
-export async function saveChatSettings(settings: ChatSettings): Promise<void> {
-  await db().collection('chatSettings').doc('default').set({ ...settings, updatedAt: new Date().toISOString() });
 }
 
 // ─── Page Views ───────────────────────────────────────────────────────────────

@@ -20,7 +20,6 @@ import {
   Heart,
   Sparkles,
   BarChart2,
-  MessageCircle,
   PictureInPicture2,
   Shield,
   Handshake,
@@ -47,19 +46,17 @@ const navItems: { href: string; label: string; icon: typeof LayoutDashboard; exa
   { href: '/admin/comments', label: 'Comentários', icon: MessagesSquare, roles: ['owner', 'editor', 'support'] },
   { href: '/admin/comunidade', label: 'Comunidade', icon: Heart, roles: ['owner', 'support'] },
   { href: '/admin/marquee', label: 'Marquee', icon: Sparkles, roles: ['owner', 'editor'] },
-  { href: '/admin/chat', label: 'Live Chat', icon: MessageCircle, roles: ['owner', 'support'] },
   { href: '/admin/popup', label: 'Pop-up', icon: PictureInPicture2, roles: ['owner', 'editor'] },
   { href: '/admin/team', label: 'Equipe', icon: Shield, roles: ['owner'] },
 ];
 
-type BadgeSection = 'testimonials' | 'comunidade' | 'comments' | 'leads' | 'chat' | 'orders';
+type BadgeSection = 'testimonials' | 'comunidade' | 'comments' | 'leads' | 'orders';
 
 const PATH_TO_SECTION: Record<string, BadgeSection> = {
   '/admin/testimonials': 'testimonials',
   '/admin/comunidade':   'comunidade',
   '/admin/comments':     'comments',
   '/admin/leads':        'leads',
-  '/admin/chat':         'chat',
   '/admin/orders':       'orders',
 };
 
@@ -93,7 +90,6 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     '/admin/comunidade': badges.comunidade,
     '/admin/comments': badges.comments,
     '/admin/leads': badges.leads,
-    '/admin/chat': badges.chat,
     '/admin/orders': badges.orders,
   };
 

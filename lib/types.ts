@@ -300,15 +300,6 @@ export interface GuideConfig {
   updatedAt: string;
 }
 
-// ─── Chat ─────────────────────────────────────────────────────────────────────
-
-export interface ChatSettings {
-  welcomeMessage: string;
-  offlineMessage: string;
-  quickReplies: string[];
-  updatedAt?: string;
-}
-
 // ─── Admin team ───────────────────────────────────────────────────────────────
 
 export type AdminRole = 'owner' | 'editor' | 'support';
