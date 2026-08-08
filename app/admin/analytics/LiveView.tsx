@@ -15,6 +15,13 @@ interface LiveOverview {
 
 const POLL_INTERVAL_MS = 5000;
 
+function hexToRgba(hex: string, alpha: number) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 export function LiveView() {
   const [data, setData] = useState<LiveOverview | null>(null);
 
@@ -43,7 +50,7 @@ export function LiveView() {
   ];
 
   return (
-    <div className="rounded-2xl border border-[#3a3a40] bg-surface overflow-hidden">
+    <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
       <div className="px-6 py-5 border-b border-white/[0.04] flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#10b98118', border: '1px solid #10b98138' }}>
@@ -86,8 +93,8 @@ export function LiveView() {
 
         <div className="grid grid-cols-3 gap-3 content-start">
           {funnel.map((f) => (
-            <div key={f.label} className="rounded-xl border bg-white/2 px-3 py-4 flex flex-col items-center text-center" style={{ borderColor: `${f.accent}40` }}>
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-2" style={{ background: `${f.accent}18`, border: `1px solid ${f.accent}28` }}>
+            <div key={f.label} className="rounded-xl border px-3 py-4 flex flex-col items-center text-center" style={{ background: hexToRgba(f.accent, 0.08), borderColor: hexToRgba(f.accent, 0.15) }}>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-2" style={{ background: hexToRgba(f.accent, 0.08), border: `1px solid ${hexToRgba(f.accent, 0.15)}` }}>
                 <f.icon size={14} style={{ color: f.accent }} />
               </div>
               <p className="font-body font-semibold" style={{ fontSize: 'clamp(1.3rem, 2vw, 1.7rem)', color: f.accent }}>

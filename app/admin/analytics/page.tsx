@@ -65,6 +65,13 @@ function calcGrowth(items: { createdAt?: string; publishedAt?: string; date?: st
   return Math.round(((thisMonth - lastMonth) / lastMonth) * 100);
 }
 
+function hexToRgba(hex: string, alpha: number) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 function SectionLabel({ icon: Icon, children }: { icon: LucideIcon; children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-2">
@@ -253,13 +260,13 @@ export default async function AnalyticsPage({ searchParams }: Props) {
             <Link
               key={stat.label}
               href={stat.href}
-              className="relative rounded-2xl border bg-surface p-5 hover:scale-[1.01] transition-all duration-300 group overflow-hidden"
-              style={{ borderColor: `${stat.accent}40` }}
+              className="relative rounded-2xl border p-5 hover:scale-[1.01] transition-all duration-300 group overflow-hidden"
+              style={{ background: hexToRgba(stat.accent, 0.08), borderColor: hexToRgba(stat.accent, 0.15) }}
             >
               <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full opacity-15 blur-xl" style={{ background: stat.accent }} />
               <div className="relative">
                 <div className="flex items-start justify-between mb-3">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${stat.accent}18`, border: `1px solid ${stat.accent}28` }}>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: hexToRgba(stat.accent, 0.08), border: `1px solid ${hexToRgba(stat.accent, 0.15)}` }}>
                     <stat.icon size={14} style={{ color: stat.accent }} />
                   </div>
                   {stat.growth !== null && (
@@ -286,7 +293,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* Revenue chart */}
-          <div className="rounded-2xl border border-[#3a3a40] bg-surface p-6 lg:p-8">
+          <div className="rounded-2xl border border-white/5 bg-surface p-6 lg:p-8">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>
@@ -327,7 +334,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
           </div>
 
           {/* Lead growth chart */}
-          <div className="rounded-2xl border border-[#3a3a40] bg-surface p-6 lg:p-8">
+          <div className="rounded-2xl border border-white/5 bg-surface p-6 lg:p-8">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>
@@ -370,7 +377,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
         {/* Top selling products */}
         {topSellingProducts.length > 0 && (
-          <div className="rounded-2xl border border-[#3a3a40] bg-surface overflow-hidden">
+          <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
             <div className="px-5 py-4 border-b border-white/[0.04] flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#a855f718', border: '1px solid #a855f738' }}>
@@ -406,7 +413,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
         {/* Conversion funnel per product */}
         {funnelByProduct.length > 0 && (
-          <div className="rounded-2xl border border-[#3a3a40] bg-surface overflow-hidden">
+          <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
             <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#06b6d418', border: '1px solid #06b6d438' }}>
                 <Filter size={15} style={{ color: '#06b6d4' }} />
@@ -450,7 +457,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
         {/* Campaign performance */}
         {campaignPerformance.length > 0 && (
-          <div className="rounded-2xl border border-[#3a3a40] bg-surface overflow-hidden">
+          <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
             <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#f59e0b18', border: '1px solid #f59e0b38' }}>
                 <Megaphone size={15} style={{ color: '#f59e0b' }} />
@@ -480,7 +487,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
         {/* Conversion mini-stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="rounded-2xl border border-[#3a3a40] bg-surface p-5">
+          <div className="rounded-2xl border border-white/5 bg-surface p-5">
             <p className="text-text-muted mb-2" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>Conversão de leads</p>
             <p className="font-body font-semibold" style={{ fontSize: 'clamp(1.6rem, 2.5vw, 2.2rem)', color: '#a855f7' }}>
               {leads.length > 0 ? `${((orders.length / leads.length) * 100).toFixed(1)}%` : '-'}
@@ -489,7 +496,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
               {orders.length} vendas de {leads.length} leads
             </p>
           </div>
-          <div className="rounded-2xl border border-[#3a3a40] bg-surface p-5">
+          <div className="rounded-2xl border border-white/5 bg-surface p-5">
             <p className="text-text-muted mb-2" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>Leads com email</p>
             <p className="font-body font-semibold" style={{ fontSize: 'clamp(1.6rem, 2.5vw, 2.2rem)', color: '#3b82f6' }}>
               {leads.length > 0 ? `${Math.round((emailLeads / leads.length) * 100)}%` : '-'}
@@ -507,7 +514,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
         {/* Page views chart */}
         {pageViewDocs.length > 0 && (
-          <div className="rounded-2xl border border-[#3a3a40] bg-surface p-6 lg:p-8">
+          <div className="rounded-2xl border border-white/5 bg-surface p-6 lg:p-8">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>
@@ -551,7 +558,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
         {/* Sessions by location */}
         {topCountriesOverall.length > 0 && (
-          <div className="rounded-2xl border border-[#3a3a40] bg-surface overflow-hidden">
+          <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
             <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#06b6d418', border: '1px solid #06b6d438' }}>
                 <MapPin size={15} style={{ color: '#06b6d4' }} />
@@ -585,7 +592,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
       <div className="space-y-4">
         <SectionLabel icon={Megaphone}>Ads · Meta Pixel</SectionLabel>
 
-        <div className="rounded-2xl border border-[#3a3a40] bg-surface overflow-hidden">
+        <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
           <div className="px-6 py-5 border-b border-white/[0.04] flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#1877f218', border: '1px solid #1877f238' }}>
@@ -617,7 +624,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
               const match = pixelStats.events.find((e) => e.event.toLowerCase() === ev.label.toLowerCase());
               const isPurchase = ev.label === 'Purchase';
               return (
-                <div key={ev.label} className="rounded-xl border border-[#3a3a40] bg-white/2 px-4 py-3">
+                <div key={ev.label} className="rounded-xl border border-white/5 bg-white/2 px-4 py-3">
                   <div className="flex items-center gap-2 mb-1">
                     <span className={`w-1.5 h-1.5 rounded-full ${pixelConfigured ? 'bg-green-400 animate-pulse' : 'bg-text-muted/40'}`} />
                     <p className="text-text-primary text-xs font-medium">{ev.label}</p>
@@ -701,7 +708,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
           if (totalReviews === 0) return null;
 
           return (
-            <div className="rounded-2xl border border-[#3a3a40] bg-surface overflow-hidden">
+            <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
               <div className="px-5 py-4 border-b border-white/[0.04] flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#fe005018', border: '1px solid #fe005038' }}>
@@ -773,7 +780,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
         {/* Articles + Guides */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div className="rounded-2xl border border-[#3a3a40] bg-surface overflow-hidden">
+          <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.04]">
               <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
                 Artigos publicados
@@ -800,7 +807,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[#3a3a40] bg-surface overflow-hidden">
+          <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.04]">
               <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
                 Guias mais baixados
@@ -829,7 +836,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         </div>
 
         {/* Depoimentos aprovados */}
-        <div className="rounded-2xl border border-[#3a3a40] bg-surface p-5 max-w-sm">
+        <div className="rounded-2xl border border-white/5 bg-surface p-5 max-w-sm">
           <p className="text-text-muted mb-2" style={{ fontSize: 'clamp(0.72rem, 0.82vw, 0.78rem)' }}>Depoimentos aprovados</p>
           <p className="font-body font-semibold" style={{ fontSize: 'clamp(1.6rem, 2.5vw, 2.2rem)', color: '#10b981' }}>
             {testimonials.filter((t) => t.status === 'approved' || !t.status).length}
