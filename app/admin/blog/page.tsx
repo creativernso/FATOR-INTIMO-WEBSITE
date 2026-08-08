@@ -142,7 +142,7 @@ export default function AdminBlog() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex rounded-xl border border-white/8 overflow-hidden">
+          <div className="flex rounded-xl border border-white/5 overflow-hidden">
             {([
               { id: 'list', label: 'Lista', icon: List },
               { id: 'calendar', label: 'Calendário', icon: CalendarDays },
@@ -175,7 +175,7 @@ export default function AdminBlog() {
           </div>
         ) : posts.length === 0 ? (
           <div className="p-16 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-white/4 border border-white/8 flex items-center justify-center mx-auto mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-white/4 border border-white/5 flex items-center justify-center mx-auto mb-4">
               <FileText size={20} className="text-text-muted" />
             </div>
             <p className="text-text-muted mb-3" style={{ fontSize: fs('0.85rem', '0.95vw', '0.9rem') }}>Nenhum artigo ainda.</p>
@@ -352,7 +352,7 @@ export default function AdminBlog() {
           className="fixed inset-0 z-50 flex items-start justify-center pt-6 px-4 pb-6 overflow-auto"
           style={{ background: 'rgba(10,7,3,0.92)', backdropFilter: 'blur(12px)' }}
         >
-          <div className="bg-surface border border-white/8 rounded-2xl w-full max-w-2xl shadow-2xl">
+          <div className="bg-surface border border-white/5 rounded-2xl w-full max-w-2xl shadow-2xl">
             {/* Modal header */}
             <div className="flex items-center justify-between px-6 lg:px-8 py-5 border-b border-white/[0.04]">
               <div>
@@ -431,7 +431,7 @@ export default function AdminBlog() {
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, featured: !form.featured })}
-                    className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${form.featured ? 'border-accent/40 bg-accent/8 text-accent' : 'border-white/8 text-text-muted hover:border-white/15'}`}
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${form.featured ? 'border-accent/40 bg-accent/8 text-accent' : 'border-white/5 text-text-muted hover:border-white/15'}`}
                     style={{ fontSize: fs('0.75rem', '0.85vw', '0.8rem') }}
                   >
                     <Star size={12} fill={form.featured ? 'currentColor' : 'none'} />

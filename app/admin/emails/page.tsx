@@ -284,7 +284,7 @@ export default function AdminEmails() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 bg-white/3 border border-white/6 rounded-xl p-1">
+      <div className="flex items-center gap-1 bg-white/3 border border-white/5 rounded-xl p-1">
         {tabs.map(({ id, label, icon: Icon }) => (
           <button key={id} onClick={() => setTab(id)}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium transition-all flex-1 justify-center ${tab === id ? 'bg-white/10 text-text-primary' : 'text-text-muted hover:text-text-secondary'}`}>
@@ -432,7 +432,7 @@ export default function AdminEmails() {
                 <div className="flex flex-wrap gap-2">
                   {TEMPLATES.map((t) => (
                     <button key={t.label} onClick={() => { setSubject(t.subject); setEmailBody(t.body); }}
-                      className="px-3 py-1.5 rounded-lg text-xs border border-white/8 text-text-muted hover:text-text-primary hover:border-white/20 transition-all">{t.label}</button>
+                      className="px-3 py-1.5 rounded-lg text-xs border border-white/5 text-text-muted hover:text-text-primary hover:border-white/20 transition-all">{t.label}</button>
                   ))}
                 </div>
               </div>
@@ -443,7 +443,7 @@ export default function AdminEmails() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   {SEGMENTS.map((s) => (
                     <button key={s.val} onClick={() => setSegment(s.val)}
-                      className={`text-left px-3 py-2.5 rounded-xl border text-xs transition-all ${segment === s.val ? 'border-accent/30 bg-accent/8 text-text-primary' : 'border-white/8 text-text-muted hover:border-white/16'}`}>
+                      className={`text-left px-3 py-2.5 rounded-xl border text-xs transition-all ${segment === s.val ? 'border-accent/30 bg-accent/8 text-text-primary' : 'border-white/5 text-text-muted hover:border-white/16'}`}>
                       <p className="font-medium">{s.label}</p>
                       <p className="mt-0.5 opacity-70">{s.desc}</p>
                     </button>
@@ -543,7 +543,7 @@ export default function AdminEmails() {
           </div>
 
           {/* Test email */}
-          <div className="rounded-2xl border border-white/8 bg-surface p-5 space-y-4">
+          <div className="rounded-2xl border border-white/5 bg-surface p-5 space-y-4">
             <div className="flex items-center gap-2">
               <FlaskConical size={13} className="text-text-muted" />
               <h3 className="text-text-primary text-sm font-medium">Email de teste</h3>
@@ -556,7 +556,7 @@ export default function AdminEmails() {
               </button>
             </div>
             {testResult && (
-              <pre className="bg-black/40 border border-white/6 rounded-xl p-4 text-xs text-text-muted overflow-auto max-h-40">{JSON.stringify(testResult, null, 2)}</pre>
+              <pre className="bg-black/40 border border-white/5 rounded-xl p-4 text-xs text-text-muted overflow-auto max-h-40">{JSON.stringify(testResult, null, 2)}</pre>
             )}
           </div>
         </div>
@@ -590,7 +590,7 @@ export default function AdminEmails() {
                     <p className="text-text-muted truncate" style={{ fontSize: '0.72rem' }}>{lead.email}</p>
                   </div>
                   <div className="text-right hidden sm:block">
-                    <span className="text-text-muted border border-white/8 bg-white/4 px-2 py-0.5 rounded-full" style={{ fontSize: '0.65rem' }}>{lead.source}</span>
+                    <span className="text-text-muted border border-white/5 bg-white/4 px-2 py-0.5 rounded-full" style={{ fontSize: '0.65rem' }}>{lead.source}</span>
                     {lead.guideDownloaded && <span className="ml-1 text-blue-400 border border-blue-400/20 bg-blue-400/8 px-2 py-0.5 rounded-full" style={{ fontSize: '0.65rem' }}>guia</span>}
                   </div>
                   <p className="text-text-muted flex-shrink-0 hidden md:block" style={{ fontSize: '0.68rem' }}>{lead.createdAt.split('T')[0]}</p>

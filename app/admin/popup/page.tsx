@@ -159,7 +159,7 @@ export default function AdminPopupPage() {
               key={v}
               onClick={() => setConfig((c) => ({ ...c, trigger: v }))}
               className={`flex flex-col items-center gap-2 py-4 rounded-xl border text-xs font-medium transition-all ${
-                config.trigger === v ? 'border-accent/40 bg-accent/10 text-accent' : 'border-white/8 text-text-muted hover:border-white/20'
+                config.trigger === v ? 'border-accent/40 bg-accent/10 text-accent' : 'border-white/5 text-text-muted hover:border-white/20'
               }`}
             >
               <Icon size={16} />
@@ -206,7 +206,7 @@ export default function AdminPopupPage() {
               key={v}
               onClick={() => setConfig((c) => ({ ...c, frequency: v }))}
               className={`py-3 rounded-xl border text-xs font-medium transition-all ${
-                config.frequency === v ? 'border-accent/40 bg-accent/10 text-accent' : 'border-white/8 text-text-muted hover:border-white/20'
+                config.frequency === v ? 'border-accent/40 bg-accent/10 text-accent' : 'border-white/5 text-text-muted hover:border-white/20'
               }`}
             >
               {label}
@@ -238,7 +238,7 @@ export default function AdminPopupPage() {
               key={v}
               onClick={() => setConfig((c) => ({ ...c, pageScope: v }))}
               className={`py-3 rounded-xl border text-xs font-medium transition-all ${
-                config.pageScope === v ? 'border-accent/40 bg-accent/10 text-accent' : 'border-white/8 text-text-muted hover:border-white/20'
+                config.pageScope === v ? 'border-accent/40 bg-accent/10 text-accent' : 'border-white/5 text-text-muted hover:border-white/20'
               }`}
             >
               {label}
@@ -250,7 +250,7 @@ export default function AdminPopupPage() {
           <div className="space-y-2">
             <div className="flex flex-wrap gap-2">
               {config.pagePaths.map((p) => (
-                <span key={p} className="flex items-center gap-1.5 bg-white/5 border border-white/8 rounded-full px-3 py-1.5 text-xs text-text-secondary">
+                <span key={p} className="flex items-center gap-1.5 bg-white/5 border border-white/5 rounded-full px-3 py-1.5 text-xs text-text-secondary">
                   {p}
                   <button onClick={() => removePath(p)} className="text-text-muted hover:text-red-400">
                     <X size={11} />
@@ -289,7 +289,7 @@ export default function AdminPopupPage() {
           <div className="flex items-center gap-3">
             {config.imageUrl && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={config.imageUrl} alt="" className="w-16 h-16 rounded-lg object-cover border border-white/8" />
+              <img src={config.imageUrl} alt="" className="w-16 h-16 rounded-lg object-cover border border-white/5" />
             )}
             <button
               onClick={() => imgRef.current?.click()}
@@ -320,7 +320,7 @@ export default function AdminPopupPage() {
               key={v}
               onClick={() => setConfig((c) => ({ ...c, incentiveType: v }))}
               className={`flex flex-col items-center gap-2 py-4 rounded-xl border text-xs font-medium transition-all ${
-                config.incentiveType === v ? 'border-accent/40 bg-accent/10 text-accent' : 'border-white/8 text-text-muted hover:border-white/20'
+                config.incentiveType === v ? 'border-accent/40 bg-accent/10 text-accent' : 'border-white/5 text-text-muted hover:border-white/20'
               }`}
             >
               <Icon size={16} />

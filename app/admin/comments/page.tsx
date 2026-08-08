@@ -69,7 +69,7 @@ export default function AdminComments() {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex rounded-xl overflow-hidden border border-white/8 w-fit">
+      <div className="flex rounded-xl overflow-hidden border border-white/5 w-fit">
         {([
           { val: 'pending', label: `Pendentes${pendingCount > 0 ? ` (${pendingCount})` : ''}` },
           { val: 'approved', label: 'Aprovados' },

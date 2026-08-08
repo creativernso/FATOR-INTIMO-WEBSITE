@@ -107,7 +107,7 @@ export default function AdminMarqueePage() {
           onChange={(e) => setNewText(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
           placeholder="Nova frase emocional..."
-          className="flex-1 bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/40 transition-colors"
+          className="flex-1 bg-white/4 border border-white/5 rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/40 transition-colors"
         />
         <button
           onClick={handleAdd}
@@ -130,7 +130,7 @@ export default function AdminMarqueePage() {
             <div
               key={phrase.id}
               className={`flex items-center gap-3 p-4 rounded-2xl border transition-all ${
-                phrase.active ? 'border-white/8 bg-surface' : 'border-white/4 bg-white/2 opacity-50'
+                phrase.active ? 'border-white/5 bg-surface' : 'border-white/4 bg-white/2 opacity-50'
               }`}
             >
               <GripVertical size={14} className="text-text-muted flex-shrink-0 cursor-grab" />
