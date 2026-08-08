@@ -1,8 +1,8 @@
-import { TrendingUp, Users, FileText, Package, ShoppingBag, BookOpen, Heart, MessageSquare, Download, Star, Eye, ExternalLink, Activity, MapPin, Megaphone, type LucideIcon } from 'lucide-react';
+import { TrendingUp, Users, FileText, Package, ShoppingBag, BookOpen, Heart, MessageSquare, Download, Star, Eye, ExternalLink, Activity, MapPin, Megaphone, Filter, ChevronRight, type LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { getPosts, getLeads, getTestimonials, getGuides, getCommunityPosts, getPageViewTotals } from '@/lib/db';
-import { getOrders } from '@/lib/orders';
+import { getPosts, getLeads, getTestimonials, getGuides, getCommunityPosts, getPageViewTotals, getPageViewsByPath, getProducts } from '@/lib/db';
+import { getOrders, getAbandonedCheckouts } from '@/lib/orders';
 import { AnalyticsFilterBar } from './AnalyticsFilterBar';
 import { LiveView } from './LiveView';
 import { countryCodeToFlag, countryName } from '@/lib/geo';
@@ -83,7 +83,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
   const daysParam = sp.days || '30';
   const days = daysParam === 'all' ? null : parseInt(daysParam, 10);
 
-  const [posts, leads, testimonials, guides, allCommunityPosts, orders, pageViewDocs, pixelStats, purchaseMatchQuality] = await Promise.all([
+  const [posts, leads, testimonials, guides, allCommunityPosts, orders, pageViewDocs, pixelStats, purchaseMatchQuality, products, abandonedCheckouts, productViews] = await Promise.all([
     getPosts(),
     getLeads(),
     getTestimonials(),
@@ -93,6 +93,9 @@ export default async function AnalyticsPage({ searchParams }: Props) {
     getPageViewTotals(days ?? 365),
     getPixelEventCounts(),
     getPurchaseMatchQuality(),
+    getProducts(),
+    getAbandonedCheckouts(),
+    getPageViewsByPath(days ?? 365),
   ]);
 
   const totalPageViews = pageViewDocs.reduce((s, d) => s + d.total, 0);
@@ -142,6 +145,29 @@ export default async function AnalyticsPage({ searchParams }: Props) {
     .map(([title, v]) => ({ title, count: v.count, revenue: v.revenue / 100 }))
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 5);
+
+  // Conversion funnel per product: views → checkout started → purchased.
+  // "Checkout started" = every Stripe Checkout Session ever created for the
+  // product, whether it completed (order) or expired (abandonedCheckout).
+  const filteredAbandoned = filterByDays(abandonedCheckouts, days);
+  const pct = (n: number | null) => (n === null ? '–' : `${n.toFixed(1)}%`);
+  const funnelByProduct = products
+    .map((p) => {
+      const views = productViews[`__products__${p.slug}`] || 0;
+      const purchased = filteredOrders.filter((o) => o.productId === p.id).length;
+      const checkoutsStarted = purchased + filteredAbandoned.filter((c) => c.productId === p.id).length;
+      return {
+        slug: p.slug,
+        title: p.title,
+        views,
+        checkoutsStarted,
+        purchased,
+        viewToCheckout: views > 0 ? (checkoutsStarted / views) * 100 : null,
+        checkoutToPurchase: checkoutsStarted > 0 ? (purchased / checkoutsStarted) * 100 : null,
+      };
+    })
+    .filter((f) => f.views > 0 || f.checkoutsStarted > 0)
+    .sort((a, b) => b.views - a.views);
 
   // Sessions by country, aggregated across the fetched pageview docs
   const countryTotals: Record<string, number> = {};
@@ -371,6 +397,50 @@ export default async function AnalyticsPage({ searchParams }: Props) {
                   <p className="font-body font-semibold text-green-400 flex-shrink-0" style={{ fontSize: 'clamp(0.85rem, 1vw, 0.95rem)' }}>
                     R$ {p.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Conversion funnel per product */}
+        {funnelByProduct.length > 0 && (
+          <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden">
+            <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#06b6d418', border: '1px solid #06b6d438' }}>
+                <Filter size={15} style={{ color: '#06b6d4' }} />
+              </div>
+              <div>
+                <h3 className="text-text-primary font-medium" style={{ fontSize: 'clamp(0.9rem, 1.05vw, 1rem)' }}>Funil de conversão</h3>
+                <p className="text-text-muted mt-0.5" style={{ fontSize: 'clamp(0.7rem, 0.8vw, 0.75rem)' }}>Visualizações → checkout iniciado → compra, por produto</p>
+              </div>
+            </div>
+            <div className="divide-y divide-white/[0.04]">
+              {funnelByProduct.map((f) => (
+                <div key={f.slug} className="px-5 py-4">
+                  <p className="text-text-secondary font-medium truncate mb-3" style={{ fontSize: 'clamp(0.8rem, 0.9vw, 0.875rem)' }}>{f.title}</p>
+                  <div className="flex items-center">
+                    <div className="flex-1 text-center">
+                      <p className="font-body font-semibold text-text-primary" style={{ fontSize: 'clamp(1rem, 1.2vw, 1.15rem)' }}>{f.views.toLocaleString('pt-BR')}</p>
+                      <p className="text-text-muted mt-0.5" style={{ fontSize: '10px' }}>visualizações</p>
+                    </div>
+                    <div className="flex flex-col items-center flex-shrink-0 w-16">
+                      <ChevronRight size={13} className="text-text-muted" />
+                      <span className="text-text-muted mt-0.5" style={{ fontSize: '9.5px' }}>{pct(f.viewToCheckout)}</span>
+                    </div>
+                    <div className="flex-1 text-center">
+                      <p className="font-body font-semibold" style={{ fontSize: 'clamp(1rem, 1.2vw, 1.15rem)', color: '#3b82f6' }}>{f.checkoutsStarted}</p>
+                      <p className="text-text-muted mt-0.5" style={{ fontSize: '10px' }}>checkout iniciado</p>
+                    </div>
+                    <div className="flex flex-col items-center flex-shrink-0 w-16">
+                      <ChevronRight size={13} className="text-text-muted" />
+                      <span className="text-text-muted mt-0.5" style={{ fontSize: '9.5px' }}>{pct(f.checkoutToPurchase)}</span>
+                    </div>
+                    <div className="flex-1 text-center">
+                      <p className="font-body font-semibold text-green-400" style={{ fontSize: 'clamp(1rem, 1.2vw, 1.15rem)' }}>{f.purchased}</p>
+                      <p className="text-text-muted mt-0.5" style={{ fontSize: '10px' }}>comprado</p>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
