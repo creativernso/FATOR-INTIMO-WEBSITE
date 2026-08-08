@@ -86,7 +86,7 @@ export function LiveView() {
 
         <div className="grid grid-cols-3 gap-3 content-start">
           {funnel.map((f) => (
-            <div key={f.label} className="rounded-xl border border-[#3a3a40] bg-white/2 px-3 py-4 flex flex-col items-center text-center">
+            <div key={f.label} className="rounded-xl border bg-white/2 px-3 py-4 flex flex-col items-center text-center" style={{ borderColor: `${f.accent}40` }}>
               <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-2" style={{ background: `${f.accent}18`, border: `1px solid ${f.accent}28` }}>
                 <f.icon size={14} style={{ color: f.accent }} />
               </div>

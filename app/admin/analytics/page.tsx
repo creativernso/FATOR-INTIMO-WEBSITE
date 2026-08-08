@@ -253,7 +253,8 @@ export default async function AnalyticsPage({ searchParams }: Props) {
             <Link
               key={stat.label}
               href={stat.href}
-              className="relative rounded-2xl border border-[#3a3a40] bg-surface p-5 hover:border-[#55555c] hover:scale-[1.01] transition-all duration-300 group overflow-hidden"
+              className="relative rounded-2xl border bg-surface p-5 hover:scale-[1.01] transition-all duration-300 group overflow-hidden"
+              style={{ borderColor: `${stat.accent}40` }}
             >
               <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full opacity-15 blur-xl" style={{ background: stat.accent }} />
               <div className="relative">
