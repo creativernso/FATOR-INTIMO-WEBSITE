@@ -6,12 +6,18 @@ import { getVideoEmbed } from '@/lib/video-embed';
 
 interface Props {
   url?: string;
+  onPlayingChange?: (playing: boolean) => void;
 }
 
-export default function UGCVideo({ url }: Props) {
+export default function UGCVideo({ url, onPlayingChange }: Props) {
   const [playing, setPlaying] = useState(false);
   const [thumb, setThumb] = useState<string | null>(null);
   const embed = url ? getVideoEmbed(url) : null;
+
+  useEffect(() => {
+    onPlayingChange?.(playing);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playing]);
 
   useEffect(() => {
     if (!embed) return;
