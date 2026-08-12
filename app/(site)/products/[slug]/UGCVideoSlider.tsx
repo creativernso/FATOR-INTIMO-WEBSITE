@@ -19,11 +19,11 @@ export default function UGCVideoSlider({ urls }: Props) {
   const [hovered, setHovered] = useState(false);
   const [anyPlaying, setAnyPlaying] = useState(0);
 
-  // Drifts the row left -> right on a loop, pausing while the visitor is
-  // hovering/touching it or actually watching one of the videos (so a
-  // playing video never scrolls out from under them). setInterval rather
-  // than requestAnimationFrame, since rAF is fully paused by the browser on
-  // background/inactive tabs and this should still creep along there.
+  // The track renders the video list twice back to back. To loop, once the
+  // scroll position passes the width of ONE copy we jump back by exactly
+  // that width instead of resetting to 0 — since the second copy is
+  // pixel-identical to the first, that jump is invisible and the row keeps
+  // drifting rightward forever instead of snapping backward.
   useEffect(() => {
     if (!canAutoScroll) return;
     const el = trackRef.current;
@@ -36,10 +36,12 @@ export default function UGCVideoSlider({ urls }: Props) {
       lastTs = now;
 
       if (hovered || anyPlaying > 0) return;
-      const maxScroll = el.scrollWidth - el.clientWidth;
-      if (maxScroll <= 0) return;
-      const next = el.scrollLeft + SCROLL_SPEED_PX_PER_SEC * dt;
-      el.scrollLeft = next >= maxScroll ? 0 : next;
+      const oneSetWidth = el.scrollWidth / 2;
+      if (oneSetWidth <= el.clientWidth) return;
+
+      let next = el.scrollLeft + SCROLL_SPEED_PX_PER_SEC * dt;
+      if (next >= oneSetWidth) next -= oneSetWidth;
+      el.scrollLeft = next;
     }, 30);
     return () => clearInterval(id);
   }, [canAutoScroll, hovered, anyPlaying]);
@@ -47,6 +49,8 @@ export default function UGCVideoSlider({ urls }: Props) {
   if (slides.length === 1) {
     return <UGCVideo url={slides[0]} />;
   }
+
+  const track = canAutoScroll ? [...slides, ...slides] : slides;
 
   return (
     <div
@@ -57,7 +61,7 @@ export default function UGCVideoSlider({ urls }: Props) {
       onTouchEnd={() => setHovered(false)}
       className="flex gap-5 overflow-x-auto pb-4 scrollbar-none -mx-6 px-6"
     >
-      {slides.map((url, i) => (
+      {track.map((url, i) => (
         <div key={i} className="flex-shrink-0 w-[240px] sm:w-[280px]">
           <UGCVideo
             url={url}
