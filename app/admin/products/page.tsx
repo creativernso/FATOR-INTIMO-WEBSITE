@@ -23,7 +23,7 @@ const emptyForm = {
   whatYouLearn: '',
   forWho: '',
   videoUrl: '',
-  ugcVideoUrl: '',
+  ugcVideoUrls: ['', '', ''] as string[],
   countdownEnabled: false,
   countdownEndsAt: '',
   countdownText: '',
@@ -72,7 +72,10 @@ export default function AdminProducts() {
       whatYouLearn: (product.whatYouLearn || []).join('\n'),
       forWho: (product.forWho || []).join('\n'),
       videoUrl: product.videoUrl || '',
-      ugcVideoUrl: product.ugcVideoUrl || '',
+      ugcVideoUrls: (() => {
+        const existing = product.ugcVideoUrls?.length ? product.ugcVideoUrls : product.ugcVideoUrl ? [product.ugcVideoUrl] : [];
+        return [existing[0] || '', existing[1] || '', existing[2] || ''];
+      })(),
       countdownEnabled: product.countdownEnabled || false,
       countdownEndsAt: product.countdownEndsAt || '',
       countdownText: product.countdownText || '',
@@ -94,6 +97,7 @@ export default function AdminProducts() {
       benefits: splitLines(form.benefits),
       whatYouLearn: splitLines(form.whatYouLearn),
       forWho: splitLines(form.forWho),
+      ugcVideoUrls: form.ugcVideoUrls.map((u) => u.trim()).filter(Boolean),
     };
 
     if (editingId) {
@@ -328,15 +332,34 @@ export default function AdminProducts() {
 
               {/* UGC vertical video */}
               <div className="border-t border-white/[0.04] pt-5">
-                <p className="text-text-primary text-xs font-medium mb-1 tracking-wide uppercase opacity-60">Vídeo vertical (depoimento)</p>
+                <p className="text-text-primary text-xs font-medium mb-1 tracking-wide uppercase opacity-60">Vídeos verticais (depoimentos)</p>
                 <p className="text-text-muted text-xs mb-3">
-                  Vídeo 9:16 exibido logo após o primeiro botão de compra, na seção "Ainda está em dúvida?". Recomendado: envie o arquivo do vídeo, YouTube/Vimeo sempre mostram o título e o canal por cima do vídeo.
+                  Até 3 vídeos 9:16 exibidos em slide logo após o primeiro botão de compra, na seção "Ainda está em dúvida?". Recomendado: envie o arquivo do vídeo, YouTube/Vimeo sempre mostram o título e o canal por cima do vídeo.
                 </p>
-                <div className="mb-3">
-                  <UploadVideo onUploaded={(url) => setForm((f) => ({ ...f, ugcVideoUrl: url }))} />
+                <div className="space-y-4">
+                  {form.ugcVideoUrls.map((url, i) => (
+                    <div key={i} className="border border-white/[0.06] rounded-xl p-3">
+                      <p className="text-text-muted text-xs mb-2">Vídeo {i + 1}</p>
+                      <div className="mb-2">
+                        <UploadVideo onUploaded={(newUrl) => setForm((f) => {
+                          const next = [...f.ugcVideoUrls];
+                          next[i] = newUrl;
+                          return { ...f, ugcVideoUrls: next };
+                        })} />
+                      </div>
+                      <input
+                        className="admin-input"
+                        value={url}
+                        onChange={(e) => setForm((f) => {
+                          const next = [...f.ugcVideoUrls];
+                          next[i] = e.target.value;
+                          return { ...f, ugcVideoUrls: next };
+                        })}
+                        placeholder="Ou cole a URL (YouTube, Vimeo ou MP4)"
+                      />
+                    </div>
+                  ))}
                 </div>
-                <label className="text-text-muted text-xs mb-1.5 block">Ou cole a URL (YouTube, Vimeo ou MP4)</label>
-                <input className="admin-input" value={form.ugcVideoUrl} onChange={(e) => setForm({ ...form, ugcVideoUrl: e.target.value })} placeholder="https://youtube.com/shorts/... ou https://exemplo.com/video.mp4" />
               </div>
 
               {/* Countdown */}

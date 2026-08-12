@@ -36,8 +36,12 @@ export interface Product {
   downloadUrl?: string;
   // Sales video
   videoUrl?: string;
-  // Vertical (9:16) UGC testimonial video, shown right after the first buy button
+  // Vertical (9:16) UGC testimonial videos, shown as a slider right after the
+  // first buy button (up to 3). ugcVideoUrl is the older single-video field,
+  // kept for backward compatibility with products configured before the
+  // slider existed.
   ugcVideoUrl?: string;
+  ugcVideoUrls?: string[];
   // Urgency countdown
   countdownEnabled?: boolean;
   countdownEndsAt?: string;   // ISO date string

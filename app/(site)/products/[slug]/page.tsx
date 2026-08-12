@@ -9,7 +9,7 @@ import AnimateOnScroll from '@/components/AnimateOnScroll';
 import BuyButton from './BuyButton';
 import FAQAccordion from './FAQAccordion';
 import CountdownTimer from './CountdownTimer';
-import UGCVideo from './UGCVideo';
+import UGCVideoSlider from './UGCVideoSlider';
 import ProductEvents from './ProductEvents';
 import StarRating from '@/components/StarRating';
 import ReviewSection from '@/components/ReviewSection';
@@ -140,6 +140,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const discount = product.originalPrice
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : null;
+  const ugcVideos = product.ugcVideoUrls?.length
+    ? product.ugcVideoUrls
+    : product.ugcVideoUrl
+      ? [product.ugcVideoUrl]
+      : [];
 
   return (
     <div className="min-h-screen">
@@ -325,7 +330,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <p className="text-text-secondary text-sm sm:text-base leading-relaxed mb-8">
               Assista ao relato de quem também acreditava que o problema era ela.
             </p>
-            <UGCVideo url={product.ugcVideoUrl} />
+            <UGCVideoSlider urls={ugcVideos} />
             <p className="text-text-muted text-xs italic mt-5 max-w-xs mx-auto">
               História baseada em uma experiência real compartilhada por uma leitora.
             </p>
