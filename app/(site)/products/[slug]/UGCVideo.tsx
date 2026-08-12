@@ -87,7 +87,7 @@ export default function UGCVideo({ url }: Props) {
           <button
             onClick={() => embed && setPlaying(true)}
             disabled={!embed}
-            className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/20 transition-colors group disabled:cursor-default disabled:hover:bg-black/30"
+            className="absolute inset-0 flex items-center justify-center hover:bg-black/10 transition-colors group disabled:cursor-default"
             aria-label="Reproduzir vídeo"
           >
             <div className="w-16 h-16 rounded-full bg-accent/90 group-enabled:group-hover:bg-accent flex items-center justify-center shadow-xl shadow-accent/30 group-enabled:group-hover:scale-110 transition-transform">
