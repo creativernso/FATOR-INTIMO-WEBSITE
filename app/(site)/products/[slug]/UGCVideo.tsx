@@ -6,19 +6,12 @@ import { getVideoEmbed } from '@/lib/video-embed';
 
 interface Props {
   url?: string;
-  active?: boolean;
 }
 
-export default function UGCVideo({ url, active = true }: Props) {
+export default function UGCVideo({ url }: Props) {
   const [playing, setPlaying] = useState(false);
   const [thumb, setThumb] = useState<string | null>(null);
   const embed = url ? getVideoEmbed(url) : null;
-
-  // Stop playback when this card is swiped away in the slider, so audio from
-  // an off-screen slide doesn't keep running.
-  useEffect(() => {
-    if (!active) setPlaying(false);
-  }, [active]);
 
   useEffect(() => {
     if (!embed) return;
