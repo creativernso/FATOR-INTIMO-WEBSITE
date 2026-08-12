@@ -322,14 +322,16 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
       {/* ── UGC TESTIMONIAL VIDEO ── */}
       <section className="py-14 px-6 border-t border-white/5">
-        <div className="max-w-md mx-auto text-center">
+        <div className="max-w-6xl mx-auto text-center">
           <AnimateOnScroll>
-            <h2 className="font-heading text-2xl sm:text-3xl font-medium text-accent mb-2">
-              Ainda está em dúvida?
-            </h2>
-            <p className="text-text-secondary text-sm sm:text-base leading-relaxed mb-8">
-              Assista ao relato de quem também acreditava que o problema era ela.
-            </p>
+            <div className="max-w-md mx-auto">
+              <h2 className="font-heading text-2xl sm:text-3xl font-medium text-accent mb-2">
+                Ainda está em dúvida?
+              </h2>
+              <p className="text-text-secondary text-sm sm:text-base leading-relaxed mb-8">
+                Assista ao relato de quem também acreditava que o problema era ela.
+              </p>
+            </div>
             <UGCVideoSlider urls={ugcVideos} />
             <p className="text-text-muted text-xs italic mt-5 max-w-xs mx-auto">
               História baseada em uma experiência real compartilhada por uma leitora.

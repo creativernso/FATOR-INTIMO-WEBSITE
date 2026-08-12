@@ -16,9 +16,9 @@ export default function UGCVideoSlider({ urls }: Props) {
   }
 
   return (
-    <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory justify-center">
+    <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory -mx-6 px-6">
       {slides.map((url, i) => (
-        <div key={i} className="flex-shrink-0 w-[220px] sm:w-[260px] snap-center">
+        <div key={i} className="flex-shrink-0 w-[240px] sm:w-[280px] snap-center">
           <UGCVideo url={url} />
         </div>
       ))}
