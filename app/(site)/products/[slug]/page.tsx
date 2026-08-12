@@ -324,16 +324,16 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       <section className="py-14 px-6 border-t border-white/5">
         <div className="max-w-6xl mx-auto text-center">
           <AnimateOnScroll>
-            <div className="max-w-md mx-auto">
+            <div className="max-w-md sm:max-w-xl mx-auto">
               <h2 className="font-heading text-2xl sm:text-3xl font-medium text-accent mb-2">
                 Ainda está em dúvida?
               </h2>
-              <p className="text-text-secondary text-sm sm:text-base leading-relaxed mb-8">
+              <p className="text-text-secondary text-sm sm:text-base leading-relaxed mb-8 sm:whitespace-nowrap">
                 Assista ao relato de quem também acreditava que o problema era ela.
               </p>
             </div>
             <UGCVideoSlider urls={ugcVideos} />
-            <p className="text-text-muted text-xs italic mt-5 max-w-xs mx-auto">
+            <p className="text-text-muted text-xs italic mt-5 max-w-xs sm:max-w-none mx-auto sm:whitespace-nowrap">
               História baseada em uma experiência real compartilhada por uma leitora.
             </p>
           </AnimateOnScroll>
