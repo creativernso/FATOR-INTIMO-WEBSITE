@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     downloadUrl: body.downloadUrl || '',
     videoUrl: body.videoUrl || undefined,
     ugcVideoUrl: body.ugcVideoUrl || undefined,
-    ugcVideoUrls: Array.isArray(body.ugcVideoUrls) ? body.ugcVideoUrls.filter(Boolean).slice(0, 3) : undefined,
+    ugcVideoUrls: Array.isArray(body.ugcVideoUrls) ? body.ugcVideoUrls.filter(Boolean).slice(0, 4) : undefined,
     countdownEnabled: Boolean(body.countdownEnabled),
     countdownEndsAt: body.countdownEndsAt || undefined,
     countdownText: body.countdownText || undefined,

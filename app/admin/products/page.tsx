@@ -23,7 +23,7 @@ const emptyForm = {
   whatYouLearn: '',
   forWho: '',
   videoUrl: '',
-  ugcVideoUrls: ['', '', ''] as string[],
+  ugcVideoUrls: ['', '', '', ''] as string[],
   countdownEnabled: false,
   countdownEndsAt: '',
   countdownText: '',
@@ -74,7 +74,7 @@ export default function AdminProducts() {
       videoUrl: product.videoUrl || '',
       ugcVideoUrls: (() => {
         const existing = product.ugcVideoUrls?.length ? product.ugcVideoUrls : product.ugcVideoUrl ? [product.ugcVideoUrl] : [];
-        return [existing[0] || '', existing[1] || '', existing[2] || ''];
+        return [existing[0] || '', existing[1] || '', existing[2] || '', existing[3] || ''];
       })(),
       countdownEnabled: product.countdownEnabled || false,
       countdownEndsAt: product.countdownEndsAt || '',
@@ -334,7 +334,7 @@ export default function AdminProducts() {
               <div className="border-t border-white/[0.04] pt-5">
                 <p className="text-text-primary text-xs font-medium mb-1 tracking-wide uppercase opacity-60">Vídeos verticais (depoimentos)</p>
                 <p className="text-text-muted text-xs mb-3">
-                  Até 3 vídeos 9:16 exibidos em slide logo após o primeiro botão de compra, na seção "Ainda está em dúvida?". Recomendado: envie o arquivo do vídeo, YouTube/Vimeo sempre mostram o título e o canal por cima do vídeo.
+                  Até 4 vídeos 9:16 exibidos em slide logo após o primeiro botão de compra, na seção "Ainda está em dúvida?". Recomendado: envie o arquivo do vídeo, YouTube/Vimeo sempre mostram o título e o canal por cima do vídeo.
                 </p>
                 <div className="space-y-4">
                   {form.ugcVideoUrls.map((url, i) => (

@@ -37,7 +37,7 @@ export interface Product {
   // Sales video
   videoUrl?: string;
   // Vertical (9:16) UGC testimonial videos, shown as a slider right after the
-  // first buy button (up to 3). ugcVideoUrl is the older single-video field,
+  // first buy button (up to 4). ugcVideoUrl is the older single-video field,
   // kept for backward compatibility with products configured before the
   // slider existed.
   ugcVideoUrl?: string;
