@@ -6,6 +6,7 @@ import { ArrowRight, CheckCircle, X, Download } from 'lucide-react';
 import AnimateOnScroll from '@/components/AnimateOnScroll';
 import { GuideConfig } from '@/lib/types';
 import { trackLead } from '@/lib/fbq';
+import { trackLead as trackLeadTikTok } from '@/lib/ttq';
 import { getStoredUtm } from '@/lib/utm';
 
 interface Props {
@@ -50,6 +51,7 @@ export default function FreeGuideClient({ config }: Props) {
           currency: 'BRL',
           eventID: data?.metaEventId,
         });
+        trackLeadTikTok({ content_name: 'Free Guide', value: 0, currency: 'BRL' });
         setStep('success');
       } else {
         setError('Erro ao enviar. Tente novamente.');

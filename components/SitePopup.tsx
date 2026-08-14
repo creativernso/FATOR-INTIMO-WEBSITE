@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { X, ArrowRight, CheckCircle, Copy, Check } from 'lucide-react';
 import { trackLead } from '@/lib/fbq';
+import { trackLead as trackLeadTikTok } from '@/lib/ttq';
 import { getStoredUtm } from '@/lib/utm';
 import { getOrCreateVisitorId } from '@/lib/visitor-id';
 import { PopupConfig } from '@/lib/types';
@@ -133,6 +134,7 @@ export default function SitePopup() {
       if (res.ok) {
         const data = await res.json().catch(() => null);
         trackLead({ content_name: 'Popup', value: 0, currency: 'BRL', eventID: data?.metaEventId });
+        trackLeadTikTok({ content_name: 'Popup', value: 0, currency: 'BRL' });
         setDownloadUrl(data?.downloadUrl);
         setStep('success');
       } else {

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ShoppingBag, Loader2 } from 'lucide-react';
 import { trackInitiateCheckout } from '@/lib/fbq';
+import { trackInitiateCheckout as trackInitiateCheckoutTikTok } from '@/lib/ttq';
 import { getOrCreateVisitorId } from '@/lib/visitor-id';
 import { getStoredUtm } from '@/lib/utm';
 import { getStoredAffiliateCode } from '@/lib/affiliate-ref';
@@ -15,6 +16,7 @@ export default function BuyButton({ productId, label = 'Começar agora' }: { pro
     setLoading(true);
     setError('');
     trackInitiateCheckout({ content_ids: [productId], currency: 'BRL' });
+    trackInitiateCheckoutTikTok({ content_id: productId, currency: 'BRL' });
     try {
       const res = await fetch('/api/checkout/create-session', {
         method: 'POST',

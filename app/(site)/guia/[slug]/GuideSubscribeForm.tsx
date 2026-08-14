@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Download, Users, Check } from 'lucide-react';
 import { trackLead } from '@/lib/fbq';
+import { trackLead as trackLeadTikTok } from '@/lib/ttq';
 import { getStoredUtm } from '@/lib/utm';
 import { getOrCreateVisitorId } from '@/lib/visitor-id';
 
@@ -63,6 +64,7 @@ export default function GuideSubscribeForm({
         currency: 'BRL',
         eventID: data.metaEventId,
       });
+      trackLeadTikTok({ content_name: 'Guide Download', value: 0, currency: 'BRL' });
       if (data.downloadUrl) setDownloadUrl(data.downloadUrl);
       setStep('success');
     } catch {

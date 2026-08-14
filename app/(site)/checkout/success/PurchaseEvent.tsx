@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { trackPurchase } from '@/lib/fbq';
+import { trackPurchase as trackPurchaseMeta } from '@/lib/fbq';
+import { trackPurchase as trackPurchaseTikTok } from '@/lib/ttq';
 
 interface Props {
   sessionId: string;
@@ -33,21 +34,28 @@ export default function PurchaseEvent({ sessionId, productId, productName, value
 
     let cancelled = false;
     let waited = 0;
+    let metaFired = false;
+    let tiktokFired = false;
     const tryFire = () => {
       if (cancelled) return;
-      if (typeof window.fbq !== 'function') {
-        waited += POLL_INTERVAL_MS;
-        if (waited < MAX_WAIT_MS) setTimeout(tryFire, POLL_INTERVAL_MS);
-        return;
+      if (!metaFired && typeof window.fbq === 'function') {
+        trackPurchaseMeta({
+          content_ids: productId ? [productId] : undefined,
+          content_name: productName,
+          value,
+          currency: 'BRL',
+          // Same event_id as the server-side CAPI Purchase call so Meta dedupes.
+          eventID: `purchase-${sessionId}`,
+        });
+        metaFired = true;
       }
-      trackPurchase({
-        content_ids: productId ? [productId] : undefined,
-        content_name: productName,
-        value,
-        currency: 'BRL',
-        // Same event_id as the server-side CAPI Purchase call so Meta dedupes.
-        eventID: `purchase-${sessionId}`,
-      });
+      if (!tiktokFired && typeof window.ttq?.track === 'function') {
+        trackPurchaseTikTok({ content_id: productId, content_name: productName, value, currency: 'BRL' });
+        tiktokFired = true;
+      }
+      if (metaFired && tiktokFired) return;
+      waited += POLL_INTERVAL_MS;
+      if (waited < MAX_WAIT_MS) setTimeout(tryFire, POLL_INTERVAL_MS);
     };
     tryFire();
 
